@@ -20,6 +20,8 @@ package game.application.startup
 	import game.services.device.DeviceManagerEvents;
 	import game.services.interfaces.IDeviceManager;
 	import game.services.interfaces.ISQLManager;
+	import game.services.interfaces.IServerConnection;
+	import game.services.net.ServerConnectionEvent;
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
@@ -31,6 +33,8 @@ package game.application.startup
 		private var _deviceInfo:				DeviceInfo;
 		private var _userDataProxy:				IUserDataProxy;
 		private var _userData:					UserData;
+		
+		private var _serverConnection:			IServerConnection;
 		
 		public function StartupProxy(proxyName:String)
 		{
@@ -192,7 +196,38 @@ package game.application.startup
 				}
 			}
 			
-			this.sendNotification(STARTUP_COMPLETE);
+			
+			connectToServer();
+			
+			//this.sendNotification(STARTUP_COMPLETE);
+		}
+		
+		
+		private function connectToServer():void
+		{
+			_serverConnection = ServicesList.getSearvice( ServicesList.SERVER_CONNECTION ) as IServerConnection;
+			_serverConnection.addEventListener(ServerConnectionEvent.CONNECTION_INIT, handlerConnectionInitComplete);
+			_serverConnection.initConnection(AppGlobalVariables.CONNECTION_TYPE, AppGlobalVariables.SERVER_URL, AppGlobalVariables.SERVER_PORT);
+		}
+		
+		
+		private function handlerConnectionInitComplete(e:Event):void
+		{
+			_serverConnection.removeEventListener(ServerConnectionEvent.CONNECTION_INIT, handlerConnectionInitComplete);
+			_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
+			_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
+			_serverConnection.signIn( _userData.getValue("deviceID"), _userData.getValue("name") );
+		}
+		
+		
+		private function handlerSignInComplete(e:Event):void
+		{
+			trace("handlerSignInComplete")
+		}
+		
+		private function handlerSignInError(e:Event):void
+		{
+			trace("handlerSignInError")
 		}
 	}
 }

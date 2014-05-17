@@ -11,6 +11,7 @@ package game.application.commands
 	import game.core.GameCoreManager;
 	import game.services.ServicesList;
 	import game.services.device.DeviceManager;
+	import game.services.net.ServerConnectionInterface;
 	import game.services.sql.SQLManager;
 	
 	import org.puremvc.as3.interfaces.INotification;
@@ -56,6 +57,7 @@ package game.application.commands
 		{
 			SQLManager.init();
 			DeviceManager.init();
+			ServerConnectionInterface.init();
 			
 			this.facade.registerProxy(new AssetProxy(ProxyList.ASSET_PROXY) );
 			this.facade.registerProxy(new UserDataProxy(ProxyList.USER_DATA_PROXY) );
