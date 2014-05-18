@@ -23,7 +23,6 @@ package game.services.net
 		public function pushData(obj:Object):void
 		{
 			_sendData = obj;
-			_sendData["rnd"] = _requestID;
 		}
 		
 		

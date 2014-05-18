@@ -9,6 +9,8 @@ package game.services.net.http
 
 	public class HTTPRequest
 	{
+		private static const MAX_ATTEMPT:		uint = 10;
+		
 		private var _url:		String;
 		private var _data:		Object;
 		private var _vars:		URLVariables;
@@ -49,8 +51,11 @@ package game.services.net.http
 				_loader.removeEventListener(IOErrorEvent.IO_ERROR, handlerError);
 			}
 			
+			trace("sendRequest");
+			
 			var req:URLRequest = new URLRequest(_url);
 			req.data = _vars;
+			req.data["rnd"] = Math.random();
 			req.method = URLRequestMethod.GET;
 			
 			_loader = new URLLoader();
@@ -62,12 +67,19 @@ package game.services.net.http
 		
 		private function handlerComplete(e:Event):void
 		{
-			trace("handlerComplete", _loader.data)
+			if(_onComplete != null) _onComplete(_loader.data);
 		}
 		
 		private function handlerError(e:IOErrorEvent):void
 		{
 			trace("handlerError");
+			
+			_repeatCount ++;
+			if(_repeatCount < MAX_ATTEMPT) sendRequest();
+			else
+			{
+				if(_onError != null) _onError();
+			}
 		}
 	}
 }

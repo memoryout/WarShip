@@ -58,7 +58,7 @@ package game.services.net.http
 		
 		private function onError():void
 		{
-			
+			trace("bar request");
 		}
 	}
 }
