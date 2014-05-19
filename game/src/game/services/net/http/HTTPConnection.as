@@ -50,15 +50,21 @@ package game.services.net.http
 			}
 		}
 		
-		private function onComplete():void
+		private function onComplete(data:String):void
 		{
+			var obj:Object = JSON.parse(data);
+			_currentRequest.setResult(obj);
+			this.onCompleteRequest( _currentRequest );
 			
+			_idle = true;
+			_currentRequest = null;
+			trySendRequest();
 		}
 		
 		
 		private function onError():void
 		{
-			trace("bar request");
+			trace("bad request");
 		}
 	}
 }

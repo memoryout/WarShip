@@ -6,28 +6,44 @@ package game.activity.view.application
 	
 	public class ApplicationView extends Sprite
 	{
-		private var _gameView:				GameView;
-		
-		private var _mediator:				ApplicationMediator;
+		private var _gameViewLayer:			Sprite;
+		private var _menuLayer:				Sprite;
+		private var _windowsLayer:			Sprite;
 		
 		public function ApplicationView()
 		{
 			super();
 			
-			_mediator = new ApplicationMediator(this);
+			createViewLayers();
 		}
 		
 		
-		private function startGameVSComputer():void
+		private function createViewLayers():void
 		{
-			_mediator.startGameVSComputer();
+			_gameViewLayer = new Sprite();
+			this.addChild( _gameViewLayer );
+			
+			_menuLayer = new Sprite();
+			this.addChild( _menuLayer );
+			
+			_windowsLayer = new Sprite();
+			this.addChild( _windowsLayer );
 		}
 		
 		
-		public function createGameView():void
+		public function getGameLayer():Sprite
 		{
-			_gameView = new GameView();
-			this.addChild( _gameView );
+			return _gameViewLayer;
+		}
+		
+		public function getMenuLayer():Sprite
+		{
+			return _menuLayer;
+		}
+		
+		public function getWindowsLayer():Sprite
+		{
+			return _windowsLayer;
 		}
 	}
 }

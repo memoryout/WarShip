@@ -2,15 +2,25 @@ package game.activity.view.preloader
 {
 	import flash.display.Sprite;
 	
+	import game.activity.BaseMediator;
+	
 	public class PreloaderView extends Sprite
 	{
-		private var _mediator:			PreloaderMediator;
-		
 		public function PreloaderView()
 		{
 			super();
 			
-			_mediator = new PreloaderMediator(this);
+			createSkin();
+		}
+		
+		
+		private function createSkin():void
+		{
+			var classInstance:Class = BaseMediator.getSourceClass("viewLoaderWindow");
+			if(classInstance)
+			{
+				this.addChild( new classInstance() );
+			}
 		}
 		
 		

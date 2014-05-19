@@ -7,6 +7,7 @@ package game.services.net
 		private const _requestID:		Number = (_globalID ++) + Math.random() * _globalID;
 		
 		private var _sendData:			Object;
+		private var _data:				Object;
 		
 		public function Request()
 		{
@@ -32,9 +33,21 @@ package game.services.net
 		}
 		
 		
-		public function setResult():void
+		public function setResult(data:Object):void
 		{
-			
+			_data = data;
+		}
+		
+		public function getResult():Object
+		{
+			return _data;
+		}
+		
+		
+		public function destroy():void
+		{
+			_sendData = null;
+			_data = null;
 		}
 	}
 }

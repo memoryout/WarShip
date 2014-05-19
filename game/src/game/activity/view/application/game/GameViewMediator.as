@@ -1,12 +1,11 @@
 package game.activity.view.application.game
 {
+	import game.activity.BaseMediator;
 	import game.application.ProxyList;
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.core.IGameProxy;
 	
-	import org.puremvc.patterns.mediator.Mediator;
-	
-	public class GameViewMediator extends Mediator
+	public class GameViewMediator extends BaseMediator
 	{
 		private var _gameView:				GameView;
 		

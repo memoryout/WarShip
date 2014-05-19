@@ -2,7 +2,9 @@ package game.application
 {
 	import flash.events.Event;
 	
+	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.interfaces.IMainApplicationProxy;
+	import game.application.server.ServerConnectionProxyEvents;
 	import game.core.GameCoreEvents;
 	import game.core.GameCoreManager;
 	import game.core.IGameProxy;
@@ -25,7 +27,7 @@ package game.application
 		
 		public function runApplication():void
 		{
-			
+			this.facade.registerCommand(ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerAuthorizationResult);
 		}
 		
 		

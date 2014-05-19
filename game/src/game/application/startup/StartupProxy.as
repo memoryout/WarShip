@@ -3,6 +3,8 @@ package game.application.startup
 	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.utils.clearTimeout;
+	import flash.utils.setTimeout;
 	
 	import game.AppGlobalVariables;
 	import game.application.ApplicationCommands;
@@ -10,14 +12,18 @@ package game.application.startup
 	import game.application.ApplicationProxy;
 	import game.application.ProxyList;
 	import game.application.commands.authorization.SetUserAuthorizationCommand;
+	import game.application.commands.startup.ServerAuthorizationResult;
+	import game.application.commands.startup.ServerConectionResult;
 	import game.application.commands.startup.UserDataProxyConnectedProxy;
 	import game.application.data.UserData;
 	import game.application.data.UserDataProxy;
-	import game.application.interfaces.asset.IAssetProxy;
 	import game.application.interfaces.data.IUserDataProxy;
+	import game.application.interfaces.server.IServerConnectionProxy;
+	import game.application.server.ServerConnectionProxyEvents;
 	import game.services.ServicesList;
 	import game.services.device.DeviceInfo;
 	import game.services.device.DeviceManagerEvents;
+	import game.services.interfaces.IAssetManager;
 	import game.services.interfaces.IDeviceManager;
 	import game.services.interfaces.ISQLManager;
 	import game.services.interfaces.IServerConnection;
@@ -33,8 +39,11 @@ package game.application.startup
 		private var _deviceInfo:				DeviceInfo;
 		private var _userDataProxy:				IUserDataProxy;
 		private var _userData:					UserData;
+		private var _server:					IServerConnectionProxy;
 		
 		private var _serverConnection:			IServerConnection;
+		
+		private var _timeoutID:					uint;
 		
 		public function StartupProxy(proxyName:String)
 		{
@@ -52,7 +61,7 @@ package game.application.startup
 		{
 			this.sendNotification(ApplicationEvents.START_UP_INIT);
 			
-			var asset:IAssetProxy = this.facade.retrieveProxy(ProxyList.ASSET_PROXY) as IAssetProxy;
+			var asset:IAssetManager = ServicesList.getSearvice( ServicesList.ASSET_MANAGER) as IAssetManager;
 			
 			if( asset.isAssetExist() )
 			{
@@ -197,6 +206,7 @@ package game.application.startup
 			}
 			
 			
+			
 			connectToServer();
 			
 			//this.sendNotification(STARTUP_COMPLETE);
@@ -205,29 +215,66 @@ package game.application.startup
 		
 		private function connectToServer():void
 		{
-			_serverConnection = ServicesList.getSearvice( ServicesList.SERVER_CONNECTION ) as IServerConnection;
-			_serverConnection.addEventListener(ServerConnectionEvent.CONNECTION_INIT, handlerConnectionInitComplete);
-			_serverConnection.initConnection(AppGlobalVariables.CONNECTION_TYPE, AppGlobalVariables.SERVER_URL, AppGlobalVariables.SERVER_PORT);
+			this.facade.registerCommand(ServerConnectionProxyEvents.CONNECTION_COMPLETE, ServerConectionResult);
+			this.facade.registerCommand(ServerConnectionProxyEvents.CONNECTION_ERROR, ServerConectionResult);
+			
+			_server = this.facade.retrieveProxy(ProxyList.SERVER_PROXY) as IServerConnectionProxy;
+			_server.connectToServer();
+			
+			//_serverConnection = ServicesList.getSearvice( ServicesList.SERVER_CONNECTION ) as IServerConnection;
+			//_serverConnection.addEventListener(ServerConnectionEvent.CONNECTION_INIT, handlerConnectionInitComplete);
+			//_serverConnection.initConnection(AppGlobalVariables.CONNECTION_TYPE, AppGlobalVariables.SERVER_URL, AppGlobalVariables.SERVER_PORT);
 		}
 		
 		
-		private function handlerConnectionInitComplete(e:Event):void
+		
+		public function serverConnectionComplete():void
 		{
-			_serverConnection.removeEventListener(ServerConnectionEvent.CONNECTION_INIT, handlerConnectionInitComplete);
-			_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
-			_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
-			_serverConnection.signIn( _userData.getValue("deviceID"), _userData.getValue("name") );
+			this.facade.removeCommand(ServerConnectionProxyEvents.CONNECTION_COMPLETE);
+			this.facade.removeCommand(ServerConnectionProxyEvents.CONNECTION_ERROR);
+			
+			signInOnServer();
 		}
 		
 		
-		private function handlerSignInComplete(e:Event):void
+		private function signInOnServer():void
 		{
-			trace("handlerSignInComplete")
+			this.facade.registerCommand( ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerAuthorizationResult);
+			
+			_server.signIn();
+			_timeoutID = setTimeout( handlerSignInError, 2000 );
 		}
 		
-		private function handlerSignInError(e:Event):void
+		
+		public function handlerSignInComplete():void
 		{
-			trace("handlerSignInError")
+			this.facade.removeCommand( ServerConnectionProxyEvents.REQUEST_COMPLETE);
+			
+			clearTimeout( _timeoutID );
+			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
+			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
+			
+			completeStartup();
+		}
+		
+		public function handlerSignInError():void
+		{
+			this.facade.removeCommand( ServerConnectionProxyEvents.REQUEST_COMPLETE);
+			
+			clearTimeout( _timeoutID );
+			
+			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
+			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
+			
+			trace("handlerSignInError");
+			
+			completeStartup();
+		}
+		
+		
+		private function completeStartup():void
+		{
+			this.sendNotification(STARTUP_COMPLETE);
 		}
 	}
 }

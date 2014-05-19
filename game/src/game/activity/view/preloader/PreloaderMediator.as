@@ -3,12 +3,13 @@ package game.activity.view.preloader
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
 	
+	import game.activity.BaseMediator;
 	import game.application.ApplicationEvents;
 	
 	import org.puremvc.as3.interfaces.INotification;
 	import org.puremvc.as3.patterns.mediator.Mediator;
 	
-	public class PreloaderMediator extends Mediator
+	public class PreloaderMediator extends BaseMediator
 	{
 		public static const NAME:			String = "mediator.preloader";
 		

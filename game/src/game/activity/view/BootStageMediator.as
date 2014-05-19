@@ -2,6 +2,7 @@ package game.activity.view
 {
 	import flash.display.Stage;
 	
+	import game.activity.view.application.ApplicationMediator;
 	import game.activity.view.preloader.PreloaderMediator;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
@@ -25,6 +26,8 @@ package game.activity.view
 		override public function onRegister():void
 		{
 			buildView();
+			
+			this.facade.registerMediator( new ApplicationMediator( _appScreen.getAppViewLayer() ) );
 		}
 		
 		override public function listNotificationInterests():Array
@@ -57,12 +60,6 @@ package game.activity.view
 				{
 					break;
 				}
-					
-				case ApplicationEvents.REQUIRED_USER_AUTHORIZATION:
-				{
-					this.sendNotification( ApplicationCommands.STARTUP_SET_LOGIN, "Vasja");
-					break;
-				}
 			}
 		}
 		
@@ -82,7 +79,7 @@ package game.activity.view
 		
 		private function startUpComplete():void
 		{
-			
+			//this.facade.registerMediator( new ApplicationMediator( _appScreen.getAppViewLayer() ) );
 		}
 	}
 }

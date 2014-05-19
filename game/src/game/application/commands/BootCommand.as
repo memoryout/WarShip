@@ -5,11 +5,12 @@ package game.application.commands
 	import game.activity.view.BootStageMediator;
 	import game.application.MainApplicationProxy;
 	import game.application.ProxyList;
-	import game.application.asset.AssetProxy;
 	import game.application.data.UserDataProxy;
+	import game.application.server.ServerConnectionProxy;
 	import game.application.startup.StartupProxy;
 	import game.core.GameCoreManager;
 	import game.services.ServicesList;
+	import game.services.asset.AssetManager;
 	import game.services.device.DeviceManager;
 	import game.services.net.ServerConnectionInterface;
 	import game.services.sql.SQLManager;
@@ -58,10 +59,10 @@ package game.application.commands
 			SQLManager.init();
 			DeviceManager.init();
 			ServerConnectionInterface.init();
+			AssetManager.init();
 			
-			this.facade.registerProxy(new AssetProxy(ProxyList.ASSET_PROXY) );
 			this.facade.registerProxy(new UserDataProxy(ProxyList.USER_DATA_PROXY) );
-			
+			this.facade.registerProxy(new ServerConnectionProxy(ProxyList.SERVER_PROXY) );
 			this.facade.registerProxy(new MainApplicationProxy(ProxyList.MAIN_APPLICATION_PROXY) );
 		}
 	}

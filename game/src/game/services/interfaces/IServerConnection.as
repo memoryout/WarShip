@@ -6,6 +6,8 @@ package game.services.interfaces
 	{
 		function initConnection(type:String, url:String, port:String = ""):void;
 		
-		function signIn(userId:String, name:String):void;
+		function setSessionKey(session:String):void
+		function createUser(userId:String, name:String):void;
+		function signIn(login:String, pass:String):void;
 	}
 }

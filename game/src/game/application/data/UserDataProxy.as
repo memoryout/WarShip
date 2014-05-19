@@ -61,7 +61,7 @@ package game.application.data
 					fields += ":" + fieldsArr[i];
 					requestParams[ ":" + fieldsArr[i] ] = _userData.getValue( fieldsArr[i] );
 				}
-				
+							
 				var requestMessage:String = 'UPDATE "main"."user" SET ' + fields + ' WHERE "rowid"=1';
 				
 				var sqlRequest:SQLRequest = new SQLRequest();
@@ -112,7 +112,7 @@ package game.application.data
 		
 		private function createDefaultUser():void
 		{
-			var requestMessage:String = 'INSERT INTO "main"."user" ("name","key","exp","deviceID") VALUES (null, null, null, null)';
+			var requestMessage:String = 'INSERT INTO "main"."user" ("name","key","exp","deviceID","login","pass") VALUES (null, null, null, null, null, null)';
 			
 			var request:UserDataProxyRequest = new UserDataProxyRequest();
 			request.setData(_sqlManager, requestMessage, handlerCreateDefaultUser, handlerErrorDefaultUser);

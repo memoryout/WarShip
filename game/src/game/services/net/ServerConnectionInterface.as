@@ -13,6 +13,7 @@ package game.services.net
 	{
 		private var _serverURL:			String;
 		private var _serverPort:		String;
+		private var _session:			String;
 		
 		private var _connection:		BaseConnection;
 		
@@ -29,6 +30,12 @@ package game.services.net
 		public function get serviceName():String
 		{
 			return ServicesList.SERVER_CONNECTION;
+		}
+		
+		
+		public function setSessionKey(session:String):void
+		{
+			_session = session;
 		}
 		
 		
@@ -56,8 +63,7 @@ package game.services.net
 			}
 		}
 		
-		
-		public function signIn(userId:String, name:String):void
+		public function createUser(userId:String, name:String):void
 		{
 			var req:Request = new Request();
 			
@@ -65,6 +71,20 @@ package game.services.net
 			obj.cmd = ServerCommandList.SIGN_IN;
 			obj.name = name;
 			obj.id = userId;
+			
+			req.pushData( obj );
+			_connection.sendRequest( req );
+		}
+		
+		
+		public function signIn(login:String, pass:String):void
+		{
+			var req:Request = new Request();
+			
+			var obj:Object = new Object();
+			obj.cmd = ServerCommandList.SIGN_IN;
+			obj.login = login;
+			obj.pass = pass;
 			
 			req.pushData( obj );
 			_connection.sendRequest( req );
@@ -80,10 +100,8 @@ package game.services.net
 		{
 			e.currentTarget.removeEventListener(BaseConnection.INIT_CONNECTION_COMPLETE, handlerInitComplete);
 			e.currentTarget.removeEventListener(BaseConnection.INIT_CONNECTION_ERROR, handlerInitError);
-			e.currentTarget.removeEventListener(BaseConnection.ON_COMPLETE_REQUEST, handlerRequestComplete);
-			e.currentTarget.removeEventListener(BaseConnection.ON_ERROR_REQUEST, handlerRequestError);
 			
-			this.dispatchEvent( new Event(ServerConnectionEvent.CONNECTION_INIT) );
+			this.dispatchEvent( new ServerConnectionEvent(ServerConnectionEvent.CONNECTION_INIT) );
 		}
 		
 		private function handlerInitError(e:Event):void
@@ -96,12 +114,15 @@ package game.services.net
 		
 		private function handlerRequestComplete(e:Event):void
 		{
+			trace("handlerRequestComplete");
+			var obj:Object = _connection.result.getResult();
 			
+			this.dispatchEvent( new ServerConnectionEvent(ServerConnectionEvent.REQUEST_COMPLETE, obj) );
 		}
 		
 		private function handlerRequestError(e:Event):void
 		{
-			
+			this.dispatchEvent( new ServerConnectionEvent(ServerConnectionEvent.REQUEST_ERROR) );
 		}
 	}
 }

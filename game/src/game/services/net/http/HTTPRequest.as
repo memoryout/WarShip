@@ -72,8 +72,6 @@ package game.services.net.http
 		
 		private function handlerError(e:IOErrorEvent):void
 		{
-			trace("handlerError");
-			
 			_repeatCount ++;
 			if(_repeatCount < MAX_ATTEMPT) sendRequest();
 			else
