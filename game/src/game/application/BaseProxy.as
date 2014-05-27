@@ -2,10 +2,10 @@ package game.application
 {
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
-	public class ApplicationProxy extends Proxy
+	public class BaseProxy extends Proxy
 	{
 		
-		public function ApplicationProxy(proxyName:String=null, data:Object=null)
+		public function BaseProxy(proxyName:String=null, data:Object=null)
 		{
 			super(proxyName, data);
 		}

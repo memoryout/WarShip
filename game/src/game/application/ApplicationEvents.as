@@ -11,5 +11,7 @@ package game.application
 		public static const START_UP_COMPLETE:				String = "event.start_up.complete";
 		
 		public static const USER_DATA_PROXY_CONNECTED:		String = "event.user_data_proxy.connected";
+		
+		public static const REQUIRED_USER_SHIPS_POSITIONS:	String = "event.game.required_ships_positions";
 	}
 }

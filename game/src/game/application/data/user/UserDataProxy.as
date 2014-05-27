@@ -1,4 +1,4 @@
-package game.application.data
+package game.application.data.user
 {
 	import flash.data.SQLConnection;
 	import flash.events.SQLErrorEvent;

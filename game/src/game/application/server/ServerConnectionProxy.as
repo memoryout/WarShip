@@ -1,9 +1,9 @@
 package game.application.server
 {
 	import game.AppGlobalVariables;
-	import game.application.ApplicationProxy;
+	import game.application.BaseProxy;
 	import game.application.ProxyList;
-	import game.application.data.UserData;
+	import game.application.data.user.UserData;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.server.IServerConnectionProxy;
 	import game.application.server.data.AuthorizationData;
@@ -11,7 +11,7 @@ package game.application.server
 	import game.services.interfaces.IServerConnection;
 	import game.services.net.ServerConnectionEvent;
 	
-	public class ServerConnectionProxy extends ApplicationProxy implements IServerConnectionProxy
+	public class ServerConnectionProxy extends BaseProxy implements IServerConnectionProxy
 	{
 		private var _serverConnection:				IServerConnection;
 		

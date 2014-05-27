@@ -1,6 +1,6 @@
 package game.application.interfaces.data
 {
-	import game.application.data.UserData;
+	import game.application.data.user.UserData;
 
 	public interface IUserDataProxy
 	{

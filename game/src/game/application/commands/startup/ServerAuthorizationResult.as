@@ -1,7 +1,7 @@
 package game.application.commands.startup
 {
 	import game.application.ProxyList;
-	import game.application.data.UserData;
+	import game.application.data.user.UserData;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.server.ServerResponce;
 	import game.application.server.ServerResponceDataType;

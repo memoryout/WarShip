@@ -1,6 +1,6 @@
 package game.application.interfaces
 {
-	import game.core.IGameProxy;
+	import game.application.interfaces.game.IGameProxy;
 
 	public interface IMainApplicationProxy
 	{

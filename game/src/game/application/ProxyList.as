@@ -8,5 +8,7 @@ package game.application
 		public static const MAIN_APPLICATION_PROXY:	String = "proxy.main_application";
 		public static const MAIN_GAME_PROXY:		String = "proxy.main_game";
 		public static const SERVER_PROXY:			String = "proxy.server";
+		
+		public static const GAME_VS_PLAYER_NET:		String = "proxy.game.player_net";
 	}
 }

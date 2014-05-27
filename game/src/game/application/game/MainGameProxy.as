@@ -1,12 +1,37 @@
 package game.application.game
 {
-	import org.puremvc.patterns.proxy.Proxy;
+	import game.application.BaseProxy;
+	import game.application.data.game.ShipData;
+	import game.application.interfaces.game.IGameProxy;
 	
-	public class MainGameProxy extends Proxy
+	public class MainGameProxy extends BaseProxy implements IGameProxy 
 	{
-		public function MainGameProxy(proxyName:String=null, data:Object=null)
+		protected var shipsList:			Vector.<ShipData>;
+		
+		public function MainGameProxy(proxyName:String=null)
 		{
-			super(proxyName, data);
+			super(proxyName);
+		}
+		
+		
+		protected function generateShipList(decksList:Vector.<uint>):void
+		{
+			shipsList = new Vector.<ShipData>(decksList.length, true);
+			
+			var i:int, ship:ShipData;
+			for(i = 0; i < decksList.length; i++)
+			{
+				ship = new ShipData();
+				
+				ship.deck = decksList[i];
+				shipsList[i] =  ship ;
+			}
+		}
+		
+		
+		public function getShipsList():Vector.<ShipData>
+		{
+			return shipsList;
 		}
 	}
 }

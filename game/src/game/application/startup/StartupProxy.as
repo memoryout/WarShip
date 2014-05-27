@@ -9,14 +9,14 @@ package game.application.startup
 	import game.AppGlobalVariables;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
-	import game.application.ApplicationProxy;
+	import game.application.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.commands.authorization.SetUserAuthorizationCommand;
 	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.commands.startup.ServerConectionResult;
 	import game.application.commands.startup.UserDataProxyConnectedProxy;
-	import game.application.data.UserData;
-	import game.application.data.UserDataProxy;
+	import game.application.data.user.UserData;
+	import game.application.data.user.UserDataProxy;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.server.IServerConnectionProxy;
 	import game.application.server.ServerConnectionProxyEvents;
@@ -31,7 +31,7 @@ package game.application.startup
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
-	public class StartupProxy extends ApplicationProxy
+	public class StartupProxy extends BaseProxy
 	{
 		public static const STARTUP_COMPLETE:		String = "startup.complete";
 		public static const STARTUP:				String = "startup.start";
