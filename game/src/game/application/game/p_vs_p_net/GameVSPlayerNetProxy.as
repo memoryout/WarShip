@@ -8,7 +8,7 @@ package game.application.game.p_vs_p_net
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
-		private const shipsDeckList:	Vector.<uint> = new <uint>[1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
+		private const shipsDeckList:	Vector.<uint> = new <uint>[4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 		
 		
 		private var _shipsList:			Vector.<ShipData>;

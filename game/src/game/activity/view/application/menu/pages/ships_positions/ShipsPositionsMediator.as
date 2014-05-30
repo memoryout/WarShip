@@ -6,9 +6,11 @@ package game.activity.view.application.menu.pages.ships_positions
 	import game.activity.BaseMediator;
 	import game.activity.view.application.menu.MenuPageMediator;
 	import game.application.ProxyList;
+	import game.application.data.game.ShipData;
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.IGameProxy;
 	import game.application.interfaces.game.p_vs_p_net.IGameVSPlayerNet;
+	import game.utils.ShipPositionSupport;
 	
 	public class ShipsPositionsMediator extends MenuPageMediator
 	{
@@ -17,6 +19,7 @@ package game.activity.view.application.menu.pages.ships_positions
 		private var _view:					ShipsPositionsView;
 		
 		private var _proxy:					IGameProxy;
+		private var _shipsList:				Vector.<ShipData>;
 				
 		public function ShipsPositionsMediator(viewComponent:Object)
 		{
@@ -33,11 +36,16 @@ package game.activity.view.application.menu.pages.ships_positions
 			
 			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
 			_proxy = mainApp.getCurrentGame();
+			
+			_shipsList = _proxy.getShipsList();
+			_view.setShipsData( _shipsList );
 		}
 		
 		
 		private function handlerAutoArrangement(e:Event):void
 		{
+			ShipPositionSupport.getInstance().shipsAutoArrangement(_shipsList, 10, 10);
+			_view.updateShipPositions();
 			
 		}
 		

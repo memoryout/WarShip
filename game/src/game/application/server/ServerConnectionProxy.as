@@ -79,7 +79,7 @@ package game.application.server
 		
 		private function handlerSignInError(e:ServerConnectionEvent):void
 		{
-			
+			_connectionStatus = ServerConnectionStatus.DISABLED;
 		}
 		
 		
@@ -104,6 +104,8 @@ package game.application.server
 		
 		private function parseResponce(data:Object):void
 		{
+			_connectionStatus = ServerConnectionStatus.ENABLED;
+			
 			var responce:ServerResponce = new ServerResponce();
 			responce.setRawData( data );
 			
