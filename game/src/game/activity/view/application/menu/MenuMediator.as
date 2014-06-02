@@ -36,7 +36,8 @@ package game.activity.view.application.menu
 		override public function listNotificationInterests():Array
 		{
 			return [
-					ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS
+					ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS,
+					ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE
 					];
 		}
 		
@@ -50,6 +51,13 @@ package game.activity.view.application.menu
 				case ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS:
 				{
 					showShipsPositionsPage();
+					break;
+				}
+					
+				case ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE:
+				{
+					if(_currentPage) _currentPage.hide();
+					_currentPage = null;
 					break;
 				}
 			}

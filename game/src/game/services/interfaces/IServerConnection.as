@@ -9,5 +9,6 @@ package game.services.interfaces
 		function setSessionKey(session:String):void
 		function createUser(userId:String, name:String):void;
 		function signIn(login:String, pass:String):void;
+		function sendShipLocation(ships:Array):void;
 	}
 }

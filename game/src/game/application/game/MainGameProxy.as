@@ -33,5 +33,11 @@ package game.application.game
 		{
 			return shipsList;
 		}
+		
+		
+		public function userLocatedShips():void
+		{
+			
+		}
 	}
 }

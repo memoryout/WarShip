@@ -4,6 +4,7 @@ package game.application
 	
 	import game.GameType;
 	import game.application.commands.game.CreateNewGameCommand;
+	import game.application.commands.game.UserShipsLocatedComlete;
 	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.game.p_vs_p_net.GameVSPlayerNetProxy;
 	import game.application.interfaces.IMainApplicationProxy;
@@ -34,6 +35,7 @@ package game.application
 		{
 			this.facade.registerCommand(ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerAuthorizationResult);
 			this.facade.registerCommand(ApplicationCommands.CREATE_NEW_GAME, CreateNewGameCommand);
+			this.facade.registerCommand(ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE, UserShipsLocatedComlete);
 		}
 		
 		

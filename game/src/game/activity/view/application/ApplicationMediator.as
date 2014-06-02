@@ -4,6 +4,7 @@ package game.activity.view.application
 	
 	import game.GameType;
 	import game.activity.BaseMediator;
+	import game.activity.view.application.game.GameViewMediator;
 	import game.activity.view.application.menu.MenuMediator;
 	import game.activity.view.application.windows.WindowsMediator;
 	import game.application.ApplicationEvents;
@@ -40,7 +41,8 @@ package game.activity.view.application
 		override public function listNotificationInterests():Array
 		{
 			return [
-						ApplicationEvents.START_UP_COMPLETE	
+						ApplicationEvents.START_UP_COMPLETE,
+						ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE
 					];
 		}
 		
@@ -55,6 +57,12 @@ package game.activity.view.application
 					createMenuMediator();
 					break;
 				}
+					
+				case ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE:
+				{
+					createGameMediator();
+					break;
+				}
 			}
 		}
 		
@@ -67,6 +75,12 @@ package game.activity.view.application
 		private function createWindowsMediator():void
 		{
 			this.facade.registerMediator( new WindowsMediator( _appView.getWindowsLayer() ) );
+		}
+		
+		
+		private function createGameMediator():void
+		{
+			this.facade.registerMediator( new GameViewMediator( _appView.getGameLayer() ) );
 		}
 	}
 }

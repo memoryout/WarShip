@@ -13,5 +13,7 @@ package game.application
 		public static const USER_DATA_PROXY_CONNECTED:		String = "event.user_data_proxy.connected";
 		
 		public static const REQUIRED_USER_SHIPS_POSITIONS:	String = "event.game.required_ships_positions";
+		
+		public static const BUTTLE_PROXY_INIT_COMPLETE:		String = "event.buttle.init.complete";
 	}
 }

@@ -1,5 +1,7 @@
 package game.activity.view.application.game
 {
+	import flash.display.DisplayObjectContainer;
+	
 	import game.activity.BaseMediator;
 	import game.application.ProxyList;
 	import game.application.interfaces.IMainApplicationProxy;
@@ -7,19 +9,22 @@ package game.activity.view.application.game
 	
 	public class GameViewMediator extends BaseMediator
 	{
+		public static const NAME:			String = "mediator.game.main_mediator";
+		
 		private var _gameView:				GameView;
 		
 		private var _gameProxy:				IGameProxy;
 		
-		public function GameViewMediator(viewComponent:GameView)
+		public function GameViewMediator(viewComponent:Object)
 		{
-			super();
-			
-			_gameView = viewComponent;
-			
-			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
-			
-			_gameProxy = mainApp.getCurrentGame();
+			super(NAME, viewComponent);
+		}
+		
+		
+		override public function onRegister():void
+		{
+			_gameView = new GameView();
+			(viewComponent as DisplayObjectContainer).addChild( _gameView );
 		}
 	}
 }

@@ -5,6 +5,7 @@ package game.activity.view.application.menu.pages.ships_positions
 	
 	import game.activity.BaseMediator;
 	import game.activity.view.application.menu.MenuPageMediator;
+	import game.application.ApplicationCommands;
 	import game.application.ProxyList;
 	import game.application.data.game.ShipData;
 	import game.application.interfaces.IMainApplicationProxy;
@@ -33,12 +34,26 @@ package game.activity.view.application.menu.pages.ships_positions
 			
 			_view.addEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
 			_view.addEventListener(ShipsPositionsView.BACK, handlerBack);
+			_view.addEventListener(ShipsPositionsView.NEXT, handlerNext);
 			
 			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
 			_proxy = mainApp.getCurrentGame();
 			
 			_shipsList = _proxy.getShipsList();
 			_view.setShipsData( _shipsList );
+		}
+		
+		
+		override public function hide():void
+		{
+			this.facade.removeMediator( NAME );
+			
+			_view.removeEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
+			_view.removeEventListener(ShipsPositionsView.BACK, handlerBack);
+			_view.removeEventListener(ShipsPositionsView.NEXT, handlerNext);
+			
+			_view.close();
+			_view = null;
 		}
 		
 		
@@ -52,6 +67,15 @@ package game.activity.view.application.menu.pages.ships_positions
 		private function handlerBack(e:Event):void
 		{
 			
+		}
+		
+		private function handlerNext(e:Event):void
+		{
+			_view.removeEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
+			_view.removeEventListener(ShipsPositionsView.BACK, handlerBack);
+			_view.removeEventListener(ShipsPositionsView.NEXT, handlerNext);
+			
+			this.sendNotification( ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE);
 		}
 	}
 }

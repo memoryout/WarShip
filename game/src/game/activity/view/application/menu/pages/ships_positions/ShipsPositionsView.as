@@ -13,6 +13,7 @@ package game.activity.view.application.menu.pages.ships_positions
 	{
 		public static const AUTO_ARRANGEMENT:		String = "autoArrangement";
 		public static const BACK:					String = "back";
+		public static const NEXT:					String = "next";
 		
 		private var _skin:			MovieClip;
 		
@@ -48,6 +49,15 @@ package game.activity.view.application.menu.pages.ships_positions
 		}
 		
 		
+		public function close():void
+		{
+			if(_skin) _skin.removeEventListener(MouseEvent.CLICK, handlerMouseClick);
+			if(this.parent) this.parent.removeChild( this );
+			
+			_skin = null;
+		}
+		
+		
 		private function createViewComponents():void
 		{
 			var classInstance:Class = BaseMediator.getSourceClass("viewShipLocation");
@@ -79,6 +89,12 @@ package game.activity.view.application.menu.pages.ships_positions
 				case "btn_menu":
 				{
 					this.dispatchEvent( new Event(BACK) );
+					break;
+				}
+				
+				case "btn_next":
+				{
+					this.dispatchEvent( new Event(NEXT) );
 					break;
 				}
 			}

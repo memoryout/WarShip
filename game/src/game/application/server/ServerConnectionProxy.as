@@ -60,10 +60,16 @@ package game.application.server
 					}
 				}
 			}
-			
-			
-			//_serverConnection.signIn( _userData.getValue("deviceID"), _userData.getValue("name") );
-			//setTimeout( handlerSignInError, 1000 );
+		}
+		
+		
+		
+		public function sendUserShipLocation(arr:Array):void
+		{
+			if(_serverConnection)
+			{
+				_serverConnection.sendShipLocation(arr);
+			}
 		}
 		
 		

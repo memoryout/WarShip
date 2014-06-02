@@ -91,7 +91,18 @@ package game.services.net
 		}
 		
 		
-		
+		public function sendShipLocation(arr:Array):void
+		{
+			var req:Request = new Request();
+			
+			var obj:Object = new Object();
+			obj.cmd = ServerCommandList.START_GAME;
+			obj.ships = JSON.stringify(arr);
+			obj.session = _session;
+			
+			req.pushData( obj );
+			_connection.sendRequest( req );
+		}
 		
 		
 		
