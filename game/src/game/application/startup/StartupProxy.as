@@ -12,9 +12,11 @@ package game.application.startup
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.commands.authorization.SetUserAuthorizationCommand;
+	import game.application.commands.startup.NewUserCreatedCommand;
 	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.commands.startup.ServerConectionResult;
 	import game.application.commands.startup.UserDataProxyConnectedProxy;
+	import game.application.commands.startup.UserDataProxyReceiveUsersList;
 	import game.application.data.user.UserData;
 	import game.application.data.user.UserDataProxy;
 	import game.application.interfaces.data.IUserDataProxy;
@@ -44,6 +46,8 @@ package game.application.startup
 		private var _serverConnection:			IServerConnection;
 		
 		private var _timeoutID:					uint;
+		
+		private var _userList:					Vector.<UserData>;
 		
 		public function StartupProxy(proxyName:String)
 		{
@@ -119,22 +123,14 @@ package game.application.startup
 			var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
 			_deviceInfo = device.deviceInfo;
 			
-			runDataBase();
-			
 			checkAuthorization();
 		}
 		
-		
-		private function runDataBase():void
-		{
-			var sql:ISQLManager = ServicesList.getSearvice( ServicesList.SQL_MANAGER ) as ISQLManager;
-			sql.connect(AppGlobalVariables.SQL_FILE_URL);
-		}
-		
-		
+
 		private function checkAuthorization():void
 		{
 			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			
 			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
 			_userDataProxy.connect();
 		}
@@ -142,15 +138,66 @@ package game.application.startup
 		
 		public function userDataConnected():void
 		{
-			_userData = _userDataProxy.getUserData();
+			this.facade.registerCommand(ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST, UserDataProxyReceiveUsersList);
+			_userDataProxy.retrieveUsersList();
 			
-			if( _userData )
-			{
-				if(_userData.getValue("name") == null) reqiuredUserAuthorizationData();
-				else authorizationSeccussesComplete();
-			}
-		}		
+		}
 		
+		public function usersListReceive():void
+		{
+			_userList = _userDataProxy.getUsersList();
+			
+			if(_userList.length == 0)
+			{
+				reqiuredUserAuthorizationData();
+			}
+			else
+			{
+				requiredSelectCurrentActiveUser();
+			}
+			
+		}
+		
+		
+		
+		
+		public function getUserList():Vector.<UserData>
+		{
+			return _userList;
+		}
+		
+		private function verifyUserList():void
+		{
+			if(_userList.length)
+			{
+				if(_userList.length == 1)
+				{
+					if(_userList[0].name != null) requiredSelectCurrentActiveUser();
+					else 
+					{
+						_userDataProxy.selectCurrentUser(_userList[0].id);
+						reqiuredUserAuthorizationData();
+					}
+				}
+				else
+				{
+					requiredSelectCurrentActiveUser();
+				}
+			}
+			else
+			{
+				reqiuredUserAuthorizationData();
+			}
+		}
+		
+		
+		private function requiredSelectCurrentActiveUser():void
+		{
+			this.facade.registerCommand( ApplicationCommands.STARTUP_SET_LOGIN, SetUserAuthorizationCommand);
+			this.facade.registerCommand( ApplicationCommands.STARTUP_SELECT_USER, SetUserAuthorizationCommand);
+			
+			this.sendNotification( ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER, _userList);
+		}
 		
 		private function reqiuredUserAuthorizationData():void
 		{
@@ -160,15 +207,33 @@ package game.application.startup
 		}
 		
 		
-		public function setUserAuthorizationData(login:String):void
+		public function setUserAuthorizationData(name:String):void
 		{
 			this.facade.removeCommand( ApplicationCommands.STARTUP_SET_LOGIN );
 			
-			var userData:UserData = _userDataProxy.getUserData();
-			userData.setValue("name", login);
+			
+			this.facade.registerCommand( ApplicationEvents.USER_DATA_USER_CREATED, NewUserCreatedCommand);
+			_userDataProxy.createNewUser( name );
+			
+			
+			/*var userData:UserData = _userDataProxy.getUserData();
+			userData.name = login;
 				
 			_userDataProxy.commitChanges();
 			
+			authorizationSeccussesComplete();*/
+		}
+		
+		
+		public function setCurrentUser(id:uint):void
+		{
+			_userDataProxy.selectCurrentUser( id );
+			authorizationSeccussesComplete();
+		}
+		
+		
+		public function newUserCreated():void
+		{
 			authorizationSeccussesComplete();
 		}
 		
@@ -181,26 +246,26 @@ package game.application.startup
 		
 		private function authorizationSeccussesComplete():void
 		{
-			var userData:UserData = _userDataProxy.getUserData();
+			_userData = _userDataProxy.getUserData();
 			
 			if(!_deviceInfo.deviceId || _deviceInfo.deviceId == "emulator")
 			{
-				if( userData.getValue("deviceID") )
+				if( _userData.deviceID )
 				{
-					_deviceInfo.deviceId = userData.getValue("deviceID");
+					_deviceInfo.deviceId = _userData.deviceID;
 				}
 				else
 				{
 					_deviceInfo.deviceId = Math.random().toString();
-					userData.setValue("deviceID", _deviceInfo.deviceId );
+					_userData.deviceID = _deviceInfo.deviceId;
 					_userDataProxy.commitChanges();
 				}
 			}
 			else
 			{
-				if( !userData.getValue("deviceID") )
+				if( !_userData.deviceID )
 				{
-					userData.setValue("deviceID", _deviceInfo.deviceId );
+					_userData.deviceID =  _deviceInfo.deviceId;
 					_userDataProxy.commitChanges();
 				}
 			}

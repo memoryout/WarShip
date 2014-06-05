@@ -53,8 +53,6 @@ package game.application.game.p_vs_p_net
 			serverProxy.sendUserShipLocation( ships );
 			
 			createGameBattleProxy();
-			
-			
 		}
 		
 		

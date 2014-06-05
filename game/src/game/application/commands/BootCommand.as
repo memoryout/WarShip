@@ -13,7 +13,7 @@ package game.application.commands
 	import game.services.asset.AssetManager;
 	import game.services.device.DeviceManager;
 	import game.services.net.ServerConnectionInterface;
-	import game.services.sql.SQLManager;
+	import game.services.sqllite.SQLManager;
 	
 	import org.puremvc.as3.interfaces.INotification;
 	import org.puremvc.as3.patterns.command.SimpleCommand;

@@ -1,5 +1,6 @@
 package game.application.commands.authorization
 {
+	import game.application.ApplicationCommands;
 	import game.application.ProxyList;
 	import game.application.startup.StartupProxy;
 	
@@ -16,8 +17,24 @@ package game.application.commands.authorization
 		
 		override public function execute(notification:INotification):void
 		{
+			var name:String = notification.getName();
+			
 			var startup:StartupProxy = this.facade.retrieveProxy(ProxyList.STARTUP_PROXY) as StartupProxy;
-			startup.setUserAuthorizationData(notification.getBody() as String);
+			
+			switch(name)
+			{
+				case ApplicationCommands.STARTUP_SELECT_USER:
+				{
+					startup.setCurrentUser( uint( notification.getBody() ) );
+					break;
+				}
+					
+				case ApplicationCommands.STARTUP_SET_LOGIN:
+				{
+					startup.setUserAuthorizationData(notification.getBody() as String);
+					break;
+				}
+			}
 		}
 	}
 }

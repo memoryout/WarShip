@@ -3,6 +3,7 @@ package game.activity.view.application.windows
 	import flash.display.DisplayObjectContainer;
 	
 	import game.activity.BaseMediator;
+	import game.activity.view.application.windows.authorization_users.SelectCurrentUserWindowMediator;
 	import game.activity.view.application.windows.sign_in.SignInWindowMediatior;
 	import game.application.ApplicationEvents;
 	
@@ -30,7 +31,8 @@ package game.activity.view.application.windows
 		override public function listNotificationInterests():Array
 		{
 			return [
-						ApplicationEvents.REQUIRED_USER_AUTHORIZATION
+						ApplicationEvents.REQUIRED_USER_AUTHORIZATION,
+						ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER
 					];
 		}
 		
@@ -46,6 +48,12 @@ package game.activity.view.application.windows
 					showAuthorizationWindow();
 					break;
 				}
+					
+				case ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER:
+				{
+					showSelectUserWindow();
+					break;
+				}
 			}
 		}
 		
@@ -53,6 +61,12 @@ package game.activity.view.application.windows
 		private function showAuthorizationWindow():void
 		{
 			this.facade.registerMediator( new SignInWindowMediatior(_view.getAlertsLayers()) );
+		}
+		
+		
+		private function showSelectUserWindow():void
+		{
+			this.facade.registerMediator( new SelectCurrentUserWindowMediator(_view.getAlertsLayers()) );
 		}
 	}
 }

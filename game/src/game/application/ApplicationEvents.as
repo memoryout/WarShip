@@ -7,10 +7,13 @@ package game.application
 		public static const START_UP_SOURCE_LOAD_ERROR:		String = "event.start_up.source.load.error";
 		
 		public static const REQUIRED_USER_AUTHORIZATION:	String = "event.start_up.required.user_authorization";
+		public static const REQUIRED_SELECT_ACTIVE_USER:	String = "event.start_up.required.user_select";
 	
 		public static const START_UP_COMPLETE:				String = "event.start_up.complete";
 		
 		public static const USER_DATA_PROXY_CONNECTED:		String = "event.user_data_proxy.connected";
+		public static const USER_DATA_RECEIVE_USERS_LIST:	String = "event.user_data_proxy.users_list_receive";
+		public static const USER_DATA_USER_CREATED:			String = "event.user_data_proxy.user.created";
 		
 		public static const REQUIRED_USER_SHIPS_POSITIONS:	String = "event.game.required_ships_positions";
 		

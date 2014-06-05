@@ -3,7 +3,7 @@ package game.application.data.user
 	import flash.events.EventDispatcher;
 	
 	import game.services.interfaces.ISQLManager;
-	import game.services.sql.SQLRequest;
+	import game.services.sqllite.SQLRequest;
 
 	public class UserDataProxyRequest
 	{

@@ -1,6 +1,7 @@
 package game.activity.view.application.game
 {
 	import flash.display.DisplayObjectContainer;
+	import flash.events.Event;
 	
 	import game.activity.BaseMediator;
 	import game.application.ProxyList;
@@ -25,6 +26,13 @@ package game.activity.view.application.game
 		{
 			_gameView = new GameView();
 			(viewComponent as DisplayObjectContainer).addChild( _gameView );
+			
+			_gameView.addEventListener(GameView.SELECT_OPPONENT_CEIL, handlerSelectCeil);
+		}
+		
+		private function handlerSelectCeil(e:Event):void
+		{
+			trace(_gameView.ceilX, _gameView.ceilY);
 		}
 	}
 }

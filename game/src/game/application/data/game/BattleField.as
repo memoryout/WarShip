@@ -4,11 +4,11 @@ package game.application.data.game
 
 	public class BattleField
 	{
-		private const _fieldCeilCache:		Dictionary
+		private const _fieldCeilCache:		Dictionary = new Dictionary();
 		
 		public function BattleField()
 		{
-			_fieldCeilCache = new Dictionary();
+			
 		}
 		
 		public function init(width:uint, height:uint):void

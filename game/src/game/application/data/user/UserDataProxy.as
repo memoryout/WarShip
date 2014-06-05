@@ -4,20 +4,26 @@ package game.application.data.user
 	import flash.events.SQLErrorEvent;
 	import flash.events.SQLEvent;
 	
+	import game.AppGlobalVariables;
 	import game.application.ApplicationEvents;
+	import game.application.BaseProxy;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.services.ServicesList;
 	import game.services.interfaces.ISQLManager;
-	import game.services.sql.SQLManager;
-	import game.services.sql.SQLRequest;
+	import game.services.sqllite.SQLManager;
+	import game.services.sqllite.SQLRequest;
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
-	public class UserDataProxy extends Proxy implements IUserDataProxy
+	public class UserDataProxy extends BaseProxy implements IUserDataProxy
 	{
 		private var _sqlManager:			ISQLManager;
 		
 		private var _userData:				UserData;
+		
+		private var _currentUser:			UserData;
+		
+		private const _usersList:			Vector.<UserData> = new Vector.<UserData>;
 		
 		public function UserDataProxy(proxyName:String=null)
 		{
@@ -30,16 +36,120 @@ package game.application.data.user
 			_sqlManager = ServicesList.getSearvice(ServicesList.SQL_MANAGER) as ISQLManager;
 		}
 		
-				
+		
+		
+		//--------- CONNECT TO DB ----------
 		public function connect():void
 		{
-			tryRetrieveUserData();
+			var sql:ISQLManager = ServicesList.getSearvice( ServicesList.SQL_MANAGER ) as ISQLManager;
+			sql.connect(AppGlobalVariables.SQL_FILE_URL, onConnect, onErrorConnect);
 		}
+		
+		
+		private function onConnect():void
+		{
+			this.sendNotification( ApplicationEvents.USER_DATA_PROXY_CONNECTED);
+		}
+		
+		private function onErrorConnect():void
+		{
+			trace("onErrorConnect to data base");
+		}
+		//--------- --------- ----------
+		
+		
+		
+		//--------- RETRIEVE USERS LIST FROM DB ----------
+		public function retrieveUsersList():void
+		{
+			var requestMessage:String = 'SELECT * FROM "main"."user"';
+			
+			var request:UserDataProxyRequest = new UserDataProxyRequest();
+			request.setData(_sqlManager, requestMessage, onRetrieveUsersList, onErrorRetrieveUsersList);
+		}
+		
+		
+		private function onRetrieveUsersList(request:UserDataProxyRequest):void
+		{
+			if(request)
+			{
+				if(request.result && request.result.length) createUsersList(request.result);	
+			}
+			
+			request.destroy();
+			
+			this.sendNotification( ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST );
+		}
+		
+		private function onErrorRetrieveUsersList():void
+		{
+			this.sendNotification( ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST );
+		}
+		//--------- ------------------------- ----------
+		
+		
+		//--------- CREATE NEW USER ----------
+		public function createNewUser(name:String):void
+		{
+			var requestMessage:String = 'INSERT INTO "main"."user" ("name","deviceID","login","pass","exp") VALUES ("' + name + '", null, null, null, null)';
+			
+			var request:UserDataProxyRequest = new UserDataProxyRequest();
+			request.setData(_sqlManager, requestMessage, handlerUserCreated, handlerErrorCreateUser);
+		}
+		
+		
+		private function handlerUserCreated(request:UserDataProxyRequest):void
+		{
+			var requestMessage:String = 'SELECT * FROM "main"."user"';
+			
+			var request:UserDataProxyRequest = new UserDataProxyRequest();
+			request.setData(_sqlManager, requestMessage, onRetrieveNewUser, onErrorRetrieveUsersList);
+		}
+		
+		private function onRetrieveNewUser(request:UserDataProxyRequest):void
+		{
+			if(request)
+			{
+				if(request.result && request.result.length) 
+				{
+					createUsersList(request.result);
+					_userData = _usersList[_usersList.length - 1];
+					
+					this.sendNotification( ApplicationEvents.USER_DATA_USER_CREATED);
+				}
+			}
+		}
+		
+		private function handlerErrorCreateUser(request:UserDataProxyRequest):void
+		{
+			
+		}
+		//--------- ----------------- ----------
+		
 		
 		
 		public function getUserData():UserData
 		{
 			return _userData;
+		}
+		
+		public function getUsersList():Vector.<UserData>
+		{
+			return _usersList;
+		}
+		
+		
+		public function selectCurrentUser(id:uint):void
+		{
+			var i:int;
+			for(i = 0; i < _usersList.length; i++)
+			{
+				if(_usersList[i].id == id)
+				{
+					_userData = _usersList[i];
+					break;
+				}
+			}
 		}
 		
 		
@@ -62,7 +172,7 @@ package game.application.data.user
 					requestParams[ ":" + fieldsArr[i] ] = _userData.getValue( fieldsArr[i] );
 				}
 							
-				var requestMessage:String = 'UPDATE "main"."user" SET ' + fields + ' WHERE "rowid"=1';
+				var requestMessage:String = 'UPDATE "main"."user" SET ' + fields + ' WHERE "rowid"=' + _userData.id;
 				
 				var sqlRequest:SQLRequest = new SQLRequest();
 				sqlRequest.setRequest(requestMessage, null, null);
@@ -91,7 +201,7 @@ package game.application.data.user
 			{
 				if(request.result && request.result.length)
 				{
-					_userData = new UserData(request.result[0]);
+					createUsersList(request.result);		
 					this.sendNotification( ApplicationEvents.USER_DATA_PROXY_CONNECTED);
 				}
 				else
@@ -112,7 +222,7 @@ package game.application.data.user
 		
 		private function createDefaultUser():void
 		{
-			var requestMessage:String = 'INSERT INTO "main"."user" ("name","key","exp","deviceID","login","pass") VALUES (null, null, null, null, null, null)';
+			var requestMessage:String = 'INSERT INTO "main"."user" ("name","deviceID","login","pass","exp") VALUES (null, null, null, null, null)';
 			
 			var request:UserDataProxyRequest = new UserDataProxyRequest();
 			request.setData(_sqlManager, requestMessage, handlerCreateDefaultUser, handlerErrorDefaultUser);
@@ -130,6 +240,19 @@ package game.application.data.user
 		private function handlerErrorDefaultUser(request:UserDataProxyRequest):void
 		{
 			request.destroy();
+		}
+		
+		
+		private function createUsersList(arr:Array):void
+		{
+			_usersList.length = 0;
+			
+			var i:int, user:UserData;
+			for(i = 0; i < arr.length; i++)
+			{
+				user = new UserData(arr[i]);
+				_usersList.push(user);
+			}
 		}
 	}
 }

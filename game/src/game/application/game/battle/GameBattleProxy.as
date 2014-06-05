@@ -11,7 +11,8 @@ package game.application.game.battle
 		private var _userShips:			Vector.<ShipData>;
 		private var _opponentShips:		Vector.<ShipData>;
 		
-		private var _battleField:		BattleField;
+		private var _userField:			BattleField;
+		private var _opponentField:		BattleField;
 		
 		public function GameBattleProxy()
 		{
@@ -28,8 +29,11 @@ package game.application.game.battle
 		public function init(fieldWidth:uint, fieldHeight:uint):void
 		{
 			
-			_battleField = new BattleField();
-			_battleField.init(fieldWidth, fieldHeight);
+			_userField = new BattleField();
+			_userField.init(fieldWidth, fieldHeight);
+			
+			_opponentField = new BattleField();
+			_opponentField.init(fieldWidth, fieldHeight);
 			
 			
 			this.sendNotification( ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE );
@@ -37,7 +41,7 @@ package game.application.game.battle
 		
 		public function initUserShips(v:Vector.<ShipData>):void
 		{
-			
+			_userShips = v;
 		}
 	}
 }
