@@ -4,6 +4,7 @@ package game.activity.view.application.game
 	import flash.events.Event;
 	
 	import game.activity.BaseMediator;
+	import game.application.ApplicationCommands;
 	import game.application.ProxyList;
 	import game.application.game.battle.GameBattleAction;
 	import game.application.game.battle.GameBattleEvent;
@@ -38,11 +39,15 @@ package game.activity.view.application.game
 			_gameBattleProxy = this.facade.retrieveProxy( ProxyList.GAME_BATTLE_PROXY) as IGameBattleProxy;
 			_gameBattleProxy.dispacther.addEventListener(GameBattleEvent.GAME_UPDATED, handlerGameUpdated);
 			_gameBattleProxy.dispacther.addEventListener(GameBattleEvent.GAME_STARTED, handlerGameStarted);
+			
+			executeBattleProxyAction();
 		}
 		
 		private function handlerSelectCeil(e:Event):void
 		{
 			trace(_gameView.ceilX, _gameView.ceilY);
+			
+			this.sendNotification(ApplicationCommands.USER_HIT_POINT, {x:_gameView.ceilX, y:_gameView.ceilY});
 		}
 		
 		
@@ -60,6 +65,12 @@ package game.activity.view.application.game
 						changeGameStatus();
 						break;
 					}
+						
+					case GameBattleAction.OPPONENT_MAKE_HIT:
+					{
+						opponentMakeHit(action.getData());
+						break;
+					}
 				}
 			}
 			else
@@ -74,8 +85,34 @@ package game.activity.view.application.game
 		{
 			if(_gameBattleProxy.getStatus() == GameBattleStatus.WAITING_FOR_START)
 			{
-				
+				_gameView.lockGame();
+				_gameView.waiting();
 			}
+			else if(_gameBattleProxy.getStatus() == GameBattleStatus.STEP_OF_OPPONENT)
+			{
+				_gameView.lockGame();
+				_gameView.opponentStep();
+			}
+			else if(_gameBattleProxy.getStatus() == GameBattleStatus.STEP_OF_INCOMING_USER)
+			{
+				_gameView.unlockGame();
+				_gameView.userStep();
+			}
+			else if(_gameBattleProxy.getStatus() == GameBattleStatus.WAITINIG_GAME_ANSWER)
+			{
+				_gameView.lockGame();
+				_gameView.waitingGame();
+			}
+			
+			executeBattleProxyAction();
+		}
+		
+		
+		private function opponentMakeHit(data:Object):void
+		{
+			_gameView.opponentMakeHit(data.x, data.y, data.result);
+			
+			executeBattleProxyAction();
 		}
 		
 		

@@ -1,11 +1,14 @@
 package game.application.game.battle
 {
+	import flash.events.Event;
+	
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.data.game.BattleField;
 	import game.application.data.game.ShipData;
 	import game.application.interfaces.game.battle.IGameBattleProxy;
+	import game.application.server.data.OpponentData;
 	
 	public class GameBattleProxy extends BaseProxy implements IGameBattleProxy
 	{
@@ -15,7 +18,7 @@ package game.application.game.battle
 		private var _userField:			BattleField;
 		private var _opponentField:		BattleField;
 		
-		private var _currentStatus:		uint;
+		private var _currentStatus:		uint = uint.MAX_VALUE;
 		
 		
 		private const _actionList:		Vector.<GameBattleAction> = new Vector.<GameBattleAction>;
@@ -48,6 +51,28 @@ package game.application.game.battle
 		}
 		
 		
+		public function initOpponentData(data:OpponentData):void
+		{
+			
+		}
+		
+		
+		public function opponentMakeHit(x:uint, y:uint, result:uint):void
+		{
+			var action:GameBattleAction = new GameBattleAction(GameBattleAction.OPPONENT_MAKE_HIT);
+			action.setData( {x:x, y:y, result:result} );
+			_actionList.push( action );
+		}
+		
+		
+		public function userMakeHit(x:uint, y:uint, result:uint):void
+		{
+			var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_MAKE_HIT);
+			action.setData( {x:x, y:y, result:result} );
+			_actionList.push( action );
+		}
+		
+		
 		public function startDataUpdate():void
 		{
 			
@@ -56,7 +81,7 @@ package game.application.game.battle
 		
 		public function finishDataUpdate():void
 		{
-			
+			this.dispacther.dispatchEvent( new Event(GameBattleEvent.GAME_UPDATED) );
 		}
 		
 		
@@ -81,7 +106,7 @@ package game.application.game.battle
 		
 		public function getAction():GameBattleAction
 		{
-			return null;
+			return _actionList.shift();
 		}
 		
 		

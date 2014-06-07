@@ -14,6 +14,7 @@ package game.activity.view
 		
 		private var _preloaderLayer:	Sprite;
 		private var _appViewLayer:		Sprite;
+		private var _logLayer:			Sprite;
 		
 		public function AppScreen()
 		{
@@ -32,6 +33,20 @@ package game.activity.view
 		public function getAppViewLayer():Sprite
 		{
 			return _appViewLayer;
+		}
+		
+		
+		public function getLogLayer():Sprite
+		{
+			if(!_logLayer)
+			{
+				_logLayer = new Sprite();
+				_canvas.addChild( _logLayer );
+				_logLayer.mouseChildren = false;
+				_logLayer.mouseEnabled = false;
+			}
+			
+			return _logLayer;
 		}
 		
 		

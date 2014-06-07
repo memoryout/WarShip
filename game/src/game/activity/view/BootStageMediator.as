@@ -3,6 +3,7 @@ package game.activity.view
 	import flash.display.Stage;
 	
 	import game.activity.view.application.ApplicationMediator;
+	import game.activity.view.log.LogMediator;
 	import game.activity.view.preloader.PreloaderMediator;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
@@ -28,6 +29,9 @@ package game.activity.view
 			buildView();
 			
 			this.facade.registerMediator( new ApplicationMediator( _appScreen.getAppViewLayer() ) );
+			
+			
+			createLogView();
 		}
 		
 		override public function listNotificationInterests():Array
@@ -81,6 +85,12 @@ package game.activity.view
 		private function startUpComplete():void
 		{
 			//this.facade.registerMediator( new ApplicationMediator( _appScreen.getAppViewLayer() ) );
+		}
+		
+		
+		private function createLogView():void
+		{
+			this.facade.registerMediator( new LogMediator( _appScreen.getLogLayer() ) );
 		}
 	}
 }

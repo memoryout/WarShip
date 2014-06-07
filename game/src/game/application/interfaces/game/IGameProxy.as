@@ -9,5 +9,6 @@ package game.application.interfaces.game
 	{
 		function getShipsList():Vector.<ShipData>;
 		function receiveServerResponce(request:ServerResponce):void;
+		function hitPoint(x:uint, y:uint):void;
 	}
 }

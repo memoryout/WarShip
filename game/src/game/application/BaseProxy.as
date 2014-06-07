@@ -8,6 +8,9 @@ package game.application
 	
 	public class BaseProxy extends Proxy implements IBaseProxy
 	{
+		public static const LOG_MESSAGE:			String = "log_message";
+		
+		
 		private const _dispacther:EventDispatcher = new EventDispatcher();
 		
 		public function BaseProxy(proxyName:String=null, data:Object=null)
@@ -23,6 +26,11 @@ package game.application
 			super.sendNotification(notificationName, body, type);
 		}
 		
+		
+		public function log(value:String):void
+		{
+			this.sendNotification(LOG_MESSAGE, value);
+		}
 		
 		public function get dispacther():EventDispatcher
 		{

@@ -105,6 +105,33 @@ package game.services.net
 		}
 		
 		
+		public function getGameUpdate():void
+		{
+			var req:Request = new Request();
+			
+			var obj:Object = new Object();
+			obj.cmd = ServerCommandList.GET_GAME_UPDATE;
+			obj.session = _session;
+			
+			req.pushData( obj );
+			_connection.sendRequest( req );
+		}
+		
+		
+		public function sendHitPointPosition(x:uint, y:uint):void
+		{
+			var req:Request = new Request();
+			
+			var obj:Object = new Object();
+			obj.cmd = ServerCommandList.SEND_HIT_POINT_POSITION;
+			obj.session = _session;
+			obj.target = JSON.stringify([x,y]);
+			
+			req.pushData( obj );
+			_connection.sendRequest( req );
+		}
+		
+		
 		
 		
 		private function handlerInitComplete(e:Event):void

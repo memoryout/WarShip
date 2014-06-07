@@ -10,5 +10,7 @@ package game.application
 		public static const CREATE_NEW_GAME:			String = "cmd.app.game.create";
 		
 		public static const USER_SHIPS_LOCATED_COMPLETE:String = "cmd.app.game.ships.located.complete";
+		
+		public static const USER_HIT_POINT:				String = "cmd.app.game.hit_point";
 	}
 }

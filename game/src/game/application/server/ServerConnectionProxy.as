@@ -8,6 +8,8 @@ package game.application.server
 	import game.application.interfaces.server.IServerConnectionProxy;
 	import game.application.server.data.AuthorizationData;
 	import game.application.server.data.GameInfoResponce;
+	import game.application.server.data.HitInfo;
+	import game.application.server.data.OpponentData;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
 	import game.services.net.ServerConnectionEvent;
@@ -74,6 +76,26 @@ package game.application.server
 		}
 		
 		
+		public function getGameUpdate():void
+		{
+			if(_serverConnection)
+			{
+				_serverConnection.getGameUpdate();
+			}
+		}
+		
+		
+		public function sendHitPointPosition(x:uint, y:uint):void
+		{
+			if(_serverConnection)
+			{
+				_serverConnection.sendHitPointPosition(x, y);
+			}
+		}
+		
+		
+		
+		
 		private function handlerSignInComplete(e:ServerConnectionEvent):void
 		{
 			var data:Object = e.data;
@@ -116,6 +138,8 @@ package game.application.server
 			var responce:ServerResponce = new ServerResponce();
 			responce.setRawData( data );
 			
+			this.log( JSON.stringify(data) );
+			
 			parseUserCommonData(data);
 			
 			switch(data.cmd)
@@ -128,7 +152,19 @@ package game.application.server
 					
 				case "start_game":
 				{
-					parseStartDataResponce(data, responce);
+					parseGameInfoDataResponce(data, responce);
+					break;
+				}
+					
+				case "get_updates":
+				{
+					parseGameInfoDataResponce(data, responce);
+					break;
+				}
+					
+				case "game_play":
+				{
+					parseGameInfoDataResponce(data, responce);
 					break;
 				}
 			}
@@ -161,7 +197,7 @@ package game.application.server
 		}
 		
 		
-		private function parseStartDataResponce(data:Object, responce:ServerResponce):void
+		private function parseGameInfoDataResponce(data:Object, responce:ServerResponce):void
 		{
 			var gameInfo:Object = data.gameInfo;
 			
@@ -172,11 +208,21 @@ package game.application.server
 				
 				if(gameInfo.opponent)
 				{
-					
+					info.opponentData = new OpponentData();
+					info.opponentData.name = gameInfo.opponent.name;
+					info.opponentData.uid = gameInfo.opponent.uid;
 				}
-				
-				responce.pushData( info );
 			}
+			
+			if(data.hitInfo)
+			{
+				info.hitInfo = new HitInfo();
+				info.hitInfo.status = data.hitInfo.status;
+				info.hitInfo.pointX = data.hitInfo.target[1];
+				info.hitInfo.pointY = data.hitInfo.target[0];
+			}
+			
+			responce.pushData( info );
 		}
 	}
 }

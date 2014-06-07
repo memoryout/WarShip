@@ -6,7 +6,8 @@ package game.application.server.data
 	{
 		public var status:			int;
 		
-		public var opponentData:	OpponentData
+		public var opponentData:	OpponentData;
+		public var hitInfo:			HitInfo;
 		
 		
 		public function GameInfoResponce()

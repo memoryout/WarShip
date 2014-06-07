@@ -1,8 +1,13 @@
 package game.application.game.p_vs_p_net
 {
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
+	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
+	import game.application.commands.game.UserInGameActionCommand;
 	import game.application.commands.server.ServerRequestComplete;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
@@ -15,13 +20,19 @@ package game.application.game.p_vs_p_net
 	import game.application.server.ServerResponce;
 	import game.application.server.ServerResponceDataType;
 	import game.application.server.data.GameInfoResponce;
+	import game.application.server.data.HitInfo;
 	import game.application.server.data.ResponceData;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
+		private const REPEAT_TIMEOUT:	uint = 10000;
+		
 		private const shipsDeckList:	Vector.<uint> = new <uint>[4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 		
 		private var _battleProxy:		GameBattleProxy;
+		private var _serverProxy:		ServerConnectionProxy;
+		
+		private var _requestRepeatTimer:Timer;
 		
 		public function GameVSPlayerNetProxy(proxyName:String)
 		{
@@ -36,6 +47,7 @@ package game.application.game.p_vs_p_net
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
 			this.facade.registerCommand(ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerRequestComplete);
+			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
 		}		
 		
 		
@@ -58,8 +70,8 @@ package game.application.game.p_vs_p_net
 			}
 			
 			
-			var serverProxy:ServerConnectionProxy = this.facade.retrieveProxy(ProxyList.SERVER_PROXY) as ServerConnectionProxy;
-			serverProxy.sendUserShipLocation( ships );
+			_serverProxy = this.facade.retrieveProxy(ProxyList.SERVER_PROXY) as ServerConnectionProxy;
+			_serverProxy.sendUserShipLocation( ships );
 			
 			createGameBattleProxy();
 			
@@ -68,6 +80,16 @@ package game.application.game.p_vs_p_net
 			_battleProxy.finishDataUpdate();
 		}
 		
+		
+		override public function hitPoint(x:uint, y:uint):void
+		{
+			_battleProxy.setStatus(GameBattleStatus.WAITINIG_GAME_ANSWER);
+			_battleProxy.finishDataUpdate();
+			
+			_serverProxy.sendHitPointPosition( y, x );
+			
+			startUpdateInfoTimer();
+		}
 		
 		
 		override public function receiveServerResponce(responce:ServerResponce):void
@@ -92,6 +114,11 @@ package game.application.game.p_vs_p_net
 		{
 			_battleProxy.startDataUpdate();
 			
+			
+			
+			
+			
+			
 			switch(data.status)
 			{
 				case GameBattleStatus.WAITING_FOR_START:
@@ -101,9 +128,39 @@ package game.application.game.p_vs_p_net
 					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
 					break;
 				}
+					
+				case GameBattleStatus.STEP_OF_OPPONENT:
+				{
+					if(_battleProxy.getStatus() == GameBattleStatus.WAITING_FOR_START && data.opponentData)
+					{
+						_battleProxy.initOpponentData( data.opponentData );
+					}
+					
+					if(data.hitInfo) processHitAction(data.hitInfo, false);
+										
+					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
+					
+					startUpdateInfoTimer();
+					
+					break;
+				}
+				
+				case GameBattleStatus.STEP_OF_INCOMING_USER:
+				{
+					_battleProxy.setStatus(GameBattleStatus.STEP_OF_INCOMING_USER);
+					
+					break;
+				}
 			}
 			
 			_battleProxy.finishDataUpdate();
+		}
+		
+		
+		private function processHitAction(data:HitInfo, user:Boolean):void
+		{
+			if(!user) _battleProxy.opponentMakeHit(data.pointX, data.pointY, data.status);
+			else _battleProxy.userMakeHit(data.pointX, data.pointY, data.status);
 		}
 		
 		
@@ -120,7 +177,25 @@ package game.application.game.p_vs_p_net
 		
 		private function startUpdateInfoTimer():void
 		{
+			if(!_requestRepeatTimer)
+			{
+				_requestRepeatTimer = new Timer(REPEAT_TIMEOUT);
+				_requestRepeatTimer.addEventListener(TimerEvent.TIMER, handlerUpdateInfoTimer);
+			}
+			else
+			{
+				_requestRepeatTimer.reset();
+			}
 			
+			_requestRepeatTimer.start();
+		}
+		
+		
+		private function handlerUpdateInfoTimer(e:TimerEvent):void
+		{
+			_requestRepeatTimer.stop();
+			
+			_serverProxy.getGameUpdate();
 		}
 	}
 }

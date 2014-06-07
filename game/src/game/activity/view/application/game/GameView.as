@@ -4,6 +4,7 @@ package game.activity.view.application.game
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.text.TextField;
 	
 	import game.activity.BaseMediator;
 	
@@ -17,6 +18,8 @@ package game.activity.view.application.game
 		
 		private var _ceilX:			uint;
 		private var _ceilY:			uint;
+		
+		private var _txt:			TextField;
 		
 		public function GameView()
 		{
@@ -35,6 +38,59 @@ package game.activity.view.application.game
 		}
 		
 		
+		public function lockGame():void
+		{
+			_opponentField.removeEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+		}
+		
+		
+		public function unlockGame():void
+		{
+			_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+		}
+		
+		
+		
+		public function waiting():void
+		{
+			this.alpha = 0.5;
+			_txt.text = "WAITING";
+		}
+		
+		
+		public function opponentStep():void
+		{
+			this.alpha = 1;
+			_txt.text = "OPPONENT STEP";
+		}
+		
+		public function userStep():void
+		{
+			this.alpha = 1;
+			_txt.text = "USER STEP";
+		}
+		
+		public function waitingGame():void
+		{
+			this.alpha = 0.5;
+			_txt.text = "WAITNIG GAME ANSWER";
+		}
+		
+		
+		public function opponentMakeHit(x:uint, y:uint, result:uint):void
+		{
+			if(result == 0)
+			{
+				var rectX:Number = (_opponentField.width/10) * x;
+				var rectY:Number = (_opponentField.height/10) * y;
+				
+				_opponentField.graphics.beginFill(0x0000ff);
+				_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
+				_opponentField.graphics.endFill();
+			}
+		}
+		
+		
 		private function createViewComponents():void
 		{
 			var classInstance:Class = BaseMediator.getSourceClass("viewGame");
@@ -46,6 +102,14 @@ package game.activity.view.application.game
 				
 				_opponentField = _skin.getChildByName("oponent_field") as MovieClip;
 				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+				
+				_txt = new TextField();
+				_txt.background = true;
+				_txt.x = 820;
+				_txt.y = 20;
+				_txt.width = 300;
+				
+				this.addChild( _txt );
 			}
 		}
 		

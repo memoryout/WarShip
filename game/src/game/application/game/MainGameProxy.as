@@ -45,5 +45,10 @@ package game.application.game
 		{
 			
 		}
+		
+		public function hitPoint(x:uint, y:uint):void
+		{
+			
+		}
 	}
 }
