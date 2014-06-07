@@ -3,12 +3,19 @@ package game.application.game.p_vs_p_net
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
+	import game.application.commands.server.ServerRequestComplete;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.game.MainGameProxy;
 	import game.application.game.battle.GameBattleProxy;
+	import game.application.game.battle.GameBattleStatus;
 	import game.application.interfaces.game.p_vs_p_net.IGameVSPlayerNet;
 	import game.application.server.ServerConnectionProxy;
+	import game.application.server.ServerConnectionProxyEvents;
+	import game.application.server.ServerResponce;
+	import game.application.server.ServerResponceDataType;
+	import game.application.server.data.GameInfoResponce;
+	import game.application.server.data.ResponceData;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
@@ -27,6 +34,8 @@ package game.application.game.p_vs_p_net
 			super.generateShipList( shipsDeckList );
 			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
+			
+			this.facade.registerCommand(ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerRequestComplete);
 		}		
 		
 		
@@ -53,6 +62,48 @@ package game.application.game.p_vs_p_net
 			serverProxy.sendUserShipLocation( ships );
 			
 			createGameBattleProxy();
+			
+			
+			_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
+			_battleProxy.finishDataUpdate();
+		}
+		
+		
+		
+		override public function receiveServerResponce(responce:ServerResponce):void
+		{
+			var dataList:Vector.<ResponceData> = responce.getDataList();
+			var i:int;
+			for(i = 0; i< dataList.length; i++)
+			{
+				switch(dataList[i].responceDataType)
+				{
+					case ServerResponceDataType.GAME_INFO:
+					{
+						updateGameInfo(dataList[i] as GameInfoResponce);
+						break;
+					}
+				}
+			}
+		}
+		
+		
+		private function updateGameInfo(data:GameInfoResponce):void
+		{
+			_battleProxy.startDataUpdate();
+			
+			switch(data.status)
+			{
+				case GameBattleStatus.WAITING_FOR_START:
+				{
+					startUpdateInfoTimer();
+					
+					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
+					break;
+				}
+			}
+			
+			_battleProxy.finishDataUpdate();
 		}
 		
 		
@@ -63,6 +114,13 @@ package game.application.game.p_vs_p_net
 			
 			_battleProxy.init(10, 10);
 			_battleProxy.initUserShips( shipsList );
+		}
+		
+		
+		
+		private function startUpdateInfoTimer():void
+		{
+			
 		}
 	}
 }

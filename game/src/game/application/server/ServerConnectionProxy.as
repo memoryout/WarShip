@@ -7,6 +7,7 @@ package game.application.server
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.server.IServerConnectionProxy;
 	import game.application.server.data.AuthorizationData;
+	import game.application.server.data.GameInfoResponce;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
 	import game.services.net.ServerConnectionEvent;
@@ -124,6 +125,12 @@ package game.application.server
 					parseAuthorizationData(data, responce);
 					break;
 				}
+					
+				case "start_game":
+				{
+					parseStartDataResponce(data, responce);
+					break;
+				}
 			}
 			
 			this.sendNotification(ServerConnectionProxyEvents.REQUEST_COMPLETE, responce);
@@ -150,6 +157,25 @@ package game.application.server
 				auth.session = loginInfo.session;
 				
 				respoce.pushData( auth );
+			}
+		}
+		
+		
+		private function parseStartDataResponce(data:Object, responce:ServerResponce):void
+		{
+			var gameInfo:Object = data.gameInfo;
+			
+			if(gameInfo)
+			{
+				var info:GameInfoResponce = new GameInfoResponce();
+				info.status = gameInfo.status;
+				
+				if(gameInfo.opponent)
+				{
+					
+				}
+				
+				responce.pushData( info );
 			}
 		}
 	}

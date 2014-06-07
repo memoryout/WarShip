@@ -3,6 +3,7 @@ package game.application.game
 	import game.application.BaseProxy;
 	import game.application.data.game.ShipData;
 	import game.application.interfaces.game.IGameProxy;
+	import game.application.server.ServerResponce;
 	
 	public class MainGameProxy extends BaseProxy implements IGameProxy 
 	{
@@ -36,6 +37,11 @@ package game.application.game
 		
 		
 		public function userLocatedShips():void
+		{
+			
+		}
+		
+		public function receiveServerResponce(request:ServerResponce):void
 		{
 			
 		}

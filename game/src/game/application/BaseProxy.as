@@ -1,9 +1,14 @@
 package game.application
 {
+	import flash.events.EventDispatcher;
+	
+	import game.application.interfaces.IBaseProxy;
+	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
-	public class BaseProxy extends Proxy
+	public class BaseProxy extends Proxy implements IBaseProxy
 	{
+		private const _dispacther:EventDispatcher = new EventDispatcher();
 		
 		public function BaseProxy(proxyName:String=null, data:Object=null)
 		{
@@ -16,6 +21,12 @@ package game.application
 			CONFIG::TRACE_SEND_NOTIFICATION { trace("sendNotification: " + notificationName); }
 			
 			super.sendNotification(notificationName, body, type);
+		}
+		
+		
+		public function get dispacther():EventDispatcher
+		{
+			return _dispacther;
 		}
 	}
 }
