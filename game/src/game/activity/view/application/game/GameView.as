@@ -84,7 +84,7 @@ package game.activity.view.application.game
 		public function userMakeHit(x:uint, y:uint, result:uint):void
 		{
 			if(result == 0) _opponentField.graphics.beginFill(0x0000ff);
-			else if(result == 1) _opponentField.graphics.beginFill(0xff0000);
+			else if(result == 1 || result == 2) _opponentField.graphics.beginFill(0xff0000);
 
 			var rectX:Number = (_opponentField.width/10) * x;
 			var rectY:Number = (_opponentField.height/10) * y;
@@ -101,8 +101,8 @@ package game.activity.view.application.game
 		public function opponentMakeHit(x:uint, y:uint, result:uint):void
 		{
 			
-			if(result == 0) _opponentField.graphics.beginFill(0x0000ff);
-			else if(result == 1) _opponentField.graphics.beginFill(0xff0000);
+			if(result == 0) _userField.graphics.beginFill(0x0000ff);
+			else if(result == 1 || result == 2) _userField.graphics.beginFill(0xff0000);
 			
 			var rectX:Number = (_opponentField.width/10) * x;
 			var rectY:Number = (_opponentField.height/10) * y;

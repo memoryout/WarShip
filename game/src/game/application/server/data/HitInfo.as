@@ -6,6 +6,8 @@ package game.application.server.data
 		public var pointX:		uint;
 		public var pointY:		uint;
 		
+		public var ship:		ShipInfo;
+		
 		public function HitInfo()
 		{
 			
