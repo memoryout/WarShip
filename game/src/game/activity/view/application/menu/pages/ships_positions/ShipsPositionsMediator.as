@@ -41,6 +41,10 @@ package game.activity.view.application.menu.pages.ships_positions
 			
 			_shipsList = _proxy.getShipsList();
 			_view.setShipsData( _shipsList );
+			
+			////
+			ShipPositionSupport.getInstance().shipsAutoArrangement(_shipsList, 10, 10);
+			_view.setShipPositionOnTable();
 		}
 		
 		
@@ -61,6 +65,7 @@ package game.activity.view.application.menu.pages.ships_positions
 		{
 			ShipPositionSupport.getInstance().shipsAutoArrangement(_shipsList, 10, 10);
 			_view.updateShipPositions();
+			_view.setShipPositionOnTable();
 			
 		}
 		
