@@ -15,6 +15,7 @@ package game.activity.view.application.game
 		private var _skin:			MovieClip;
 		
 		private var _opponentField:	MovieClip;
+		private var _userField:		MovieClip;
 		
 		private var _ceilX:			uint;
 		private var _ceilY:			uint;
@@ -77,17 +78,37 @@ package game.activity.view.application.game
 		}
 		
 		
+		/**
+		 * Игрок сделал выстрел, значит рисуем на поле оппонента.
+		 * */
+		public function userMakeHit(x:uint, y:uint, result:uint):void
+		{
+			if(result == 0) _opponentField.graphics.beginFill(0x0000ff);
+			else if(result == 1) _opponentField.graphics.beginFill(0xff0000);
+
+			var rectX:Number = (_opponentField.width/10) * x;
+			var rectY:Number = (_opponentField.height/10) * y;
+				
+			_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
+			_opponentField.graphics.endFill();
+		}
+		
+		
+		/**
+		 * Противник сделал выстрел, значит отмечаем его на своём поле.
+		 * Для вычислений используеться _opponentField хотя рисуеться на _userField - это временно
+		 * */
 		public function opponentMakeHit(x:uint, y:uint, result:uint):void
 		{
-			if(result == 0)
-			{
-				var rectX:Number = (_opponentField.width/10) * x;
-				var rectY:Number = (_opponentField.height/10) * y;
-				
-				_opponentField.graphics.beginFill(0x0000ff);
-				_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
-				_opponentField.graphics.endFill();
-			}
+			
+			if(result == 0) _opponentField.graphics.beginFill(0x0000ff);
+			else if(result == 1) _opponentField.graphics.beginFill(0xff0000);
+			
+			var rectX:Number = (_opponentField.width/10) * x;
+			var rectY:Number = (_opponentField.height/10) * y;
+			
+			_userField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
+			_userField.graphics.endFill();
 		}
 		
 		
@@ -102,6 +123,15 @@ package game.activity.view.application.game
 				
 				_opponentField = _skin.getChildByName("oponent_field") as MovieClip;
 				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+				
+				
+				_userField = new MovieClip();
+				_skin.addChild( _userField );
+				
+				var playerField:MovieClip = _skin.getChildByName("player_field") as MovieClip;
+				
+				_userField.x = playerField.x;
+				_userField.y = playerField.y;
 				
 				_txt = new TextField();
 				_txt.background = true;

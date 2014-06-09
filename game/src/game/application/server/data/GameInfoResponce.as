@@ -9,6 +9,8 @@ package game.application.server.data
 		public var opponentData:	OpponentData;
 		public var hitInfo:			HitInfo;
 		
+		public var notifications:	Vector.<NotififactionData>;
+		
 		
 		public function GameInfoResponce()
 		{

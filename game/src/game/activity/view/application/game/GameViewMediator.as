@@ -66,6 +66,12 @@ package game.activity.view.application.game
 						break;
 					}
 						
+					case GameBattleAction.USER_MAKE_HIT:
+					{
+						userMakeHit(action.getData());
+						break;
+					}
+						
 					case GameBattleAction.OPPONENT_MAKE_HIT:
 					{
 						opponentMakeHit(action.getData());
@@ -103,6 +109,14 @@ package game.activity.view.application.game
 				_gameView.lockGame();
 				_gameView.waitingGame();
 			}
+			
+			executeBattleProxyAction();
+		}
+		
+		
+		private function userMakeHit(data:Object):void
+		{
+			_gameView.userMakeHit(data.x, data.y, data.result);
 			
 			executeBattleProxyAction();
 		}

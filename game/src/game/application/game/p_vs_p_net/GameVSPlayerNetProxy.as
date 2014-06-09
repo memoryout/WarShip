@@ -9,6 +9,7 @@ package game.application.game.p_vs_p_net
 	import game.application.ProxyList;
 	import game.application.commands.game.UserInGameActionCommand;
 	import game.application.commands.server.ServerRequestComplete;
+	import game.application.data.NotificationType;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.game.MainGameProxy;
@@ -21,6 +22,7 @@ package game.application.game.p_vs_p_net
 	import game.application.server.ServerResponceDataType;
 	import game.application.server.data.GameInfoResponce;
 	import game.application.server.data.HitInfo;
+	import game.application.server.data.NotififactionData;
 	import game.application.server.data.ResponceData;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
@@ -115,7 +117,8 @@ package game.application.game.p_vs_p_net
 			_battleProxy.startDataUpdate();
 			
 			
-			
+			if(data.hitInfo) processHitAction(data.hitInfo, true);
+			if(data.notifications) processNotifications(data.notifications);
 			
 			
 			
@@ -135,9 +138,7 @@ package game.application.game.p_vs_p_net
 					{
 						_battleProxy.initOpponentData( data.opponentData );
 					}
-					
-					if(data.hitInfo) processHitAction(data.hitInfo, false);
-										
+									
 					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
 					
 					startUpdateInfoTimer();
@@ -196,6 +197,23 @@ package game.application.game.p_vs_p_net
 			_requestRepeatTimer.stop();
 			
 			_serverProxy.getGameUpdate();
+		}
+		
+		
+		private function processNotifications(v:Vector.<NotififactionData>):void
+		{
+			var i:int;
+			for(i = 0; i < v.length; i++)
+			{
+				switch(v[i].type)
+				{
+					case NotificationType.HIT:
+					{
+						_battleProxy.opponentMakeHit(v[i].data.target[1], v[i].data.target[0], v[i].data.status);
+						break;
+					}
+				}
+			}
 		}
 	}
 }

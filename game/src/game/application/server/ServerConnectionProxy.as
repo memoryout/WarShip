@@ -9,6 +9,7 @@ package game.application.server
 	import game.application.server.data.AuthorizationData;
 	import game.application.server.data.GameInfoResponce;
 	import game.application.server.data.HitInfo;
+	import game.application.server.data.NotififactionData;
 	import game.application.server.data.OpponentData;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
@@ -211,6 +212,21 @@ package game.application.server
 					info.opponentData = new OpponentData();
 					info.opponentData.name = gameInfo.opponent.name;
 					info.opponentData.uid = gameInfo.opponent.uid;
+				}
+				
+				if(gameInfo.notifications)
+				{
+					info.notifications = new Vector.<NotififactionData>(gameInfo.notifications.length, true);
+					
+					var i:int, nData:NotififactionData;
+					for(i = 0; i < gameInfo.notifications.length; i++)
+					{
+						nData = new NotififactionData();
+						nData.data = gameInfo.notifications[i].data;
+						nData.type = gameInfo.notifications[i].type;
+						
+						info.notifications[i] = nData;
+					}
 				}
 			}
 			
