@@ -1,6 +1,8 @@
 package game.activity.view.application.menu.pages.ships_positions
 {
 	import com.greensock.TweenLite;
+	import com.greensock.plugins.TintPlugin;
+	import com.greensock.plugins.TweenPlugin;
 	
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -30,6 +32,7 @@ package game.activity.view.application.menu.pages.ships_positions
 		private const _eventShipDrag:		Event = new Event(SHIP_DRAG);
 		private var _shipCache:				Dictionary;								// кеш ссылок на корабли. Ключ - мувик корабля которые таскаем по полю, значение - связанный с этим кораблём ShipData.
 		public var activeShip:				ShipData;								// задаёться когда начинаем таскать корабль.
+		public var isColision:				Boolean;		
 		
 		private var _skin:			MovieClip;
 		
@@ -49,6 +52,8 @@ package game.activity.view.application.menu.pages.ships_positions
 		
 		public function ShipsPositionsView()
 		{
+			TweenPlugin.activate([TintPlugin]);
+			
 			super();
 			
 			createViewComponents();			
@@ -118,7 +123,7 @@ package game.activity.view.application.menu.pages.ships_positions
 				
 				ship.x = _ships[i].x*cellSize;
 				ship.y = _ships[i].y*cellSize;
-								
+				
 				ship.gotoAndStop(_ships[i].dirrection + 1);
 				
 				_shipCache[ship] = _ships[i];
@@ -147,20 +152,13 @@ package game.activity.view.application.menu.pages.ships_positions
 			var xx:uint = Math.round( e.currentTarget.x/cellSize );			// лпределяем позиции корабля.
 			var yy:uint = Math.round( e.currentTarget.y/cellSize );
 			
-			if(xx != activeShip.x || yy != activeShip.y)					// проверка что б событие не отправлялось по каждому движению, а только при смене значений координат.
-			{
-				activeShip.x = xx;
-				activeShip.y = yy;
-				
-				trace(activeShip.x, activeShip.y);
-				this.dispatchEvent( _eventShipDrag );						// событие слушает ShipPositionMediator.as
-			}
+			/*if(xx != activeShip.x || yy != activeShip.y)					// проверка что б событие не отправлялось по каждому движению, а только при смене значений координат.
+			{*/
+			activeShip.x = xx;
+			activeShip.y = yy;
 			
+			this.dispatchEvent( _eventShipDrag );						// событие слушает ShipPositionMediator.as
 			
-			
-			return;
-			
-			/*
 			var lining:MovieClip, level:int, hitMc:MovieClip = e.currentTarget as MovieClip, old_x:int, old_y:int;		
 			
 			var x_coef:int = shipsLocationProcess.correctRange((hitMc.x + 12)/cellSize);
@@ -169,7 +167,7 @@ package game.activity.view.application.menu.pages.ships_positions
 			var a:Array 			= hitMc.name.split("s");
 			var deckNArray:Array	= a[1].split("_");
 			var shipsDeck:int  		= int(deckNArray[0]);			
-			var shipDirection:int 		= hitMc.currentFrame - 1;								
+			var shipDirection:int 	= hitMc.currentFrame - 1;	
 			
 			_shipPlaceholder.setChildIndex(hitMc, _shipPlaceholder.numChildren - 1);		
 			
@@ -191,11 +189,7 @@ package game.activity.view.application.menu.pages.ships_positions
 				
 				shipsLocationProcess.shipsOldPosition = [old_x, old_y];					
 				
-				shipsLocationProcess.resetShipLocation(0, 0, int(deckNArray[1]));				
-//				shipsLocationProcess.traceShipsArray("reset");			
-				
-//				shipsLocationProcess.updateShipsLocationWithoutDraged(old_x, old_y);				
-//				shipsLocationProcess.traceShipsArray("update");
+				shipsLocationProcess.resetShipLocation(0, 0, int(deckNArray[1]));						
 			}
 			
 			shipsLocationProcess.dataForRotate.column = x_coef;
@@ -203,7 +197,7 @@ package game.activity.view.application.menu.pages.ships_positions
 			shipsLocationProcess.dataForRotate.orient = shipDirection;
 			shipsLocationProcess.dataForRotate.deck	  = shipsDeck;	
 			
-			if(shipsLocationProcess.checkShipField(y_coef, x_coef, shipDirection, shipsDeck))
+			if(!isColision)
 			{			
 				canLocate = true;				
 				setTint(lining, GREEN, 0, 1);
@@ -224,8 +218,7 @@ package game.activity.view.application.menu.pages.ships_positions
 				lining.x = x_coef*cellSize;
 				lining.y = shipsLocationProcess.correctRangeForMoving(y_coef, shipsDeck)*cellSize;
 			}
-			
-			*/
+			//			}
 		}
 		
 		private function setTint(_element:MovieClip, _color:uint, _time:int = 0, _alpha:Number = 1):void
@@ -260,7 +253,7 @@ package game.activity.view.application.menu.pages.ships_positions
 			dragedShip.stopDrag();
 			removeMoveListeners();		
 			
-			return;
+			//			return;
 			
 			isCleared = tableIsAdd = false;
 			dragedShip = rotatedShip = e.currentTarget as MovieClip;					
@@ -287,10 +280,21 @@ package game.activity.view.application.menu.pages.ships_positions
 			var x_coef:int = shipsLocationProcess.correctRange((dragedShip.x + 20)/cellSize);
 			var y_coef:int = shipsLocationProcess.correctRange((dragedShip.y + 5)/cellSize);
 			
-			if(shipsLocationProcess.checkShipField(x_coef, y_coef, shipOrient, shipsDeck))
+			if(!isColision)
 			{
-				shipsLocationProcess.putShipInBattleField(x_coef, y_coef, shipOrient, shipsDeck, true);	
-				shipsLocationProcess.traceShipsArray("drag stop");
+				for (var i:int = 0; i < _ships.length; i++) 
+				{
+					if(_ships[i].x == activeShip.x &&  _ships[i].y == activeShip.y)
+					{
+						_ships[i].x == activeShip.x;
+						_ships[i].y == activeShip.y;
+						break;
+					}
+					
+				}
+				
+				//				shipsLocationProcess.putShipInBattleField(x_coef, y_coef, shipOrient, shipsDeck, true);	
+				//				shipsLocationProcess.traceShipsArray("drag stop");
 			}			
 		}
 		
@@ -328,7 +332,7 @@ package game.activity.view.application.menu.pages.ships_positions
 					this.dispatchEvent( new Event(BACK) );
 					break;
 				}
-				
+					
 				case "btn_next":
 				{
 					this.dispatchEvent( new Event(NEXT) );
