@@ -84,5 +84,76 @@ package game.utils
 				}
 			}
 		}
+		
+		
+		public function testCollision(ship:ShipData, shipList:Vector.<ShipData>):Vector.<GamePoint>
+		{
+			var i:int, point:GamePoint, collisionRect:Rectangle, j:int;
+			
+			const tempRect:Rectangle = new Rectangle();
+			const shipRect:Rectangle = new Rectangle();
+			
+			const v:Vector.<GamePoint> = new Vector.<GamePoint>;
+			
+			shipRect.x = ship.x - 1;
+			shipRect.y = ship.y - 1;
+			
+			if(ship.dirrection == ShipDirrection.HORIZONTAL)
+			{
+				shipRect.width = ship.deck + 2;
+				shipRect.height = 3;
+			}
+			else
+			{
+				shipRect.width = 3
+				shipRect.height = ship.deck + 2;;
+			}
+			
+			for(i = 0; i < shipList.length; i++)
+			{
+				if( shipList[i] != ship )
+				{
+					tempRect.x = shipList[i].x;
+					tempRect.y = shipList[i].y;
+					
+					if(shipList[i].dirrection == ShipDirrection.HORIZONTAL)
+					{
+						tempRect.width = shipList[i].deck;
+						tempRect.height = 1;
+					}
+					else
+					{
+						tempRect.height = shipList[i].deck;
+						tempRect.width = 1;
+					}
+					
+					collisionRect = shipRect.intersection( tempRect );
+					
+					if(collisionRect.width)
+					{
+						for(j = 0; j < collisionRect.width; j++)
+						{
+							point = new GamePoint();
+							point.x = collisionRect.x + j;
+							point.y = collisionRect.y;
+							
+							v.push( point );
+						}
+						
+						for(j = 1; j < collisionRect.height; j++)
+						{
+							point = new GamePoint();
+							point.x = collisionRect.x;
+							point.y = collisionRect.y + j;
+							
+							v.push( point );
+						}
+					}
+				}
+			}
+			
+			return v;
+			
+		}
 	}
 }

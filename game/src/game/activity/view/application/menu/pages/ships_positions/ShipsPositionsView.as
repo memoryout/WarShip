@@ -7,6 +7,7 @@ package game.activity.view.application.menu.pages.ships_positions
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import flash.utils.Dictionary;
 	
 	import game.activity.BaseMediator;
 	import game.application.data.game.ShipData;
@@ -24,6 +25,11 @@ package game.activity.view.application.menu.pages.ships_positions
 		public static const AUTO_ARRANGEMENT:		String = "autoArrangement";
 		public static const BACK:					String = "back";
 		public static const NEXT:					String = "next";
+		
+		public static const SHIP_DRAG:				String = "ship_drag";			// отправляеться когда тягаем корабль по полю ( mouseMove(...) )
+		private const _eventShipDrag:		Event = new Event(SHIP_DRAG);
+		private var _shipCache:				Dictionary;								// кеш ссылок на корабли. Ключ - мувик корабля которые таскаем по полю, значение - связанный с этим кораблём ShipData.
+		public var activeShip:				ShipData;								// задаёться когда начинаем таскать корабль.
 		
 		private var _skin:			MovieClip;
 		
@@ -104,6 +110,8 @@ package game.activity.view.application.menu.pages.ships_positions
 		
 		public function setShipPositionOnTable():void
 		{
+			_shipCache = new Dictionary();
+			
 			for (var i:int = 0; i < _ships.length; i++) 
 			{
 				var ship:MovieClip = _shipPlaceholder.getChildByName("s" + _ships[i].deck + "_" + i) as MovieClip;
@@ -112,7 +120,9 @@ package game.activity.view.application.menu.pages.ships_positions
 				ship.y = _ships[i].y*cellSize;
 								
 				ship.gotoAndStop(_ships[i].dirrection + 1);
-									
+				
+				_shipCache[ship] = _ships[i];
+				
 			}			
 		}
 		
@@ -125,13 +135,32 @@ package game.activity.view.application.menu.pages.ships_positions
 			initShipPoint.x = dragedShip.x;
 			initShipPoint.y = dragedShip.y;		
 			
+			activeShip = _shipCache[dragedShip];
+			
 			dragedShip.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);	
 			dragedShip.addEventListener(MouseEvent.MOUSE_UP,   mouseMoveDeactivate);	
-			dragedShip.startDrag();			
+			dragedShip.startDrag();		
 		}
 		
 		private function mouseMove(e:MouseEvent):void
 		{
+			var xx:uint = Math.round( e.currentTarget.x/cellSize );			// лпределяем позиции корабля.
+			var yy:uint = Math.round( e.currentTarget.y/cellSize );
+			
+			if(xx != activeShip.x || yy != activeShip.y)					// проверка что б событие не отправлялось по каждому движению, а только при смене значений координат.
+			{
+				activeShip.x = xx;
+				activeShip.y = yy;
+				
+				trace(activeShip.x, activeShip.y);
+				this.dispatchEvent( _eventShipDrag );						// событие слушает ShipPositionMediator.as
+			}
+			
+			
+			
+			return;
+			
+			/*
 			var lining:MovieClip, level:int, hitMc:MovieClip = e.currentTarget as MovieClip, old_x:int, old_y:int;		
 			
 			var x_coef:int = shipsLocationProcess.correctRange((hitMc.x + 12)/cellSize);
@@ -194,7 +223,9 @@ package game.activity.view.application.menu.pages.ships_positions
 			{				
 				lining.x = x_coef*cellSize;
 				lining.y = shipsLocationProcess.correctRangeForMoving(y_coef, shipsDeck)*cellSize;
-			}			
+			}
+			
+			*/
 		}
 		
 		private function setTint(_element:MovieClip, _color:uint, _time:int = 0, _alpha:Number = 1):void
@@ -228,6 +259,8 @@ package game.activity.view.application.menu.pages.ships_positions
 		{
 			dragedShip.stopDrag();
 			removeMoveListeners();		
+			
+			return;
 			
 			isCleared = tableIsAdd = false;
 			dragedShip = rotatedShip = e.currentTarget as MovieClip;					

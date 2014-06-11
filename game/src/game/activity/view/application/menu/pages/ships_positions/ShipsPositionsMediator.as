@@ -11,6 +11,7 @@ package game.activity.view.application.menu.pages.ships_positions
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.IGameProxy;
 	import game.application.interfaces.game.p_vs_p_net.IGameVSPlayerNet;
+	import game.utils.GamePoint;
 	import game.utils.ShipPositionSupport;
 	
 	public class ShipsPositionsMediator extends MenuPageMediator
@@ -35,6 +36,7 @@ package game.activity.view.application.menu.pages.ships_positions
 			_view.addEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
 			_view.addEventListener(ShipsPositionsView.BACK, handlerBack);
 			_view.addEventListener(ShipsPositionsView.NEXT, handlerNext);
+			_view.addEventListener(ShipsPositionsView.SHIP_DRAG, handlerChangeShipPosition);
 			
 			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
 			_proxy = mainApp.getCurrentGame();
@@ -81,6 +83,16 @@ package game.activity.view.application.menu.pages.ships_positions
 			_view.removeEventListener(ShipsPositionsView.NEXT, handlerNext);
 			
 			this.sendNotification( ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE);
+		}
+		
+		
+		
+		private function handlerChangeShipPosition(e:Event):void
+		{
+			var shipData:ShipData = _view.activeShip;				// текущий ShipData
+			
+			var v:Vector.<GamePoint> = ShipPositionSupport.getInstance().testCollision(shipData, _shipsList);		// вектор объектов точек где произошло пересечение.
+			trace(v);
 		}
 	}
 }
