@@ -92,7 +92,12 @@ package game.activity.view.application.menu.pages.ships_positions
 			var shipData:ShipData = _view.activeShip;				// текущий ShipData
 			
 			var v:Vector.<GamePoint> = ShipPositionSupport.getInstance().testCollision(shipData, _shipsList);		// вектор объектов точек где произошло пересечение.
-			trace(v);
+//			trace(v);
+			
+			if(v.length > 0)
+				_view.isColision = true;
+			else 
+				_view.isColision = false;
 		}
 	}
 }
