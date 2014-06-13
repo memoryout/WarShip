@@ -8,8 +8,10 @@ package game.activity.view.application.menu.pages.ships_positions
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.events.TimerEvent;
 	import flash.geom.Point;
 	import flash.utils.Dictionary;
+	import flash.utils.Timer;
 	
 	import game.activity.BaseMediator;
 	import game.application.data.game.ShipData;
@@ -25,6 +27,7 @@ package game.activity.view.application.menu.pages.ships_positions
 		private const GREEN:				uint = 0x66FF66;
 		
 		public static const AUTO_ARRANGEMENT:		String = "autoArrangement";
+		public static const ROTATE:					String = "rotate";
 		public static const BACK:					String = "back";
 		public static const NEXT:					String = "next";
 		
@@ -50,6 +53,8 @@ package game.activity.view.application.menu.pages.ships_positions
 		private var canLocate:				Boolean;	
 		private var tableIsAdd:				Boolean;	
 		
+		private var hideTimer:				Timer = new Timer(300, 1);
+				
 		public function ShipsPositionsView()
 		{
 			TweenPlugin.activate([TintPlugin]);
@@ -251,9 +256,7 @@ package game.activity.view.application.menu.pages.ships_positions
 		private function mouseMoveDeactivate(e:MouseEvent):void
 		{
 			dragedShip.stopDrag();
-			removeMoveListeners();		
-			
-			//			return;
+			removeMoveListeners();	
 			
 			isCleared = tableIsAdd = false;
 			dragedShip = rotatedShip = e.currentTarget as MovieClip;					
@@ -289,13 +292,83 @@ package game.activity.view.application.menu.pages.ships_positions
 						_ships[i].x == activeShip.x;
 						_ships[i].y == activeShip.y;
 						break;
-					}
-					
+					}					
+				}
+			}			
+		}
+		
+		/**
+		 * Reset rotating ships position.
+		 * Update all ships position without ship wich will rotate.
+		 * If can rotate, change position. Else show "red table" on unposible position, set timer for hide this red table. 
+		 */		
+		public function rotateShip():void
+		{
+			if(rotatedShip)
+			{	
+				var lining:MovieClip, level:int, orientForRotate:int, rotateData:Object = shipsLocationProcess.dataForRotate;					
+				
+				activeShip = _shipCache[rotatedShip];
+				
+				if(rotateData.orient == ShipDirrection.VERTICAL)
+				{
+					activeShip.dirrection = ShipDirrection.HORIZONTAL;
+					orientForRotate = 0;
+				}					
+				else 
+				{
+					orientForRotate = ShipDirrection.VERTICAL;
+					orientForRotate = 1;
 				}
 				
-				//				shipsLocationProcess.putShipInBattleField(x_coef, y_coef, shipOrient, shipsDeck, true);	
-				//				shipsLocationProcess.traceShipsArray("drag stop");
-			}			
+				this.dispatchEvent( _eventShipDrag );	
+				
+				if( !isColision ) 
+				{					
+					if(orientForRotate == 0)	
+						rotateData.orient = orientForRotate; 
+					else 
+						rotateData.orient = orientForRotate;
+					
+					rotatedShip.gotoAndStop(orientForRotate + 1);
+					shipsLocationProcess.shipsOldPosition = [rotateData.column, rotateData.line];	
+					
+					for (var i:int = 0; i < _ships.length; i++) 
+					{
+						if(_ships[i].x == activeShip.x &&  _ships[i].y == activeShip.y)
+						{							
+							if(_ships[i].dirrection == ShipDirrection.HORIZONTAL)	
+								_ships[i].dirrection = ShipDirrection.VERTICAL;
+							else 
+								_ships[i].dirrection = ShipDirrection.HORIZONTAL;
+							break;
+						}						
+					}
+					
+				}else
+				{					
+					if(_shipPlaceholder.getChildIndex(rotatedShip) - 1 >= 0) 
+						level = _shipPlaceholder.getChildIndex(rotatedShip) - 1;
+					
+					addTable(lining, rotateData.deck, orientForRotate+1, level);
+					
+					lining   = (_shipPlaceholder.getChildByName("table_element") as MovieClip);
+					lining.x = rotateData.column*cellSize;
+					lining.y = rotateData.line*cellSize;					
+					
+					setTint(lining, RED, 0, 1);
+					
+					hideTimer.addEventListener(TimerEvent.TIMER, hideTable);
+					hideTimer.start();
+				}
+			}
+		}
+		
+		private function hideTable(e:TimerEvent):void
+		{
+			hideTimer.stop();
+			hideTimer.removeEventListener(TimerEvent.TIMER, hideTable);			
+			removeTable();
 		}
 		
 		private function removeMoveListeners():void
@@ -324,6 +397,12 @@ package game.activity.view.application.menu.pages.ships_positions
 				case "btn_shuffle":
 				{
 					this.dispatchEvent( new Event(AUTO_ARRANGEMENT) );
+					break;
+				}
+					
+				case "btn_rotate":
+				{
+					this.dispatchEvent( new Event(ROTATE) );
 					break;
 				}
 					

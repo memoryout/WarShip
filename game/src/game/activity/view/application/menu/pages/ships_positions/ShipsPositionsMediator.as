@@ -34,6 +34,7 @@ package game.activity.view.application.menu.pages.ships_positions
 			(viewComponent as DisplayObjectContainer).addChild( _view );
 			
 			_view.addEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
+			_view.addEventListener(ShipsPositionsView.ROTATE, 	handlerRotate);
 			_view.addEventListener(ShipsPositionsView.BACK, handlerBack);
 			_view.addEventListener(ShipsPositionsView.NEXT, handlerNext);
 			_view.addEventListener(ShipsPositionsView.SHIP_DRAG, handlerChangeShipPosition);
@@ -55,6 +56,7 @@ package game.activity.view.application.menu.pages.ships_positions
 			this.facade.removeMediator( NAME );
 			
 			_view.removeEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
+			_view.removeEventListener(ShipsPositionsView.ROTATE, 	handlerRotate);
 			_view.removeEventListener(ShipsPositionsView.BACK, handlerBack);
 			_view.removeEventListener(ShipsPositionsView.NEXT, handlerNext);
 			
@@ -71,6 +73,11 @@ package game.activity.view.application.menu.pages.ships_positions
 			
 		}
 		
+		private function handlerRotate(e:Event):void
+		{			
+			_view.rotateShip();			
+		}
+		
 		private function handlerBack(e:Event):void
 		{
 			
@@ -79,8 +86,9 @@ package game.activity.view.application.menu.pages.ships_positions
 		private function handlerNext(e:Event):void
 		{
 			_view.removeEventListener(ShipsPositionsView.AUTO_ARRANGEMENT, handlerAutoArrangement);
-			_view.removeEventListener(ShipsPositionsView.BACK, handlerBack);
-			_view.removeEventListener(ShipsPositionsView.NEXT, handlerNext);
+			_view.removeEventListener(ShipsPositionsView.ROTATE, 	handlerRotate);
+			_view.removeEventListener(ShipsPositionsView.BACK, 		handlerBack);
+			_view.removeEventListener(ShipsPositionsView.NEXT, 		handlerNext);
 			
 			this.sendNotification( ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE);
 		}
