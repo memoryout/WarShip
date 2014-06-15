@@ -26,6 +26,9 @@ package game.activity.view.application.menu.pages.ships_positions
 		private const BLACK:				uint = 0x000000;
 		private const GREEN:				uint = 0x66FF66;
 		
+		private static const SHIP_LINING_NAME:		String = "table_element";
+		private static const SHIP_LINING_CONTAINER:	String = "movingTable";
+		
 		public static const AUTO_ARRANGEMENT:		String = "autoArrangement";
 		public static const ROTATE:					String = "rotate";
 		public static const BACK:					String = "back";
@@ -54,6 +57,8 @@ package game.activity.view.application.menu.pages.ships_positions
 		private var tableIsAdd:				Boolean;	
 		
 		private var hideTimer:				Timer = new Timer(300, 1);
+		
+		public  var rotateShipDescription:	Object = {"column":0, "line":0, "orient":0, "deck":0};
 				
 		public function ShipsPositionsView()
 		{
@@ -137,15 +142,13 @@ package game.activity.view.application.menu.pages.ships_positions
 		}
 		
 		private function mouseMoveActivate(e:MouseEvent):void
-		{
-			var clip:MovieClip = e.currentTarget as MovieClip;
-			var arr:Array = clip.name.split("_");			
-			
-			dragedShip  = e.currentTarget as MovieClip;
+		{			
+			dragedShip  	= e.currentTarget as MovieClip;
+		
 			initShipPoint.x = dragedShip.x;
 			initShipPoint.y = dragedShip.y;		
 			
-			activeShip = _shipCache[dragedShip];
+			activeShip 		= _shipCache[dragedShip];
 			
 			dragedShip.addEventListener(MouseEvent.MOUSE_MOVE, mouseMove);	
 			dragedShip.addEventListener(MouseEvent.MOUSE_UP,   mouseMoveDeactivate);	
@@ -157,14 +160,13 @@ package game.activity.view.application.menu.pages.ships_positions
 			var xx:uint = Math.round( e.currentTarget.x/cellSize );			// лпределяем позиции корабля.
 			var yy:uint = Math.round( e.currentTarget.y/cellSize );
 			
-			/*if(xx != activeShip.x || yy != activeShip.y)					// проверка что б событие не отправлялось по каждому движению, а только при смене значений координат.
-			{*/
 			activeShip.x = xx;
 			activeShip.y = yy;
 			
 			this.dispatchEvent( _eventShipDrag );						// событие слушает ShipPositionMediator.as
 			
-			var lining:MovieClip, level:int, hitMc:MovieClip = e.currentTarget as MovieClip, old_x:int, old_y:int;		
+			var shipLining:MovieClip, layerIndex:int, 			
+			hitMc:MovieClip = e.currentTarget as MovieClip;		
 			
 			var x_coef:int = shipsLocationProcess.correctRange((hitMc.x + 12)/cellSize);
 			var y_coef:int = shipsLocationProcess.correctRange((hitMc.y + 12)/cellSize);
@@ -179,51 +181,47 @@ package game.activity.view.application.menu.pages.ships_positions
 			if(!tableIsAdd)
 			{
 				tableIsAdd = true;
-				if(_shipPlaceholder.getChildIndex(hitMc) - 1 >= 0) level = _shipPlaceholder.getChildIndex(hitMc) - 1;
-				addTable(lining, shipsDeck, shipDirection+1, level);
+				if(_shipPlaceholder.getChildIndex(hitMc) - 1 >= 0) 
+					layerIndex = _shipPlaceholder.getChildIndex(hitMc) - 1;
+				
+				addTable(shipLining, shipsDeck, shipDirection+1, layerIndex);
 			}				
 			
-			lining = (_shipPlaceholder.getChildByName("table_element") as MovieClip);
+			shipLining = (_shipPlaceholder.getChildByName(SHIP_LINING_NAME) as MovieClip);
 			
 			if(!isCleared)
-			{					
-				old_x = shipsLocationProcess.shipsLocationArray[int(deckNArray[1])].x;
-				old_y = shipsLocationProcess.shipsLocationArray[int(deckNArray[1])].y;
-				
+			{				
 				isCleared = true;
-				
-				shipsLocationProcess.shipsOldPosition = [old_x, old_y];					
 				
 				shipsLocationProcess.resetShipLocation(0, 0, int(deckNArray[1]));						
 			}
 			
-			shipsLocationProcess.dataForRotate.column = x_coef;
-			shipsLocationProcess.dataForRotate.line	  = y_coef;
-			shipsLocationProcess.dataForRotate.orient = shipDirection;
-			shipsLocationProcess.dataForRotate.deck	  = shipsDeck;	
+			rotateShipDescription.column = x_coef;
+			rotateShipDescription.line	  = y_coef;
+			rotateShipDescription.orient = shipDirection;
+			rotateShipDescription.deck	  = shipsDeck;	
 			
 			if(!isColision)
 			{			
 				canLocate = true;				
-				setTint(lining, GREEN, 0, 1);
+				setTint(shipLining, GREEN, 0, 1);
 				
 			}else{
 				
 				canLocate = false;				
-				setTint(lining, RED, 0, 1);
+				setTint(shipLining, RED, 0, 1);
 			}
 			
 			if(shipDirection == 0)
 			{
-				lining.x = shipsLocationProcess.correctRangeForMoving(x_coef, shipsDeck)*cellSize;
-				lining.y = y_coef*cellSize;						
+				shipLining.x = shipsLocationProcess.correctRangeForMoving(x_coef, shipsDeck)*cellSize;
+				shipLining.y = y_coef*cellSize;						
 				
 			}else if(shipDirection == 1)
 			{				
-				lining.x = x_coef*cellSize;
-				lining.y = shipsLocationProcess.correctRangeForMoving(y_coef, shipsDeck)*cellSize;
+				shipLining.x = x_coef*cellSize;
+				shipLining.y = shipsLocationProcess.correctRangeForMoving(y_coef, shipsDeck)*cellSize;
 			}
-			//			}
 		}
 		
 		private function setTint(_element:MovieClip, _color:uint, _time:int = 0, _alpha:Number = 1):void
@@ -238,18 +236,17 @@ package game.activity.view.application.menu.pages.ships_positions
 		 * @param orient  - ship orientation.
 		 * @param level   - child index.
 		 */		
-		private function addTable(lining:MovieClip, deck:int, orient:int, level:int):void
+		private function addTable(shipLining:MovieClip, deck:int, orient:int, level:int):void
 		{
-			var classInstance:Class = BaseMediator.getSourceClass("movingTable");
+			var classInstance:Class = BaseMediator.getSourceClass(SHIP_LINING_CONTAINER);
 			
 			if(classInstance)
 			{
-				lining = new classInstance();				
-				lining.name = "table_element";
-				_shipPlaceholder.addChildAt(lining, level);
-				lining.gotoAndStop(deck);
-				lining.table.gotoAndStop(orient);
-				
+				shipLining = new classInstance();				
+				shipLining.name = SHIP_LINING_NAME;
+				_shipPlaceholder.addChildAt(shipLining, level);
+				shipLining.gotoAndStop(deck);
+				shipLining.table.gotoAndStop(orient);				
 			}	
 		}
 		
@@ -265,17 +262,17 @@ package game.activity.view.application.menu.pages.ships_positions
 			var deckNArray:Array = a[1].split("_");
 			var shipsDeck:int  	 = int(deckNArray[0]);	
 			var shipOrient:int 	 = (dragedShip.currentFrame - 1);	
-			var lining:MovieClip = (_shipPlaceholder.getChildByName("table_element") as MovieClip);			
+			var shipLining:MovieClip = (_shipPlaceholder.getChildByName(SHIP_LINING_NAME) as MovieClip);			
 			
 			if(canLocate)
 			{
-				dragedShip.x = lining.x;
-				dragedShip.y = lining.y; 
+				dragedShip.x = shipLining.x;
+				dragedShip.y = shipLining.y; 
 				
 			}else{
 				
-				dragedShip.x = lining.x = initShipPoint.x;
-				dragedShip.y = lining.y = initShipPoint.y; 	
+				dragedShip.x = shipLining.x = initShipPoint.x;
+				dragedShip.y = shipLining.y = initShipPoint.y; 	
 			}	
 			
 			removeTable();			
@@ -306,32 +303,31 @@ package game.activity.view.application.menu.pages.ships_positions
 		{
 			if(rotatedShip)
 			{	
-				var lining:MovieClip, level:int, orientForRotate:int, rotateData:Object = shipsLocationProcess.dataForRotate;					
+				var shipLining:MovieClip, layerIndex:int, directionForRotate:int;					
 				
 				activeShip = _shipCache[rotatedShip];
 				
-				if(rotateData.orient == ShipDirrection.VERTICAL)
+				if(rotateShipDescription.orient == ShipDirrection.VERTICAL)
 				{
 					activeShip.dirrection = ShipDirrection.HORIZONTAL;
-					orientForRotate = 0;
+					directionForRotate = 0;
 				}					
 				else 
 				{
-					orientForRotate = ShipDirrection.VERTICAL;
-					orientForRotate = 1;
+					directionForRotate = ShipDirrection.VERTICAL;
+					directionForRotate = 1;
 				}
 				
 				this.dispatchEvent( _eventShipDrag );	
 				
 				if( !isColision ) 
 				{					
-					if(orientForRotate == 0)	
-						rotateData.orient = orientForRotate; 
+					if(directionForRotate == 0)	
+						rotateShipDescription.orient = directionForRotate; 
 					else 
-						rotateData.orient = orientForRotate;
+						rotateShipDescription.orient = directionForRotate;
 					
-					rotatedShip.gotoAndStop(orientForRotate + 1);
-					shipsLocationProcess.shipsOldPosition = [rotateData.column, rotateData.line];	
+					rotatedShip.gotoAndStop(directionForRotate + 1);				
 					
 					for (var i:int = 0; i < _ships.length; i++) 
 					{
@@ -348,15 +344,15 @@ package game.activity.view.application.menu.pages.ships_positions
 				}else
 				{					
 					if(_shipPlaceholder.getChildIndex(rotatedShip) - 1 >= 0) 
-						level = _shipPlaceholder.getChildIndex(rotatedShip) - 1;
+						layerIndex = _shipPlaceholder.getChildIndex(rotatedShip) - 1;
 					
-					addTable(lining, rotateData.deck, orientForRotate+1, level);
+					addTable(shipLining, rotateShipDescription.deck, directionForRotate+1, layerIndex);
 					
-					lining   = (_shipPlaceholder.getChildByName("table_element") as MovieClip);
-					lining.x = rotateData.column*cellSize;
-					lining.y = rotateData.line*cellSize;					
+					shipLining   = (_shipPlaceholder.getChildByName(SHIP_LINING_NAME) as MovieClip);
+					shipLining.x = rotateShipDescription.column*cellSize;
+					shipLining.y = rotateShipDescription.line*cellSize;					
 					
-					setTint(lining, RED, 0, 1);
+					setTint(shipLining, RED, 0, 1);
 					
 					hideTimer.addEventListener(TimerEvent.TIMER, hideTable);
 					hideTimer.start();
@@ -384,8 +380,8 @@ package game.activity.view.application.menu.pages.ships_positions
 		 */		
 		private function removeTable():void
 		{	
-			if(_shipPlaceholder.contains(_shipPlaceholder.getChildByName("table_element") as MovieClip))
-				_shipPlaceholder.removeChild(_shipPlaceholder.getChildByName("table_element") as MovieClip);		
+			if(_shipPlaceholder.contains(_shipPlaceholder.getChildByName(SHIP_LINING_NAME) as MovieClip))
+				_shipPlaceholder.removeChild(_shipPlaceholder.getChildByName(SHIP_LINING_NAME) as MovieClip);		
 		}		
 		
 		private function handlerMouseClick(e:MouseEvent):void
