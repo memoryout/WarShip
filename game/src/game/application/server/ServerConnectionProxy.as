@@ -7,6 +7,7 @@ package game.application.server
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.server.IServerConnectionProxy;
 	import game.application.server.data.AuthorizationData;
+	import game.application.server.data.ErrorResponce;
 	import game.application.server.data.GameInfoResponce;
 	import game.application.server.data.HitInfo;
 	import game.application.server.data.NotififactionData;
@@ -229,30 +230,45 @@ package game.application.server
 						info.notifications[i] = nData;
 					}
 				}
-			}
-			
-			if(data.hitInfo)
-			{
-				info.hitInfo = new HitInfo();
-				info.hitInfo.status = data.hitInfo.status;
-				info.hitInfo.pointX = data.hitInfo.target[1];
-				info.hitInfo.pointY = data.hitInfo.target[0];
 				
-				if(data.hitInfo.ship)
+				if(data.hitInfo)
 				{
-					var shipInfo:ShipInfo = new ShipInfo();
-					shipInfo.decks = data.hitInfo.ship.decks;
-					shipInfo.status = data.hitInfo.ship.status;
+					info.hitInfo = new HitInfo();
+					info.hitInfo.status = data.hitInfo.status;
+					info.hitInfo.pointX = data.hitInfo.target[0];
+					info.hitInfo.pointY = data.hitInfo.target[1];
 					
-					shipInfo.startX = data.hitInfo.ship.coordinates[0][1];
-					shipInfo.startY = data.hitInfo.ship.coordinates[0][0];
+					if(data.hitInfo.ship)
+					{
+						var shipInfo:ShipInfo = new ShipInfo();
+						shipInfo.decks = data.hitInfo.ship.decks;
+						shipInfo.status = data.hitInfo.ship.status;
+						
+						shipInfo.startX = data.hitInfo.ship.coordinates[0][0];
+						shipInfo.startY = data.hitInfo.ship.coordinates[0][1];
+						
+						shipInfo.finishX = data.hitInfo.ship.coordinates[1][0];
+						shipInfo.finishY = data.hitInfo.ship.coordinates[1][1];
+					}
 					
-					shipInfo.finishX = data.hitInfo.ship.coordinates[1][1];
-					shipInfo.finishY = data.hitInfo.ship.coordinates[1][0];
+					info.hitInfo.ship = shipInfo;
 				}
+				
+				
+				responce.pushData( info );
 			}
 			
-			responce.pushData( info );
+			
+			if(data.error)
+			{
+				var error:ErrorResponce = new ErrorResponce();
+				error = new ErrorResponce();
+				error.code = data.error.code;
+				error.description = data.error.description;
+				error.severity = data.error.severity;
+				
+				responce.pushData( error );
+			}
 		}
 	}
 }

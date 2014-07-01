@@ -11,7 +11,6 @@ package game.application.server.data
 		
 		public var notifications:	Vector.<NotififactionData>;
 		
-		
 		public function GameInfoResponce()
 		{
 			super();

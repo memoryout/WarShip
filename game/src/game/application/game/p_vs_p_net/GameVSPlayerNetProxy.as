@@ -63,12 +63,10 @@ package game.application.game.p_vs_p_net
 				coords = shipsList[i].coopdinates;
 				
 				arr = [];
-				arr.push( [ coords[0].y, coords[0].x] );
-				arr.push( [ coords[coords.length - 1].y, coords[coords.length - 1].x] );
+				arr.push( [ coords[0].x, coords[0].y] );
+				arr.push( [ coords[coords.length - 1].x, coords[coords.length - 1].y] );
 				
 				ships.push( arr );
-				
-				// координаты записаны y-x порядке так как у сервера матрица сделана через ж...  х - смотрит вниз y - вправо. Жизнь боль.
 			}
 			
 			
@@ -88,7 +86,7 @@ package game.application.game.p_vs_p_net
 			_battleProxy.setStatus(GameBattleStatus.WAITINIG_GAME_ANSWER);
 			_battleProxy.finishDataUpdate();
 			
-			_serverProxy.sendHitPointPosition( y, x );
+			_serverProxy.sendHitPointPosition( x, y );
 			
 			startUpdateInfoTimer();
 		}
@@ -105,6 +103,12 @@ package game.application.game.p_vs_p_net
 					case ServerResponceDataType.GAME_INFO:
 					{
 						updateGameInfo(dataList[i] as GameInfoResponce);
+						break;
+					}
+						
+					case ServerResponceDataType.ERROR:
+					{
+						
 						break;
 					}
 				}
@@ -161,7 +165,15 @@ package game.application.game.p_vs_p_net
 		private function processHitAction(data:HitInfo, user:Boolean):void
 		{
 			if(!user) _battleProxy.opponentMakeHit(data.pointX, data.pointY, data.status);
-			else _battleProxy.userMakeHit(data.pointX, data.pointY, data.status);
+			else 
+			{
+				_battleProxy.userMakeHit(data.pointX, data.pointY, data.status);
+				if(data.ship)
+				{
+					//_battleProxy.userSankShip()
+				}
+					
+			}
 		}
 		
 		
@@ -209,7 +221,7 @@ package game.application.game.p_vs_p_net
 				{
 					case NotificationType.HIT:
 					{
-						_battleProxy.opponentMakeHit(v[i].data.target[1], v[i].data.target[0], v[i].data.status);
+						_battleProxy.opponentMakeHit(v[i].data.target[0], v[i].data.target[1], v[i].data.status);
 						break;
 					}
 				}
