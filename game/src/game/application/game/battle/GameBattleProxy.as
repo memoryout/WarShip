@@ -62,13 +62,29 @@ package game.application.game.battle
 			var action:GameBattleAction = new GameBattleAction(GameBattleAction.OPPONENT_MAKE_HIT);
 			action.setData( {x:x, y:y, result:result} );
 			_actionList.push( action );
+			
+			_userField.setHit(x, y, result);
 		}
 		
 		
 		public function userMakeHit(x:uint, y:uint, result:uint):void
 		{
+			_opponentField.setHit( x, y, result );
+			
 			var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_MAKE_HIT);
 			action.setData( {x:x, y:y, result:result} );
+			_actionList.push( action );
+		}
+		
+		
+		public function userSankOpponentsShip(ship:ShipData):void
+		{
+			_opponentShips.push( ship );
+			
+			_opponentField.pushShip( ship );
+			
+			var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_SANK_OPPONENTS_SHIP);
+			action.setData( ship );
 			_actionList.push( action );
 		}
 		

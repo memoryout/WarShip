@@ -11,6 +11,7 @@ package game.application.game.p_vs_p_net
 	import game.application.commands.server.ServerRequestComplete;
 	import game.application.data.NotificationType;
 	import game.application.data.game.ShipData;
+	import game.application.data.game.ShipDirrection;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.game.MainGameProxy;
 	import game.application.game.battle.GameBattleProxy;
@@ -24,6 +25,7 @@ package game.application.game.p_vs_p_net
 	import game.application.server.data.HitInfo;
 	import game.application.server.data.NotififactionData;
 	import game.application.server.data.ResponceData;
+	import game.application.server.data.ShipInfo;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
@@ -170,10 +172,23 @@ package game.application.game.p_vs_p_net
 				_battleProxy.userMakeHit(data.pointX, data.pointY, data.status);
 				if(data.ship)
 				{
-					//_battleProxy.userSankShip()
+					userSankOpponentsShip(data.ship);
 				}
 					
 			}
+		}
+		
+		private function userSankOpponentsShip(ship:ShipInfo):void
+		{
+			var shipData:ShipData = new ShipData();
+			shipData.x = ship.startX;
+			shipData.y = ship.startY;
+			shipData.deck = ship.decks;
+			
+			if(ship.startX != ship.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
+			else shipData.dirrection = ShipDirrection.VERTICAL;
+			
+			_battleProxy.userSankOpponentsShip(shipData);
 		}
 		
 		

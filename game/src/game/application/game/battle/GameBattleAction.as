@@ -4,9 +4,10 @@ package game.application.game.battle
 	{
 		private static var _ids:					uint = 0;
 		
-		public static const STATUS_CHANGED:			uint = _ids++;
-		public static const OPPONENT_MAKE_HIT:		uint = _ids++;
-		public static const USER_MAKE_HIT:			uint = _ids++;
+		public static const STATUS_CHANGED:				uint = _ids++;
+		public static const OPPONENT_MAKE_HIT:			uint = _ids++;
+		public static const USER_MAKE_HIT:				uint = _ids++;
+		public static const USER_SANK_OPPONENTS_SHIP:	uint = _ids++;
 		
 		private var _type:			uint = uint.MAX_VALUE;
 		private var _data:			Object;
