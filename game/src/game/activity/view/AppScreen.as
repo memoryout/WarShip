@@ -2,7 +2,11 @@ package game.activity.view
 {
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
+	import flash.display.StageAlign;
+	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.geom.Rectangle;
+	import flash.system.Capabilities;
 	
 	import game.activity.ViewGlobalVariables;
 	import game.activity.view.application.ApplicationView;
@@ -87,8 +91,45 @@ package game.activity.view
 			
 			_canvas.scaleX = _canvas.scaleY = scaleKoef;
 			
-			_canvas.x = (screeWidth - ViewGlobalVariables.SOURCE_WIDTH * scaleKoef) >> 1;
-			_canvas.y = (screenHeight - ViewGlobalVariables.SOURCE_HEIGHT * scaleKoef) >> 1;
+//			_canvas.x = (screeWidth - ViewGlobalVariables.SOURCE_WIDTH * scaleKoef) >> 1;
+//			_canvas.y = (screenHeight - ViewGlobalVariables.SOURCE_HEIGHT * scaleKoef) >> 1;
+			
+			stage.scaleMode = StageScaleMode.NO_SCALE;
+			stage.align = StageAlign.TOP_LEFT;
+			
+			var serverString:String = unescape(Capabilities.serverString); 
+			var reportedDpi:Number = Number(serverString.split("&DP=", 2)[1]);		
+			
+			
+			var guiSize:Rectangle = new Rectangle(0, 0, 1280, 720); 
+			var deviceSize:Rectangle = new Rectangle(0, 0, Math.max(stage.fullScreenWidth, stage.fullScreenHeight), Math.min(stage.fullScreenWidth, stage.fullScreenHeight)); 
+			var appScale:Number = 1; 
+			var appSize:Rectangle = guiSize.clone(); 
+			var appLeftOffset:Number = 0; 
+			// if device is wider than GUI's aspect ratio, height determines scale 
+			if ((deviceSize.width/deviceSize.height) > (guiSize.width/guiSize.height)) 
+			{ 
+				appScale = deviceSize.height / guiSize.height; 
+				appSize.width = deviceSize.width / appScale; 
+				appLeftOffset = Math.round((appSize.width - guiSize.width) / 2); } 
+			// if device is taller than GUI's aspect ratio, width determines scale 
+			else 
+			{ 
+				appScale = deviceSize.width / guiSize.width; 
+				appSize.height = deviceSize.height / appScale; 
+				appLeftOffset = 0; 
+			} 
+			
+			_canvas.scaleX = _canvas.scaleY = appScale;
+			
+			// scale the entire interface 
+//			base.scale = appScale; 
+			// map stays at the top left and fills the whole screen 
+//			base.map.x = 0; 
+			// menus are centered horizontally 
+//			base.menus.x = appLeftOffset; 
+			// crop some menus which are designed to run off the sides of the screen 
+//			base.scrollRect = appSize;
 		}
 	}
 }

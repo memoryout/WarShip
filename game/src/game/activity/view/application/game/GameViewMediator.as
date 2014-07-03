@@ -22,6 +22,7 @@ package game.activity.view.application.game
 		private var _gameProxy:				IGameProxy;
 		private var _gameBattleProxy:		IGameBattleProxy;
 		
+		
 		public function GameViewMediator(viewComponent:Object)
 		{
 			super(NAME, viewComponent);
@@ -41,6 +42,7 @@ package game.activity.view.application.game
 			_gameBattleProxy.dispacther.addEventListener(GameBattleEvent.GAME_STARTED, handlerGameStarted);
 			
 			executeBattleProxyAction();
+			setSipLocation();
 		}
 		
 		private function handlerSelectCeil(e:Event):void
@@ -50,7 +52,11 @@ package game.activity.view.application.game
 			this.sendNotification(ApplicationCommands.USER_HIT_POINT, {x:_gameView.ceilX, y:_gameView.ceilY});
 		}
 		
-		
+		private function setSipLocation():void
+		{
+			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;		
+			_gameView.setShipsLocation( mainApp.getCurrentGame().getShipsList() );
+		}
 		
 		private function executeBattleProxyAction():void
 		{

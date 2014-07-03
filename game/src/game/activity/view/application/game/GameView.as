@@ -7,6 +7,7 @@ package game.activity.view.application.game
 	import flash.text.TextField;
 	
 	import game.activity.BaseMediator;
+	import game.application.data.game.ShipData;
 	
 	public class GameView extends Sprite
 	{
@@ -21,6 +22,9 @@ package game.activity.view.application.game
 		private var _ceilY:			uint;
 		
 		private var _txt:			TextField;
+		private var selectedCell:	MovieClip;		
+		
+		private var cellSize:		Number;
 		
 		public function GameView()
 		{
@@ -54,7 +58,7 @@ package game.activity.view.application.game
 		
 		public function waiting():void
 		{
-			this.alpha = 0.5;
+//			this.alpha = 0.5;
 			_txt.text = "WAITING";
 		}
 		
@@ -73,7 +77,7 @@ package game.activity.view.application.game
 		
 		public function waitingGame():void
 		{
-			this.alpha = 0.5;
+//			this.alpha = 0.5;
 			_txt.text = "WAITNIG GAME ANSWER";
 		}
 		
@@ -83,14 +87,50 @@ package game.activity.view.application.game
 		 * */
 		public function userMakeHit(x:uint, y:uint, result:uint):void
 		{
-			if(result == 0) _opponentField.graphics.beginFill(0x0000ff);
-			else if(result == 1 || result == 2) _opponentField.graphics.beginFill(0xff0000);
-
-			var rectX:Number = (_opponentField.width/10) * x;
-			var rectY:Number = (_opponentField.height/10) * y;
-				
-			_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
-			_opponentField.graphics.endFill();
+			var hitElement:MovieClip, classInstance:Class, className:String, cellTable:MovieClip;
+			
+			if(result == 0) 
+				className = "hitWater";
+			else if(result == 1 || result == 2) 				
+				className = "hitFire";
+			
+			classInstance = BaseMediator.getSourceClass(className);
+			
+			if(classInstance)
+			{
+				hitElement = new classInstance();				
+				classInstance = null;				
+			}
+			
+			classInstance = BaseMediator.getSourceClass("cellTable");
+			
+			if(classInstance)
+			{
+				cellTable = new classInstance();				
+				classInstance = null;				
+			}			
+			
+			_opponentField.addChild(hitElement);
+			_opponentField.addChild(cellTable);
+			
+			hitElement.x = cellTable.x = cellSize*x;
+			hitElement.y = cellTable.y = cellSize*y;
+			
+			if(result > 0)
+				cellTable.gotoAndStop(2);
+			else 
+				cellTable.gotoAndStop(1);
+			
+			var scale:Number = cellSize/cellTable.width;
+			
+			cellTable.scaleX  = cellTable.scaleY  = scale;			
+			hitElement.scaleX = hitElement.scaleY = scale;		
+			
+//			_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
+//			_opponentField.graphics.endFill();
+			
+			hitElement.gotoAndPlay(2);				
+			hitElement.addEventListener("finish_hit", removeHitAnimation);		
 		}
 		
 		
@@ -100,15 +140,50 @@ package game.activity.view.application.game
 		 * */
 		public function opponentMakeHit(x:uint, y:uint, result:uint):void
 		{
+			var hitElement:MovieClip, classInstance:Class, className:String, cellTable:MovieClip;
 			
-			if(result == 0) _userField.graphics.beginFill(0x0000ff);
-			else if(result == 1 || result == 2) _userField.graphics.beginFill(0xff0000);
+			if(result == 0) 
+				className = "hitWater";
+			else if(result == 1 || result == 2) 				
+				className = "hitFire";
 			
-			var rectX:Number = (_opponentField.width/10) * x;
-			var rectY:Number = (_opponentField.height/10) * y;
+			classInstance = BaseMediator.getSourceClass(className);
 			
-			_userField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
-			_userField.graphics.endFill();
+			if(classInstance)
+			{
+				hitElement = new classInstance();				
+				classInstance = null;				
+			}
+			
+			classInstance = BaseMediator.getSourceClass("cellTable");
+			
+			if(classInstance)
+			{
+				cellTable = new classInstance();				
+				classInstance = null;				
+			}			
+			
+			_userField.addChild(hitElement);
+			_userField.addChild(cellTable);
+			
+			hitElement.x = cellTable.x = cellSize*x;
+			hitElement.y = cellTable.y = cellSize*y;
+			
+			if(result > 0)
+				cellTable.gotoAndStop(2);
+			else 
+				cellTable.gotoAndStop(1);
+			
+			var scale:Number = cellSize/cellTable.width;
+			
+			cellTable.scaleX  = cellTable.scaleY  = scale;			
+			hitElement.scaleX = hitElement.scaleY = scale;	
+			
+			//			_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
+			//			_opponentField.graphics.endFill();
+			
+			hitElement.gotoAndPlay(2);				
+			hitElement.addEventListener("finish_hit", removeHitAnimation);		
 		}
 		
 		
@@ -122,16 +197,12 @@ package game.activity.view.application.game
 				this.addChild( _skin );
 				
 				_opponentField = _skin.getChildByName("oponent_field") as MovieClip;
-				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+				_userField = _skin.getChildByName("player_field") as MovieClip;
 				
+				cellSize = (_userField.getChildByName("field") as MovieClip).width/10; // calculate cell size
 				
-				_userField = new MovieClip();
-				_skin.addChild( _userField );
+				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);								
 				
-				var playerField:MovieClip = _skin.getChildByName("player_field") as MovieClip;
-				
-				_userField.x = playerField.x;
-				_userField.y = playerField.y;
 				
 				_txt = new TextField();
 				_txt.background = true;
@@ -149,6 +220,152 @@ package game.activity.view.application.game
 			_ceilX = uint(_opponentField.mouseX/(_opponentField.width/10));
 			_ceilY = uint(_opponentField.mouseY/(_opponentField.height/10));
 			this.dispatchEvent( new Event(SELECT_OPPONENT_CEIL));
+		}
+		
+		
+		/**
+		 * Locate ships on user field.
+		 * @param val - ship list
+		 * 
+		 */		
+		public function setShipsLocation(val:Vector.<ShipData>):void
+		{			
+			for (var i:int = 0; i < val.length; i++) 
+			{				
+				var ship:MovieClip = _userField.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
+				ship.x = val[i].x*cellSize;
+				ship.y = val[i].y*cellSize;
+				
+				if(val[i].dirrection == 0) ship.gotoAndStop(1);		
+				else					   ship.gotoAndStop(2);			
+				
+//				trace("x:", val[i].x, "y:", val[i].y, "direction: ", val[i].dirrection,  "deck: ", val[i].deck);
+			}			
+		}
+		
+		/**
+		 * 
+		 * @param val
+		 * @param container
+		 * @param showTable
+		 * @param turnOnAni
+		 * 
+		 */		
+		private function setSelectedCell(val:Object, container:MovieClip, showTable:Boolean = true, turnOnAni:Boolean = true):void
+		{
+			var hitElement:MovieClip, _drownedShip:MovieClip, _playerMove:Boolean = true, _curCell:Number = cellSize;
+			var _x:Number = 0, _y:Number = 0, deck:int, shipCounter:int, shipOrient:int;
+			
+			if(container.name == "oponent_field") 
+			{			
+				_playerMove = false;
+				_curCell    = cellSize;
+			}
+			
+			
+			_x = val[1][1]*_curCell;
+			_y = val[1][0]*_curCell;
+			
+			var classInstance:Class = BaseMediator.getSourceClass("cellTable");
+			
+			if(classInstance)
+			{
+				selectedCell = new classInstance();
+				classInstance = null;
+			}
+				
+					
+			if(val[0])
+			{				
+				if(_playerMove)	selectedCell.gotoAndStop(4);				
+				else				selectedCell.gotoAndStop(2);		
+				
+				if(turnOnAni) 
+				{
+					classInstance = BaseMediator.getSourceClass("hitFire");
+					
+					if(classInstance)
+					{
+						hitElement = new classInstance();
+						classInstance = null;
+					}
+					hitElement.name = "fire";
+				}	
+				
+			}else{
+				
+				if(_playerMove)	selectedCell.gotoAndStop(3);				
+				else			selectedCell.gotoAndStop(1);
+				
+				if(turnOnAni)
+				{				
+					classInstance = BaseMediator.getSourceClass("hitWater");
+					
+					if(classInstance)
+					{
+						hitElement = new classInstance();
+						classInstance = null;
+					}
+					
+					hitElement.name = "water";
+				}			
+			}
+			
+			if(val[2] && _playerMove) 
+			{
+				classInstance = BaseMediator.getSourceClass("drownedShips");
+				
+				if(classInstance)
+				{
+					_drownedShip = new classInstance();
+					classInstance = null;
+				}
+				
+				container.addChildAt(_drownedShip, 0);
+				_drownedShip.name = "drowned";
+				
+				_drownedShip.x = val[2][0][1]*_curCell;
+				_drownedShip.y = val[2][0][0]*_curCell;
+				
+				_drownedShip.gotoAndStop((val[2] as Vector.<Array>).length);
+				
+				/*for (var i:int = 0; i < _model._userShips[0].length; i++) 
+				{
+					if(val[2][0][0] == _model._userShips[0][i].column && val[2][0][1] == _model._userShips[0][i].line)
+					{
+						deck 		= _model._userShips[0][i].deck;
+						shipOrient	= _model._userShips[0][i].direction;
+						shipCounter = i;
+						break;
+					}
+				}*/
+				
+//				(_userField.getChildByName("s" + deck + "_" + i) as MovieClip).visible = false;	
+				if(showTable) (_drownedShip.getChildByName("table") as MovieClip).gotoAndStop(shipOrient+1);						
+			}
+			
+			container.addChild(selectedCell);
+			selectedCell.name = "cell";
+			selectedCell.x = _x;
+			selectedCell.y = _y;
+			
+			if(turnOnAni)
+			{
+				container.addChild(hitElement);
+				hitElement.x = _x;
+				hitElement.y = _y;
+				hitElement.gotoAndPlay(2);				
+				hitElement.addEventListener("finish_hit", removeHitAnimation);		
+			}		
+		}
+		
+		private function removeHitAnimation(e:Event):void
+		{
+			if(_opponentField.contains(e.currentTarget as MovieClip)) 
+				_opponentField.removeChild(e.currentTarget as MovieClip);
+			
+			if(_userField.contains(e.currentTarget as MovieClip)) 
+				_userField.removeChild(e.currentTarget as MovieClip);			
 		}
 	}
 }
