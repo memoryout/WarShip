@@ -8,7 +8,6 @@ package game.application.commands
 	import game.application.data.user.UserDataProxy;
 	import game.application.server.ServerConnectionProxy;
 	import game.application.startup.StartupProxy;
-	import game.core.GameCoreManager;
 	import game.services.ServicesList;
 	import game.services.asset.AssetManager;
 	import game.services.device.DeviceManager;

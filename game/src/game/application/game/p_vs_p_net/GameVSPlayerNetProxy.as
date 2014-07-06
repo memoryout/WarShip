@@ -29,7 +29,7 @@ package game.application.game.p_vs_p_net
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
-		private const REPEAT_TIMEOUT:	uint = 10000;
+		private const REPEAT_TIMEOUT:	uint = 3000;
 		
 		private const shipsDeckList:	Vector.<uint> = new <uint>[4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 		

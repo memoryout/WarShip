@@ -46,10 +46,11 @@ package game.application.data.game
 		}
 		
 		
-		public function pushShip(ship:ShipData):void
+		public function pushShip(ship:ShipData):Vector.<ShipPositionPoint>
 		{
-			var i:int,j:int, coords:Vector.<ShipPositionPoint>;
+			var i:int,j:int, coords:Vector.<ShipPositionPoint>, points:Vector.<ShipPositionPoint>;
 			
+			points = new Vector.<ShipPositionPoint>;
 			coords = ship.coopdinates;
 			
 			for(i = 0; i < coords.length; i++)
@@ -63,17 +64,28 @@ package game.application.data.game
 						_fieldCeilCache[(coords[i].x - 1) + "_" + (coords[i].y - 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x - 1) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x - 1) + "_" + (coords[i].y)] = FieldCeilValues.EMPTY_HIT;
+						
+						pushPoint(points, coords[i].x - 1, coords[i].y - 1);
+						pushPoint(points, coords[i].x - 1, coords[i].y + 1);
+						pushPoint(points, coords[i].x - 1, coords[i].y);
 					}
 					else if(i == coords.length - 1)
 					{
 						_fieldCeilCache[(coords[i].x + 1) + "_" + (coords[i].y - 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x + 1) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x + 1) + "_" + (coords[i].y)] = FieldCeilValues.EMPTY_HIT;
+						
+						pushPoint(points, coords[i].x + 1, coords[i].y - 1);
+						pushPoint(points, coords[i].x + 1, coords[i].y + 1);
+						pushPoint(points, coords[i].x + 1, coords[i].y);
 					}
 					else
 					{
 						_fieldCeilCache[(coords[i].x) + "_" + (coords[i].y - 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
+						
+						pushPoint(points, coords[i].x, coords[i].y - 1);
+						pushPoint(points, coords[i].x, coords[i].y + 1);
 					}
 				}
 				else
@@ -83,20 +95,39 @@ package game.application.data.game
 						_fieldCeilCache[(coords[i].x - 1) + "_" + (coords[i].y - 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x + 1) + "_" + (coords[i].y - 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x) + "_" + (coords[i].y - 1)] = FieldCeilValues.EMPTY_HIT;
+						
+						pushPoint(points, coords[i].x - 1, coords[i].y - 1);
+						pushPoint(points, coords[i].x + 1, coords[i].y - 1);
+						pushPoint(points, coords[i].x, coords[i].y - 1);
 					}
 					else if(i == coords.length - 1)
 					{
 						_fieldCeilCache[(coords[i].x - 1) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x + 1) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
+						
+						pushPoint(points, coords[i].x - 1, coords[i].y + 1);
+						pushPoint(points, coords[i].x + 1, coords[i].y + 1);
+						pushPoint(points, coords[i].x, coords[i].y + 1);
 					}
 					else
 					{
 						_fieldCeilCache[(coords[i].x - 1) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
 						_fieldCeilCache[(coords[i].x + 1) + "_" + (coords[i].y + 1)] = FieldCeilValues.EMPTY_HIT;
+						
+						pushPoint(points, coords[i].x - 1, coords[i].y + 1);
+						pushPoint(points, coords[i].x + 1, coords[i].y + 1);
 					}
 				}
 			}
+			
+			return points;
+		}
+		
+		private function pushPoint(v:Vector.<ShipPositionPoint>, x:Number, y:Number):void
+		{
+			var point:ShipPositionPoint = new ShipPositionPoint(x, y);
+			v.push(point);
 		}
 	}
 }

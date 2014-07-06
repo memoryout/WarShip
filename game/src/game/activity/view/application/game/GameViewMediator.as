@@ -11,7 +11,6 @@ package game.activity.view.application.game
 	import game.application.game.battle.GameBattleStatus;
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.battle.IGameBattleProxy;
-	import game.core.IGameProxy;
 	
 	public class GameViewMediator extends BaseMediator
 	{
@@ -19,7 +18,6 @@ package game.activity.view.application.game
 		
 		private var _gameView:				GameView;
 		
-		private var _gameProxy:				IGameProxy;
 		private var _gameBattleProxy:		IGameBattleProxy;
 		
 		
@@ -81,6 +79,17 @@ package game.activity.view.application.game
 					case GameBattleAction.OPPONENT_MAKE_HIT:
 					{
 						opponentMakeHit(action.getData());
+						break;
+					}
+						
+					case GameBattleAction.USER_SANK_OPPONENTS_SHIP:
+					{
+						// я потопил корабль противника
+						// var data = action.getData();
+						// data.ship =  ShipData - инфа по кораблю который был потоплен
+						// data.fieldPoint = Vector.<ShipPositionPoint> - точки на поле вокруг горабля.
+						
+						executeBattleProxyAction();
 						break;
 					}
 				}

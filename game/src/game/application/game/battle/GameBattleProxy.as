@@ -7,6 +7,7 @@ package game.application.game.battle
 	import game.application.ProxyList;
 	import game.application.data.game.BattleField;
 	import game.application.data.game.ShipData;
+	import game.application.data.game.ShipPositionPoint;
 	import game.application.interfaces.game.battle.IGameBattleProxy;
 	import game.application.server.data.OpponentData;
 	
@@ -43,6 +44,8 @@ package game.application.game.battle
 			
 			_opponentField = new BattleField();
 			_opponentField.init(fieldWidth, fieldHeight);
+			
+			_opponentShips = new Vector.<ShipData>;
 		}
 		
 		public function initUserShips(v:Vector.<ShipData>):void
@@ -81,10 +84,10 @@ package game.application.game.battle
 		{
 			_opponentShips.push( ship );
 			
-			_opponentField.pushShip( ship );
+			var v:Vector.<ShipPositionPoint> = _opponentField.pushShip( ship );
 			
 			var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_SANK_OPPONENTS_SHIP);
-			action.setData( ship );
+			action.setData( {ship:ship, fieldPoint:v} );
 			_actionList.push( action );
 		}
 		

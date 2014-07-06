@@ -10,14 +10,12 @@ package game.application
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.IGameProxy;
 	import game.application.server.ServerConnectionProxyEvents;
-	import game.core.GameCoreEvents;
-	import game.core.GameCoreManager;
+
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
 	public class MainApplicationProxy extends BaseProxy implements IMainApplicationProxy
 	{
-		private var _gameManager:				GameCoreManager;
 		
 		private var _currentGameProxy:			IGameProxy;
 		
@@ -25,9 +23,7 @@ package game.application
 		{
 			super(proxyName);
 			
-			GameCoreManager;
-			
-			_gameManager = GameCoreManager.getInstance();
+
 		}
 		
 		
