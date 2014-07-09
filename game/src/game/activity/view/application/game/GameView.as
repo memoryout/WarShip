@@ -26,6 +26,9 @@ package game.activity.view.application.game
 		
 		private var cellSize:		Number;
 		
+		private var celectedCell:	Array = new Array();
+		private var brokenCellCounter:int = 1;
+		
 		public function GameView()
 		{
 			createViewComponents();
@@ -81,6 +84,77 @@ package game.activity.view.application.game
 			_txt.text = "WAITNIG GAME ANSWER";
 		}
 		
+		public function sunkUserShip(val:Object):void
+		{
+			trace("a");
+			
+			var i:int;
+			
+			for (i = 0; i < val.fieldPoint.length; i++) 
+			{
+				if(val.fieldPoint[i].x > -1 && val.fieldPoint[i].y > -1 && !checkIfCellWasSelected(val.fieldPoint[i]))
+				{
+					userMakeHit(val.fieldPoint[i].x, val.fieldPoint[i].y, 0);
+					celectedCell.push([val.fieldPoint[i].x, val.fieldPoint[i].y]);
+				}
+			}
+			
+			for (i = 0; i < val.ship.coopdinates.length; i++) 
+			{
+				cleanBrokenCells(val.ship.coopdinates[i].x, val.ship.coopdinates[i].y);
+			}
+			
+			var classInstance:Class = BaseMediator.getSourceClass("drownedShips");
+			var drownedShip:MovieClip;
+			
+			if(classInstance)
+			{
+				drownedShip = new classInstance();				
+				classInstance = null;				
+			}	
+			
+			_opponentField.addChild(drownedShip);			
+			
+			drownedShip.x = cellSize*val.ship.x;
+			drownedShip.y =  cellSize*val.ship.y;
+			
+			drownedShip.gotoAndStop(val.ship.deck);
+			
+			if(val.ship.dirrection == 0) drownedShip.table.gotoAndStop(1);		
+			else					 drownedShip.table.gotoAndStop(2);		
+		}
+		
+		private function checkIfCellWasSelected(val:Object):Boolean
+		{
+			var res:Boolean;
+			
+			for (var i:int = 0; i < celectedCell.length; i++) 
+			{
+				if(celectedCell[i][0] == val.x && celectedCell[i][1] == val.y)
+				{
+					res = true;
+					break;
+				}
+			}
+			
+			return res;
+		}
+		
+		private function cleanBrokenCells(x:uint, y:uint):void
+		{
+			for (var i:int = 0; i < _opponentField.numChildren; i++) 
+			{
+				var currentElement:MovieClip = _opponentField.getChildAt(i) as MovieClip;
+				if(currentElement)
+				{
+					var nameName:Array = currentElement.name.split("_");	
+					
+					if(uint(nameName[1]) == x && uint(nameName[2]) == y)
+						_opponentField.removeChildAt(i);
+				}				
+			}			
+		}
+		
 		
 		/**
 		 * Игрок сделал выстрел, значит рисуем на поле оппонента.
@@ -107,7 +181,8 @@ package game.activity.view.application.game
 			if(classInstance)
 			{
 				cellTable = new classInstance();				
-				classInstance = null;				
+				classInstance = null;	
+				cellTable.name = "broken_" + x.toString() + "_" + y.toString();				
 			}			
 			
 			_opponentField.addChild(hitElement);
@@ -117,7 +192,11 @@ package game.activity.view.application.game
 			hitElement.y = cellTable.y = cellSize*y;
 			
 			if(result > 0)
-				cellTable.gotoAndStop(2);
+			{
+				brokenCellCounter++;
+				cellTable.gotoAndStop(brokenCellCounter);
+			}
+				
 			else 
 				cellTable.gotoAndStop(1);
 			
@@ -220,6 +299,8 @@ package game.activity.view.application.game
 			_ceilX = uint(_opponentField.mouseX/(_opponentField.width/10));
 			_ceilY = uint(_opponentField.mouseY/(_opponentField.height/10));
 			this.dispatchEvent( new Event(SELECT_OPPONENT_CEIL));
+			
+			celectedCell.push([_ceilX, _ceilY]);
 		}
 		
 		
