@@ -17,6 +17,7 @@ package game.application.startup
 	import game.application.commands.startup.ServerConectionResult;
 	import game.application.commands.startup.UserDataProxyConnectedProxy;
 	import game.application.commands.startup.UserDataProxyReceiveUsersList;
+	import game.application.connection.ActionsQueueEvent;
 	import game.application.data.user.UserData;
 	import game.application.data.user.UserDataProxy;
 	import game.application.interfaces.data.IUserDataProxy;
@@ -304,7 +305,7 @@ package game.application.startup
 		
 		private function signInOnServer():void
 		{
-			this.facade.registerCommand( ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerAuthorizationResult);
+			this.facade.registerCommand( ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
 			
 			_server.signIn();
 			_timeoutID = setTimeout( handlerSignInError, 2000 );
@@ -313,7 +314,7 @@ package game.application.startup
 		
 		public function handlerSignInComplete():void
 		{
-			this.facade.removeCommand( ServerConnectionProxyEvents.REQUEST_COMPLETE);
+			this.facade.removeCommand( ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE);
 			
 			clearTimeout( _timeoutID );
 			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
@@ -324,7 +325,7 @@ package game.application.startup
 		
 		public function handlerSignInError():void
 		{
-			this.facade.removeCommand( ServerConnectionProxyEvents.REQUEST_COMPLETE);
+			this.facade.removeCommand( ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE);
 			
 			clearTimeout( _timeoutID );
 			
