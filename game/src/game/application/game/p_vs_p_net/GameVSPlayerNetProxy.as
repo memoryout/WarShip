@@ -103,6 +103,8 @@ package game.application.game.p_vs_p_net
 		override public function processActionsQueue():void
 		{
 			
+			_battleProxy.startDataUpdate();
+			
 			var action:ActionQueueData;
 			
 			action = _actionsQueue.getNextAction();
@@ -151,13 +153,13 @@ package game.application.game.p_vs_p_net
 					{
 						parseUserDestroyOpponentShipAction(action as DestroyShipData);
 						break;
-					}
-						
-						
+					}	
 				}
 				
 				action = _actionsQueue.getNextAction();
 			}
+			
+			_battleProxy.finishDataUpdate();
 		}
 		
 		
