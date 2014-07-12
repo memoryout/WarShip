@@ -183,7 +183,7 @@ package game.application.game.p_vs_p_net
 		
 		private function updateOpponentData(action:OpponentInfoData):void
 		{
-			_battleProxy.initOpponentData( data.opponentData );
+			_battleProxy.initOpponentData( action );
 		}
 		
 		
