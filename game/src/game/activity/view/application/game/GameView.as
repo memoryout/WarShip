@@ -48,13 +48,17 @@ package game.activity.view.application.game
 		
 		public function lockGame():void
 		{
-			_opponentField.removeEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+			_opponentField.removeEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);
+			
+			_opponentField.removeEventListener(MouseEvent.MOUSE_DOWN,  handlerSelectCellDown);
+			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
 		}
 		
 		
 		public function unlockGame():void
 		{
-			_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);
+			_opponentField.addEventListener(MouseEvent.MOUSE_UP, 	handlerSelectCell);
+			_opponentField.addEventListener(MouseEvent.MOUSE_DOWN,  handlerSelectCellDown);			
 		}
 		
 		
@@ -280,7 +284,7 @@ package game.activity.view.application.game
 				
 				cellSize = (_userField.getChildByName("field") as MovieClip).width/10; // calculate cell size
 				
-				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCeil);								
+				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);								
 				
 				
 				_txt = new TextField();
@@ -294,15 +298,63 @@ package game.activity.view.application.game
 		}
 		
 		
-		private function handlerSelectCeil(e:MouseEvent):void
+		private function handlerSelectCell(e:MouseEvent):void
 		{
-			_ceilX = uint(_opponentField.mouseX/(_opponentField.width/10));
-			_ceilY = uint(_opponentField.mouseY/(_opponentField.height/10));
+			_ceilX = uint(_opponentField.mouseX/cellSize);
+			_ceilY = uint(_opponentField.mouseY/cellSize);
 			this.dispatchEvent( new Event(SELECT_OPPONENT_CEIL));
 			
 			celectedCell.push([_ceilX, _ceilY]);
+			
+			(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
+			
+			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
 		}
 		
+		private function handlerSelectCellDown(e:MouseEvent):void
+		{
+			_ceilX = uint(_opponentField.mouseX/cellSize);
+			_ceilY = uint(_opponentField.mouseY/cellSize);
+			
+			var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
+			var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;
+			
+			column.alpha = 1;			
+			line.alpha   = 1;
+			
+			column.x	= _ceilX*cellSize;		
+			line.y  	= (_ceilY + 1)*cellSize;
+			
+			_opponentField.addEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
+			_opponentField.addEventListener(MouseEvent.MOUSE_OUT,   handlerSelectCellOut);
+		}
+		
+		private function handlerSelectCellMove(e:MouseEvent):void
+		{
+			_ceilX = uint(_opponentField.mouseX/cellSize);
+			_ceilY = uint(_opponentField.mouseY/cellSize);
+			
+			if(_ceilX <= 9 && _ceilY <= 9)
+			{
+				var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
+				var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;
+				
+				column.alpha = 1;			
+				line.alpha   = 1;
+				
+				column.x	= _ceilX*cellSize;		
+				line.y  	= (_ceilY + 1)*cellSize;
+			}		
+		}	
+		
+		private function handlerSelectCellOut(e:MouseEvent):void
+		{
+			(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
+			
+			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
+		}
 		
 		/**
 		 * Locate ships on user field.
@@ -324,122 +376,7 @@ package game.activity.view.application.game
 			}			
 		}
 		
-		/**
-		 * 
-		 * @param val
-		 * @param container
-		 * @param showTable
-		 * @param turnOnAni
-		 * 
-		 */		
-		private function setSelectedCell(val:Object, container:MovieClip, showTable:Boolean = true, turnOnAni:Boolean = true):void
-		{
-			var hitElement:MovieClip, _drownedShip:MovieClip, _playerMove:Boolean = true, _curCell:Number = cellSize;
-			var _x:Number = 0, _y:Number = 0, deck:int, shipCounter:int, shipOrient:int;
 			
-			if(container.name == "oponent_field") 
-			{			
-				_playerMove = false;
-				_curCell    = cellSize;
-			}
-			
-			
-			_x = val[1][1]*_curCell;
-			_y = val[1][0]*_curCell;
-			
-			var classInstance:Class = BaseMediator.getSourceClass("cellTable");
-			
-			if(classInstance)
-			{
-				selectedCell = new classInstance();
-				classInstance = null;
-			}
-				
-					
-			if(val[0])
-			{				
-				if(_playerMove)	selectedCell.gotoAndStop(4);				
-				else				selectedCell.gotoAndStop(2);		
-				
-				if(turnOnAni) 
-				{
-					classInstance = BaseMediator.getSourceClass("hitFire");
-					
-					if(classInstance)
-					{
-						hitElement = new classInstance();
-						classInstance = null;
-					}
-					hitElement.name = "fire";
-				}	
-				
-			}else{
-				
-				if(_playerMove)	selectedCell.gotoAndStop(3);				
-				else			selectedCell.gotoAndStop(1);
-				
-				if(turnOnAni)
-				{				
-					classInstance = BaseMediator.getSourceClass("hitWater");
-					
-					if(classInstance)
-					{
-						hitElement = new classInstance();
-						classInstance = null;
-					}
-					
-					hitElement.name = "water";
-				}			
-			}
-			
-			if(val[2] && _playerMove) 
-			{
-				classInstance = BaseMediator.getSourceClass("drownedShips");
-				
-				if(classInstance)
-				{
-					_drownedShip = new classInstance();
-					classInstance = null;
-				}
-				
-				container.addChildAt(_drownedShip, 0);
-				_drownedShip.name = "drowned";
-				
-				_drownedShip.x = val[2][0][1]*_curCell;
-				_drownedShip.y = val[2][0][0]*_curCell;
-				
-				_drownedShip.gotoAndStop((val[2] as Vector.<Array>).length);
-				
-				/*for (var i:int = 0; i < _model._userShips[0].length; i++) 
-				{
-					if(val[2][0][0] == _model._userShips[0][i].column && val[2][0][1] == _model._userShips[0][i].line)
-					{
-						deck 		= _model._userShips[0][i].deck;
-						shipOrient	= _model._userShips[0][i].direction;
-						shipCounter = i;
-						break;
-					}
-				}*/
-				
-//				(_userField.getChildByName("s" + deck + "_" + i) as MovieClip).visible = false;	
-				if(showTable) (_drownedShip.getChildByName("table") as MovieClip).gotoAndStop(shipOrient+1);						
-			}
-			
-			container.addChild(selectedCell);
-			selectedCell.name = "cell";
-			selectedCell.x = _x;
-			selectedCell.y = _y;
-			
-			if(turnOnAni)
-			{
-				container.addChild(hitElement);
-				hitElement.x = _x;
-				hitElement.y = _y;
-				hitElement.gotoAndPlay(2);				
-				hitElement.addEventListener("finish_hit", removeHitAnimation);		
-			}		
-		}
-		
 		private function removeHitAnimation(e:Event):void
 		{
 			if(_opponentField.contains(e.currentTarget as MovieClip)) 
