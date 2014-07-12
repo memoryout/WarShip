@@ -172,6 +172,7 @@ package game.application.game.p_vs_p_net
 				{
 					startUpdateInfoTimer();
 					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
+					break;
 				}
 					
 				case GameBattleStatus.STEP_OF_INCOMING_USER:
