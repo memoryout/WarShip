@@ -4,15 +4,9 @@ package game.application.server
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.data.user.UserData;
+	import game.application.interfaces.actions.IActionsQueue;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.server.IServerConnectionProxy;
-	import game.application.server.data.AuthorizationData;
-	import game.application.server.data.ErrorResponce;
-	import game.application.server.data.GameInfoResponce;
-	import game.application.server.data.HitInfo;
-	import game.application.server.data.NotififactionData;
-	import game.application.server.data.OpponentData;
-	import game.application.server.data.ShipInfo;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
 	import game.services.net.ServerConnectionEvent;
@@ -20,6 +14,7 @@ package game.application.server
 	public class ServerConnectionProxy extends BaseProxy implements IServerConnectionProxy
 	{
 		private var _serverConnection:				IServerConnection;
+		private var _actionsQueue:					IActionsQueue;
 		
 		private var _connectionStatus:				uint;
 		
@@ -34,6 +29,7 @@ package game.application.server
 		override public function onRegister():void
 		{
 			_serverConnection = ServicesList.getSearvice( ServicesList.SERVER_CONNECTION ) as IServerConnection;
+			_actionsQueue = this.facade.retrieveProxy(ProxyList.ACTIONS_QUEUE_PROXY) as IActionsQueue;
 		}
 		
 		
@@ -132,143 +128,15 @@ package game.application.server
 		}
 		
 		
-		
-		
 		private function parseResponce(data:Object):void
 		{
-			_connectionStatus = ServerConnectionStatus.ENABLED;
-			
-			var responce:ServerResponce = new ServerResponce();
-			responce.setRawData( data );
-			
 			this.log( JSON.stringify(data) );
 			
-			parseUserCommonData(data);
+			_actionsQueue.startQueue();
+			_actionsQueue.parseRowData(data);
+			_actionsQueue.finishQueue();
 			
-			switch(data.cmd)
-			{
-				case "authorize":
-				{
-					parseAuthorizationData(data, responce);
-					break;
-				}
-					
-				case "start_game":
-				{
-					parseGameInfoDataResponce(data, responce);
-					break;
-				}
-					
-				case "get_updates":
-				{
-					parseGameInfoDataResponce(data, responce);
-					break;
-				}
-					
-				case "game_play":
-				{
-					parseGameInfoDataResponce(data, responce);
-					break;
-				}
-			}
-			
-			this.sendNotification(ServerConnectionProxyEvents.REQUEST_COMPLETE, responce);
-		}
-		
-		
-		private function parseUserCommonData(data:Object):void
-		{
-			
-		}
-		
-		
-		private function parseAuthorizationData(data:Object, respoce:ServerResponce):void
-		{
-			var loginInfo:Object = data.loginInfo;
-			
-			if(loginInfo)
-			{
-				var auth:AuthorizationData = new AuthorizationData();
-				
-				auth.login = loginInfo.login;
-				auth.name = loginInfo.name;
-				auth.pass = loginInfo.pass;
-				auth.session = loginInfo.session;
-				
-				respoce.pushData( auth );
-			}
-		}
-		
-		
-		private function parseGameInfoDataResponce(data:Object, responce:ServerResponce):void
-		{
-			var gameInfo:Object = data.gameInfo;
-			
-			if(gameInfo)
-			{
-				var info:GameInfoResponce = new GameInfoResponce();
-				info.status = gameInfo.status;
-				
-				if(gameInfo.opponent)
-				{
-					info.opponentData = new OpponentData();
-					info.opponentData.name = gameInfo.opponent.name;
-					info.opponentData.uid = gameInfo.opponent.uid;
-				}
-				
-				if(gameInfo.notifications)
-				{
-					info.notifications = new Vector.<NotififactionData>(gameInfo.notifications.length, true);
-					
-					var i:int, nData:NotififactionData;
-					for(i = 0; i < gameInfo.notifications.length; i++)
-					{
-						nData = new NotififactionData();
-						nData.data = gameInfo.notifications[i].data;
-						nData.type = gameInfo.notifications[i].type;
-						
-						info.notifications[i] = nData;
-					}
-				}
-				
-				if(data.hitInfo)
-				{
-					info.hitInfo = new HitInfo();
-					info.hitInfo.status = data.hitInfo.status;
-					info.hitInfo.pointX = data.hitInfo.target[0];
-					info.hitInfo.pointY = data.hitInfo.target[1];
-					
-					if(data.hitInfo.ship)
-					{
-						var shipInfo:ShipInfo = new ShipInfo();
-						shipInfo.decks = data.hitInfo.ship.decks;
-						shipInfo.status = data.hitInfo.ship.status;
-						
-						shipInfo.startX = data.hitInfo.ship.coordinates[0][0];
-						shipInfo.startY = data.hitInfo.ship.coordinates[0][1];
-						
-						shipInfo.finishX = data.hitInfo.ship.coordinates[1][0];
-						shipInfo.finishY = data.hitInfo.ship.coordinates[1][1];
-					}
-					
-					info.hitInfo.ship = shipInfo;
-				}
-				
-				
-				responce.pushData( info );
-			}
-			
-			
-			if(data.error)
-			{
-				var error:ErrorResponce = new ErrorResponce();
-				error = new ErrorResponce();
-				error.code = data.error.code;
-				error.description = data.error.description;
-				error.severity = data.error.severity;
-				
-				responce.pushData( error );
-			}
+			_connectionStatus = ServerConnectionStatus.ENABLED;
 		}
 	}
 }

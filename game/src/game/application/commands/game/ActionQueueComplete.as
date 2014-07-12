@@ -1,16 +1,15 @@
-package game.application.commands.server
+package game.application.commands.game
 {
 	import game.application.ProxyList;
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.IGameProxy;
-	import game.application.server.ServerResponce;
 	
 	import org.puremvc.as3.interfaces.INotification;
 	import org.puremvc.as3.patterns.command.SimpleCommand;
 	
-	public class ServerRequestComplete extends SimpleCommand
+	public class ActionQueueComplete extends SimpleCommand
 	{
-		public function ServerRequestComplete()
+		public function ActionQueueComplete()
 		{
 			super();
 		}
@@ -20,7 +19,7 @@ package game.application.commands.server
 			var mainAppProxy:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
 			
 			var currentGame:IGameProxy = mainAppProxy.getCurrentGame();
-			currentGame.receiveServerResponce( notification.getBody() as ServerResponce);
+			currentGame.processActionsQueue();
 		}
 	}
 }

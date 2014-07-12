@@ -12,5 +12,7 @@ package game.application
 		public static const GAME_VS_PLAYER_NET:		String = "proxy.game.player_net";
 		
 		public static const GAME_BATTLE_PROXY:		String = "proxy.game.battle";
+		
+		public static const ACTIONS_QUEUE_PROXY:	String = "actions_queue_proxy";
 	}
 }

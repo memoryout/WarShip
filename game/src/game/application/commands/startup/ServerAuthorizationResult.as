@@ -1,12 +1,12 @@
 package game.application.commands.startup
 {
 	import game.application.ProxyList;
+	import game.application.connection.ActionQueueData;
+	import game.application.connection.ActionType;
+	import game.application.connection.actions.AuthorizationData;
 	import game.application.data.user.UserData;
+	import game.application.interfaces.actions.IActionsQueue;
 	import game.application.interfaces.data.IUserDataProxy;
-	import game.application.server.ServerResponce;
-	import game.application.server.ServerResponceDataType;
-	import game.application.server.data.AuthorizationData;
-	import game.application.server.data.ResponceData;
 	import game.application.startup.StartupProxy;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
@@ -24,26 +24,20 @@ package game.application.commands.startup
 		
 		override public function execute(notification:INotification):void
 		{
-			var responce:ServerResponce = notification.getBody() as ServerResponce;
+			var actionsQueue:IActionsQueue = notification.getBody() as IActionsQueue;
 			
-			if(responce)
+			var action:ActionQueueData;
+			
+			action = actionsQueue.getNextAction();
+			while( action )
 			{
-				var dataList:Vector.<ResponceData> = responce.getDataList()
-				
-				var i:int;
-				for(i = 0; i < dataList.length; i++)
+				if(action.type == ActionType.AUTHORIZATION) 
 				{
-					switch(dataList[i].responceDataType)
-					{
-						case ServerResponceDataType.AUTHORIZATION:
-						{
-							updateUserAuthorizationData(dataList[i] as AuthorizationData);
-							break;
-						}
-					}
+					updateUserAuthorizationData(action as AuthorizationData);
 				}
+				
+				action = actionsQueue.getNextAction();
 			}
-			
 			
 			var startup:StartupProxy = this.facade.retrieveProxy(ProxyList.STARTUP_PROXY) as StartupProxy;
 			if(startup)

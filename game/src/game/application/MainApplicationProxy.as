@@ -6,11 +6,11 @@ package game.application
 	import game.application.commands.game.CreateNewGameCommand;
 	import game.application.commands.game.UserShipsLocatedComlete;
 	import game.application.commands.startup.ServerAuthorizationResult;
+	import game.application.connection.ActionsQueueEvent;
 	import game.application.game.p_vs_p_net.GameVSPlayerNetProxy;
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.IGameProxy;
 	import game.application.server.ServerConnectionProxyEvents;
-
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
@@ -29,7 +29,7 @@ package game.application
 		
 		public function runApplication():void
 		{
-			this.facade.registerCommand(ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerAuthorizationResult);
+			this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
 			this.facade.registerCommand(ApplicationCommands.CREATE_NEW_GAME, CreateNewGameCommand);
 			this.facade.registerCommand(ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE, UserShipsLocatedComlete);
 		}

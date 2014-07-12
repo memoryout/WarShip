@@ -5,11 +5,11 @@ package game.application.game.battle
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
+	import game.application.connection.actions.OpponentInfoData;
 	import game.application.data.game.BattleField;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.interfaces.game.battle.IGameBattleProxy;
-	import game.application.server.data.OpponentData;
 	
 	public class GameBattleProxy extends BaseProxy implements IGameBattleProxy
 	{
@@ -54,7 +54,7 @@ package game.application.game.battle
 		}
 		
 		
-		public function initOpponentData(data:OpponentData):void
+		public function initOpponentData(data:OpponentInfoData):void
 		{
 			
 		}

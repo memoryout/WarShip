@@ -5,6 +5,7 @@ package game.application.commands
 	import game.activity.view.BootStageMediator;
 	import game.application.MainApplicationProxy;
 	import game.application.ProxyList;
+	import game.application.connection.ActionsQueue;
 	import game.application.data.user.UserDataProxy;
 	import game.application.server.ServerConnectionProxy;
 	import game.application.startup.StartupProxy;
@@ -60,9 +61,11 @@ package game.application.commands
 			ServerConnectionInterface.init();
 			AssetManager.init();
 			
+			this.facade.registerProxy(new ActionsQueue(ProxyList.ACTIONS_QUEUE_PROXY) );
 			this.facade.registerProxy(new UserDataProxy(ProxyList.USER_DATA_PROXY) );
 			this.facade.registerProxy(new ServerConnectionProxy(ProxyList.SERVER_PROXY) );
 			this.facade.registerProxy(new MainApplicationProxy(ProxyList.MAIN_APPLICATION_PROXY) );
+			
 		}
 	}
 }

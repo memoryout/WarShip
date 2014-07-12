@@ -7,8 +7,16 @@ package game.application.game.p_vs_p_net
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
+	import game.application.commands.game.ActionQueueComplete;
 	import game.application.commands.game.UserInGameActionCommand;
-	import game.application.commands.server.ServerRequestComplete;
+	import game.application.connection.ActionQueueData;
+	import game.application.connection.ActionType;
+	import game.application.connection.ActionsQueueEvent;
+	import game.application.connection.actions.DestroyShipData;
+	import game.application.connection.actions.GameInfoData;
+	import game.application.connection.actions.HitInfoData;
+	import game.application.connection.actions.OpponentInfoData;
+	import game.application.connection.actions.UserInfoData;
 	import game.application.data.NotificationType;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipDirrection;
@@ -16,16 +24,11 @@ package game.application.game.p_vs_p_net
 	import game.application.game.MainGameProxy;
 	import game.application.game.battle.GameBattleProxy;
 	import game.application.game.battle.GameBattleStatus;
+	import game.application.interfaces.actions.IActionsQueue;
 	import game.application.interfaces.game.p_vs_p_net.IGameVSPlayerNet;
 	import game.application.server.ServerConnectionProxy;
 	import game.application.server.ServerConnectionProxyEvents;
-	import game.application.server.ServerResponce;
 	import game.application.server.ServerResponceDataType;
-	import game.application.server.data.GameInfoResponce;
-	import game.application.server.data.HitInfo;
-	import game.application.server.data.NotififactionData;
-	import game.application.server.data.ResponceData;
-	import game.application.server.data.ShipInfo;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
@@ -35,6 +38,7 @@ package game.application.game.p_vs_p_net
 		
 		private var _battleProxy:		GameBattleProxy;
 		private var _serverProxy:		ServerConnectionProxy;
+		private var _actionsQueue:		IActionsQueue;
 		
 		private var _requestRepeatTimer:Timer;
 		
@@ -48,9 +52,11 @@ package game.application.game.p_vs_p_net
 		{
 			super.generateShipList( shipsDeckList );
 			
+			_actionsQueue = this.facade.retrieveProxy(ProxyList.ACTIONS_QUEUE_PROXY) as IActionsQueue;
+			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
-			this.facade.registerCommand(ServerConnectionProxyEvents.REQUEST_COMPLETE, ServerRequestComplete);
+			this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ActionQueueComplete);
 			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
 		}		
 		
@@ -94,98 +100,130 @@ package game.application.game.p_vs_p_net
 		}
 		
 		
-		override public function receiveServerResponce(responce:ServerResponce):void
+		override public function processActionsQueue():void
 		{
-			var dataList:Vector.<ResponceData> = responce.getDataList();
-			var i:int;
-			for(i = 0; i< dataList.length; i++)
+			
+			var action:ActionQueueData;
+			
+			action = _actionsQueue.getNextAction();
+			
+			while(action)
 			{
-				switch(dataList[i].responceDataType)
+				switch(action.type)
 				{
-					case ServerResponceDataType.GAME_INFO:
+					case ActionType.GAME_STATUS_INFO:
 					{
-						updateGameInfo(dataList[i] as GameInfoResponce);
+						updateGameStatusInfo(action as GameInfoData);
 						break;
 					}
 						
-					case ServerResponceDataType.ERROR:
+					case ActionType.OPPONENT_INFO:
 					{
-						
+						updateOpponentData(action as OpponentInfoData);
 						break;
 					}
+						
+					case ActionType.USER_INFO:
+					{
+						updateUserData(action as UserInfoData);
+						break;
+					}
+						
+					case ActionType.OPPONENT_HIT_INFO:
+					{
+						parseOpponentHitInfo(action as HitInfoData);
+						break;
+					}
+						
+					case ActionType.OPPONENT_DESTROY_USER_SHIP:
+					{
+						parseOpponentDestroyUserShipAction(action as DestroyShipData);
+						break;
+					}
+						
+					case ActionType.USER_HIT_INFO:
+					{
+						parseUserHitInfo(action as HitInfoData);
+						break;
+					}
+						
+					case ActionType.USER_DESTROY_OPPONENT_SHIP:
+					{
+						parseUserDestroyOpponentShipAction(action as DestroyShipData);
+						break;
+					}
+						
+						
 				}
+				
+				action = _actionsQueue.getNextAction();
 			}
 		}
 		
 		
-		private function updateGameInfo(data:GameInfoResponce):void
+		private function updateGameStatusInfo(action:GameInfoData):void
 		{
-			_battleProxy.startDataUpdate();
-			
-			
-			if(data.hitInfo) processHitAction(data.hitInfo, true);
-			if(data.notifications) processNotifications(data.notifications);
-			
-			
-			
-			switch(data.status)
+			switch(action.status)
 			{
+				case GameBattleStatus.STEP_OF_OPPONENT:
 				case GameBattleStatus.WAITING_FOR_START:
 				{
 					startUpdateInfoTimer();
-					
 					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
-					break;
 				}
 					
-				case GameBattleStatus.STEP_OF_OPPONENT:
-				{
-					if(_battleProxy.getStatus() == GameBattleStatus.WAITING_FOR_START && data.opponentData)
-					{
-						_battleProxy.initOpponentData( data.opponentData );
-					}
-									
-					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
-					
-					startUpdateInfoTimer();
-					
-					break;
-				}
-				
 				case GameBattleStatus.STEP_OF_INCOMING_USER:
 				{
 					_battleProxy.setStatus(GameBattleStatus.STEP_OF_INCOMING_USER);
-					
 					break;
 				}
 			}
-			
-			_battleProxy.finishDataUpdate();
 		}
 		
 		
-		private function processHitAction(data:HitInfo, user:Boolean):void
+		private function updateOpponentData(action:OpponentInfoData):void
 		{
-			if(!user) _battleProxy.opponentMakeHit(data.pointX, data.pointY, data.status);
-			else 
-			{
-				_battleProxy.userMakeHit(data.pointX, data.pointY, data.status);
-				if(data.ship)
-				{
-					userSankOpponentsShip(data.ship);
-				}
-					
-			}
+			_battleProxy.initOpponentData( data.opponentData );
 		}
 		
-		private function userSankOpponentsShip(ship:ShipInfo):void
+		
+		private function updateUserData(action:UserInfoData):void
+		{
+			
+		}
+		
+		
+		private function parseOpponentHitInfo(action:HitInfoData):void
+		{
+			_battleProxy.opponentMakeHit(action.pointX, action.pointY, action.status);
+		}
+		
+		private function parseOpponentDestroyUserShipAction(action:DestroyShipData):void
 		{
 			var shipData:ShipData = new ShipData();
-			shipData.x = ship.startX;
-			shipData.y = ship.startY;
-			shipData.deck = ship.decks;
+			shipData.x = action.startX;
+			shipData.y = action.startY;
+			shipData.deck = action.decks;
 			
-			if(ship.startX != ship.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
+			if(action.startX != action.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
+			else shipData.dirrection = ShipDirrection.VERTICAL;
+			
+			//_battleProxy.userSankOpponentsShip(shipData);
+		}
+		
+		private function parseUserHitInfo(action:HitInfoData):void
+		{
+			_battleProxy.userMakeHit(action.pointX, action.pointY, action.status);
+		}
+		
+		private function parseUserDestroyOpponentShipAction(action:DestroyShipData):void
+		{
+			var shipData:ShipData = new ShipData();
+			shipData.x = action.startX;
+			shipData.y = action.startY;
+			shipData.deck = action.decks;
+			
+			if(action.startX != action.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
 			else shipData.dirrection = ShipDirrection.VERTICAL;
 			
 			_battleProxy.userSankOpponentsShip(shipData);
@@ -224,23 +262,6 @@ package game.application.game.p_vs_p_net
 			_requestRepeatTimer.stop();
 			
 			_serverProxy.getGameUpdate();
-		}
-		
-		
-		private function processNotifications(v:Vector.<NotififactionData>):void
-		{
-			var i:int;
-			for(i = 0; i < v.length; i++)
-			{
-				switch(v[i].type)
-				{
-					case NotificationType.HIT:
-					{
-						_battleProxy.opponentMakeHit(v[i].data.target[0], v[i].data.target[1], v[i].data.status);
-						break;
-					}
-				}
-			}
 		}
 	}
 }
