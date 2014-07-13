@@ -8,6 +8,15 @@ package game.application.game.battle
 		public static const OPPONENT_MAKE_HIT:			uint = _ids++;
 		public static const USER_MAKE_HIT:				uint = _ids++;
 		public static const USER_SANK_OPPONENTS_SHIP:	uint = _ids++;
+		public static const OPPONENT_SANK_USER_SHIP:	uint = _ids++;
+		
+		
+		public static const USER_EXP_UPDATED:			uint = _ids++;
+		public static const USER_POINTS_UPDATED:		uint = _ids++;
+		
+		public static const OPPONENT_EXP_UPDATED:		uint = _ids++;
+		public static const OPPONENT_POINTS_UPDATED:	uint = _ids++;
+		
 		
 		private var _type:			uint = uint.MAX_VALUE;
 		private var _data:			Object;

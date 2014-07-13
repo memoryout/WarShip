@@ -21,6 +21,8 @@ package game.services.net.http
 		private var _loader:	URLLoader;
 		private var _repeatCount:uint;
 		
+		private var _id:		Number;
+		
 		
 		public function HTTPRequest()
 		{
@@ -32,9 +34,12 @@ package game.services.net.http
 			_url = url;
 			_data = data;
 			
+			_id = new Date().time + uint(Math.random() * 1000);
+			
 			_vars = new URLVariables();
 			var par:String;
 			for(par in _data) _vars[par] = _data[par];
+			_vars["id"] = _id;
 			
 			_onComplete = onComplete;
 			_onError = onError;
@@ -50,8 +55,6 @@ package game.services.net.http
 				_loader.removeEventListener(Event.COMPLETE, handlerComplete);
 				_loader.removeEventListener(IOErrorEvent.IO_ERROR, handlerError);
 			}
-			
-			trace("sendRequest");
 			
 			var req:URLRequest = new URLRequest(_url);
 			req.data = _vars;

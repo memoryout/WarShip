@@ -5,8 +5,11 @@ package game.application.game.battle
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
+	import game.application.connection.actions.GameInfoData;
 	import game.application.connection.actions.OpponentInfoData;
+	import game.application.connection.actions.UserInfoData;
 	import game.application.data.game.BattleField;
+	import game.application.data.game.GamePlayerData;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.interfaces.game.battle.IGameBattleProxy;
@@ -21,6 +24,9 @@ package game.application.game.battle
 		
 		private var _currentStatus:		uint = uint.MAX_VALUE;
 		
+		
+		private var _user:				GamePlayerData;
+		private var _opponent:			GamePlayerData;
 		
 		private const _actionList:		Vector.<GameBattleAction> = new Vector.<GameBattleAction>;
 		
@@ -54,9 +60,58 @@ package game.application.game.battle
 		}
 		
 		
-		public function initOpponentData(data:OpponentInfoData):void
+		public function updateOpponentData(data:OpponentInfoData):void
 		{
+			if(!_opponent) _opponent = new GamePlayerData();
 			
+			if( _opponent.exp != data.exp )
+			{
+				_opponent.exp = data.exp;
+				
+				var action:GameBattleAction = new GameBattleAction(GameBattleAction.OPPONENT_EXP_UPDATED);
+				action.setData( _opponent.exp);
+				_actionList.push( action );
+			}
+		}
+		
+		public function updateUserData(data:UserInfoData):void
+		{
+			if(!_user) _user = new GamePlayerData();
+			
+			if( _user.exp != data.exp )
+			{
+				_user.exp = data.exp;
+				
+				var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_EXP_UPDATED);
+				action.setData( _user.exp);
+				_actionList.push( action );
+			}
+			
+		}
+		
+		
+		public function updateGameInfo(data:GameInfoData):void
+		{
+			var action:GameBattleAction
+			
+			if(_user.points != data.userPoints)
+			{
+				_user.points = data.userPoints;
+				
+				action = new GameBattleAction(GameBattleAction.USER_POINTS_UPDATED);
+				action.setData( _user.points);
+				_actionList.push( action );
+			}
+			
+			
+			if(_opponent.points != data.opponentPoints)
+			{
+				_opponent.points = data.userPoints;
+				
+				action = new GameBattleAction(GameBattleAction.OPPONENT_POINTS_UPDATED);
+				action.setData( _opponent.points);
+				_actionList.push( action );
+			}
 		}
 		
 		
@@ -89,6 +144,21 @@ package game.application.game.battle
 			var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_SANK_OPPONENTS_SHIP);
 			action.setData( {ship:ship, fieldPoint:v} );
 			_actionList.push( action );
+		}
+		
+		
+		public function opponentSankUserShip(ship:ShipData):void
+		{
+			var v:Vector.<ShipPositionPoint> = _userField.pushShip( ship );
+			
+			var action:GameBattleAction = new GameBattleAction(GameBattleAction.OPPONENT_SANK_USER_SHIP);
+			action.setData( {ship:ship, fieldPoint:v} );
+			_actionList.push( action );
+		}
+		
+		public function isWaterCeil(x:int, y:int):Boolean
+		{
+			return _opponentField.isWaterCeil(x, y)
 		}
 		
 		
@@ -127,7 +197,6 @@ package game.application.game.battle
 		{
 			return _actionList.shift();
 		}
-		
 		
 	}
 }

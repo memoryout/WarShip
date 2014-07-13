@@ -153,7 +153,21 @@ package game.utils
 			}
 			
 			return v;
+		}
+		
+		
+		public function getShipByStartPosition(startX:int, startY:int, ships:Vector.<ShipData>):ShipData
+		{
+			var i:int;
+			for(i = 0; i < ships.length; i++)
+			{
+				if(ships[i].x == startX && ships[i].y == startY)
+				{
+					return ships[i];
+				}
+			}
 			
+			return null;
 		}
 	}
 }

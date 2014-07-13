@@ -29,6 +29,7 @@ package game.application.game.p_vs_p_net
 	import game.application.server.ServerConnectionProxy;
 	import game.application.server.ServerConnectionProxyEvents;
 	import game.application.server.ServerResponceDataType;
+	import game.utils.ShipPositionSupport;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
 	{
@@ -91,12 +92,19 @@ package game.application.game.p_vs_p_net
 		
 		override public function hitPoint(x:uint, y:uint):void
 		{
-			_battleProxy.setStatus(GameBattleStatus.WAITINIG_GAME_ANSWER);
-			_battleProxy.finishDataUpdate();
-			
-			_serverProxy.sendHitPointPosition( x, y );
-			
-			startUpdateInfoTimer();
+			if( _battleProxy.isWaterCeil(x, y) )
+			{
+				_battleProxy.setStatus(GameBattleStatus.WAITINIG_GAME_ANSWER);
+				_battleProxy.finishDataUpdate();
+				
+				_serverProxy.sendHitPointPosition( x, y );
+				
+				startUpdateInfoTimer();
+			}
+			else
+			{
+				this.log("hit error point x=" + x.toString() + " y=" + y.toString() ); 
+			}
 		}
 		
 		
@@ -168,6 +176,11 @@ package game.application.game.p_vs_p_net
 			switch(action.status)
 			{
 				case GameBattleStatus.STEP_OF_OPPONENT:
+				{
+					startUpdateInfoTimer();
+					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
+					break;
+				}
 				case GameBattleStatus.WAITING_FOR_START:
 				{
 					startUpdateInfoTimer();
@@ -180,13 +193,27 @@ package game.application.game.p_vs_p_net
 					_battleProxy.setStatus(GameBattleStatus.STEP_OF_INCOMING_USER);
 					break;
 				}
+					
+				case GameBattleStatus.INCOMING_USER_WON:
+				{
+					stopUpdateTimer();
+					_battleProxy.setStatus(GameBattleStatus.INCOMING_USER_WON);
+					break;
+				}
+					
+				case GameBattleStatus.OPPONENT_WON:
+				{
+					stopUpdateTimer();
+					_battleProxy.setStatus(GameBattleStatus.OPPONENT_WON);
+					break;
+				}
 			}
 		}
 		
 		
 		private function updateOpponentData(action:OpponentInfoData):void
 		{
-			_battleProxy.initOpponentData( action );
+			_battleProxy.updateOpponentData( action );
 		}
 		
 		
@@ -196,6 +223,8 @@ package game.application.game.p_vs_p_net
 		}
 		
 		
+		
+		
 		private function parseOpponentHitInfo(action:HitInfoData):void
 		{
 			_battleProxy.opponentMakeHit(action.pointX, action.pointY, action.status);
@@ -203,16 +232,13 @@ package game.application.game.p_vs_p_net
 		
 		private function parseOpponentDestroyUserShipAction(action:DestroyShipData):void
 		{
-			var shipData:ShipData = new ShipData();
-			shipData.x = action.startX;
-			shipData.y = action.startY;
-			shipData.deck = action.decks;
+			var shipData:ShipData = ShipPositionSupport.getInstance().getShipByStartPosition(action.startX, action.startY, shipsList);
 			
-			if(action.startX != action.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
-			else shipData.dirrection = ShipDirrection.VERTICAL;
-			
-			//_battleProxy.userSankOpponentsShip(shipData);
+			_battleProxy.opponentSankUserShip(shipData);
 		}
+		
+		
+		
 		
 		private function parseUserHitInfo(action:HitInfoData):void
 		{
@@ -257,6 +283,17 @@ package game.application.game.p_vs_p_net
 			}
 			
 			_requestRepeatTimer.start();
+		}
+		
+		private function stopUpdateTimer():void
+		{
+			if(_requestRepeatTimer) 
+			{
+				_requestRepeatTimer.stop();
+				_requestRepeatTimer.removeEventListener(TimerEvent.TIMER, handlerUpdateInfoTimer);	
+			}
+			
+			_requestRepeatTimer = null;
 		}
 		
 		

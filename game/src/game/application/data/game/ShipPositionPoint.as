@@ -10,5 +10,11 @@ package game.application.data.game
 			this.x = x;
 			this.y = y;
 		}
+		
+		
+		public function toString():String
+		{
+			return "[ShipPositionPoint x=" + x.toString() + " y=" + y.toString() + "]"
+		}
 	}
 }

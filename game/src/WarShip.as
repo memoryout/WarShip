@@ -5,6 +5,8 @@ package
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
+	import flash.ui.Keyboard;
 	
 	import game.ApplicationFacade;
 	
@@ -29,6 +31,7 @@ package
 			
 			NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, handlerApplicationDeactivate);
 			NativeApplication.nativeApplication.addEventListener(Event.EXITING, handlerApplicationExit);
+			NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, handlerKeyDown);
 			
 			ApplicationFacade.getInstance().startup( this.stage );
 		}
@@ -41,6 +44,31 @@ package
 			
 		}
 		
+		
+		private function handlerKeyDown(e:KeyboardEvent):void
+		{
+			switch(e.keyCode)
+			{
+				case Keyboard.BACK:
+				{
+					e.preventDefault();
+					trace("Keyboard.BACK")
+					break;
+				}
+					
+				case Keyboard.MENU:
+				{
+					trace("Keyboard.MENU")
+					break;
+				}
+					
+				case Keyboard.SEARCH:
+				{
+					trace("Keyboard.SEARCH")
+					break;
+				}
+			}
+		}
 		
 		private function handlerApplicationExit(e:Event):void
 		{

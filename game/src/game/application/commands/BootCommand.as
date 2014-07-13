@@ -32,7 +32,7 @@ package game.application.commands
 			
 			registerCommands();
 			
-			registerProxy();
+			registerProxy(stage);
 			
 			registerMediator(stage);
 			
@@ -54,7 +54,7 @@ package game.application.commands
 		}
 		
 		
-		private function registerProxy():void
+		private function registerProxy(stage:Stage):void
 		{
 			SQLManager.init();
 			DeviceManager.init();
