@@ -92,6 +92,12 @@ package game.activity.view.application.game
 						executeBattleProxyAction();
 						break;
 					}
+						
+					default:
+					{
+						executeBattleProxyAction();
+						break;
+					}
 				}
 			}
 			else
