@@ -26,8 +26,12 @@ package game.activity.view.application.game
 		
 		private var cellSize:		Number;
 		
-		private var celectedCell:	Array = new Array();
+		private var selectedUserCell:		Array = new Array();
+		private var selectedOponentCell:	Array = new Array();
+		
 		private var brokenCellCounter:int = 1;
+		
+		private var shipsDescriptionContainer:Array;
 		
 		public function GameView()
 		{
@@ -96,45 +100,59 @@ package game.activity.view.application.game
 			
 			for (i = 0; i < val.fieldPoint.length; i++) 
 			{
-				if(val.fieldPoint[i].x > -1 && val.fieldPoint[i].y > -1 && !checkIfCellWasSelected(val.fieldPoint[i]))
+				if(val.fieldPoint[i].x > -1 && val.fieldPoint[i].y > -1 && !checkIfCellWasSelected(val.fieldPoint[i], selectedUserCell))
 				{
 					userMakeHit(val.fieldPoint[i].x, val.fieldPoint[i].y, 0);
-					celectedCell.push([val.fieldPoint[i].x, val.fieldPoint[i].y]);
+					selectedUserCell.push([val.fieldPoint[i].x, val.fieldPoint[i].y]);
 				}
 			}
 			
 			for (i = 0; i < val.ship.coopdinates.length; i++) 
 			{
-				cleanBrokenCells(val.ship.coopdinates[i].x, val.ship.coopdinates[i].y);
+				cleanBrokenCellsOnFeild(val.ship.coopdinates[i].x, val.ship.coopdinates[i].y, _opponentField);
 			}
 			
-			var classInstance:Class = BaseMediator.getSourceClass("drownedShips");
-			var drownedShip:MovieClip;
-			
-			if(classInstance)
-			{
-				drownedShip = new classInstance();				
-				classInstance = null;				
-			}	
-			
-			_opponentField.addChild(drownedShip);			
-			
-			drownedShip.x = cellSize*val.ship.x;
-			drownedShip.y =  cellSize*val.ship.y;
-			
-			drownedShip.gotoAndStop(val.ship.deck);
-			
-			if(val.ship.dirrection == 0) drownedShip.table.gotoAndStop(1);		
-			else					 drownedShip.table.gotoAndStop(2);		
+			addBrokenShipOnField(val.ship.x, val.ship.y, val.ship.deck, val.ship.dirrection, _opponentField);			
 		}
 		
-		private function checkIfCellWasSelected(val:Object):Boolean
+		public function sunkOponentShip(val:Object):void
+		{			
+			var i:int;
+			
+			for (i = 0; i < val.fieldPoint.length; i++) 
+			{
+				if(val.fieldPoint[i].x > -1 && val.fieldPoint[i].y > -1 && !checkIfCellWasSelected(val.fieldPoint[i], selectedOponentCell))
+				{
+					opponentMakeHit(val.fieldPoint[i].x, val.fieldPoint[i].y, 0);
+					selectedOponentCell.push([val.fieldPoint[i].x, val.fieldPoint[i].y]);
+				}
+			}
+			
+			for (i = 0; i < val.ship.coopdinates.length; i++) 
+			{
+				cleanBrokenCellsOnFeild(val.ship.coopdinates[i].x, val.ship.coopdinates[i].y, _userField);
+			}
+			
+			for (i = 0; i < shipsDescriptionContainer.length; i++) 
+			{				
+				if(shipsDescriptionContainer[i].x == val.ship.x && shipsDescriptionContainer[i].y == val.ship.y)
+				{
+					_userField.removeChild(_userField.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
+					shipsDescriptionContainer.splice(1, i);
+					break;
+				}								
+			}	
+			
+			addBrokenShipOnField(val.ship.x, val.ship.y, val.ship.deck, val.ship.dirrection, _userField);	
+		}
+		
+		private function checkIfCellWasSelected(val:Object, container:Array):Boolean
 		{
 			var res:Boolean;
 			
-			for (var i:int = 0; i < celectedCell.length; i++) 
+			for (var i:int = 0; i < container.length; i++) 
 			{
-				if(celectedCell[i][0] == val.x && celectedCell[i][1] == val.y)
+				if(container[i][0] == val.x && container[i][1] == val.y)
 				{
 					res = true;
 					break;
@@ -144,19 +162,41 @@ package game.activity.view.application.game
 			return res;
 		}
 		
-		private function cleanBrokenCells(x:uint, y:uint):void
+		private function cleanBrokenCellsOnFeild(x:uint, y:uint, field:MovieClip):void
 		{
-			for (var i:int = 0; i < _opponentField.numChildren; i++) 
+			for (var i:int = 0; i < field.numChildren; i++) 
 			{
-				var currentElement:MovieClip = _opponentField.getChildAt(i) as MovieClip;
+				var currentElement:MovieClip = field.getChildAt(i) as MovieClip;
 				if(currentElement)
 				{
 					var nameName:Array = currentElement.name.split("_");	
 					
 					if(uint(nameName[1]) == x && uint(nameName[2]) == y)
-						_opponentField.removeChildAt(i);
+						field.removeChildAt(i);
 				}				
 			}			
+		}
+		
+		private function addBrokenShipOnField(x:int, y:int, deck:int, dirrection:int, field:MovieClip):void
+		{			
+			var classInstance:Class = BaseMediator.getSourceClass("drownedShips");
+			var drownedShip:MovieClip;
+			
+			if(classInstance)
+			{
+				drownedShip = new classInstance();				
+				classInstance = null;				
+			}	
+			
+			field.addChild(drownedShip);			
+			
+			drownedShip.x = cellSize*x;
+			drownedShip.y =  cellSize*y;
+			
+			drownedShip.gotoAndStop(deck);
+			
+			if(dirrection == 0)  drownedShip.table.gotoAndStop(1);		
+			else  				 drownedShip.table.gotoAndStop(2);		
 		}
 		
 		
@@ -189,8 +229,8 @@ package game.activity.view.application.game
 				cellTable.name = "broken_" + x.toString() + "_" + y.toString();				
 			}			
 			
-			_opponentField.addChild(hitElement);
-			_opponentField.addChild(cellTable);
+			_opponentField.addChildAt(hitElement, 0);
+			_opponentField.addChildAt(cellTable,  0);
 			
 			hitElement.x = cellTable.x = cellSize*x;
 			hitElement.y = cellTable.y = cellSize*y;
@@ -198,6 +238,7 @@ package game.activity.view.application.game
 			if(result > 0)
 			{
 				brokenCellCounter++;
+				trace("brokenCellCounter: ", brokenCellCounter);
 				cellTable.gotoAndStop(brokenCellCounter);
 			}
 				
@@ -243,17 +284,18 @@ package game.activity.view.application.game
 			if(classInstance)
 			{
 				cellTable = new classInstance();				
-				classInstance = null;				
+				classInstance = null;		
+				cellTable.name = "broken_" + x.toString() + "_" + y.toString();		
 			}			
 			
-			_userField.addChild(hitElement);
-			_userField.addChild(cellTable);
+			_userField.addChildAt(hitElement, 0);
+			_userField.addChildAt(cellTable,  0);
 			
 			hitElement.x = cellTable.x = cellSize*x;
 			hitElement.y = cellTable.y = cellSize*y;
 			
 			if(result > 0)
-				cellTable.gotoAndStop(2);
+				cellTable.gotoAndStop(22);
 			else 
 				cellTable.gotoAndStop(1);
 			
@@ -267,6 +309,10 @@ package game.activity.view.application.game
 			
 			hitElement.gotoAndPlay(2);				
 			hitElement.addEventListener("finish_hit", removeHitAnimation);		
+			
+			selectedOponentCell.push([x, y]);
+			
+			trace("x: ", x, "y: ", y);
 		}
 		
 		
@@ -291,7 +337,8 @@ package game.activity.view.application.game
 				_txt.background = true;
 				_txt.x = 820;
 				_txt.y = 20;
-				_txt.width = 300;
+				_txt.width = 100;
+				_txt.height = 50;
 				
 				this.addChild( _txt );
 			}
@@ -304,7 +351,7 @@ package game.activity.view.application.game
 			_ceilY = uint(_opponentField.mouseY/cellSize);
 			this.dispatchEvent( new Event(SELECT_OPPONENT_CEIL));
 			
-			celectedCell.push([_ceilX, _ceilY]);
+			selectedUserCell.push([_ceilX, _ceilY]);
 			
 			(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
 			(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
@@ -362,7 +409,9 @@ package game.activity.view.application.game
 		 * 
 		 */		
 		public function setShipsLocation(val:Vector.<ShipData>):void
-		{			
+		{		
+			shipsDescriptionContainer = new Array();
+			
 			for (var i:int = 0; i < val.length; i++) 
 			{				
 				var ship:MovieClip = _userField.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
@@ -371,6 +420,8 @@ package game.activity.view.application.game
 				
 				if(val[i].dirrection == 0) ship.gotoAndStop(1);		
 				else					   ship.gotoAndStop(2);			
+				
+				shipsDescriptionContainer.push({"shipName":ship.name, "x":val[i].x, "y":val[i].y});
 				
 //				trace("x:", val[i].x, "y:", val[i].y, "direction: ", val[i].dirrection,  "deck: ", val[i].deck);
 			}			

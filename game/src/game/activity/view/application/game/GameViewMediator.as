@@ -89,7 +89,16 @@ package game.activity.view.application.game
 						// data.ship =  ShipData - инфа по кораблю который был потоплен
 						// data.fieldPoint = Vector.<ShipPositionPoint> - точки на поле вокруг горабля.
 						
-						executeBattleProxyAction();
+//						executeBattleProxyAction();
+						
+						_gameView.sunkUserShip(action.getData());
+						break;
+					}
+						
+					case GameBattleAction.OPPONENT_SANK_USER_SHIP:
+					{
+						_gameView.sunkOponentShip(action.getData());
+						executeBattleProxyAction();						
 						break;
 					}
 						
