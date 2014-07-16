@@ -109,10 +109,13 @@ package game.application.data.game
 		
 		private function setFieldPointValue(x:int, y:int, value:int, points:Vector.<ShipPositionPoint>):void
 		{
-			if(x >= 0 && x <= 9 && y >= 0 && y <= 10)
+			if(x >= 0 && x <= 9 && y >= 0 && y <= 9)
 			{
-				_fieldCeilCache[x + "_" + y] = value;
-				points.push( new ShipPositionPoint(x, y) );
+				if(_fieldCeilCache[x + "_" + y] != value)
+				{
+					_fieldCeilCache[x + "_" + y] = value;
+					points.push( new ShipPositionPoint(x, y) );
+				}
 			}
 		}
 		

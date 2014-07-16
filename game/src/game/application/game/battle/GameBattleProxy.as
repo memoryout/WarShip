@@ -94,7 +94,7 @@ package game.application.game.battle
 		{
 			var action:GameBattleAction
 			
-			if(_user.points != data.userPoints)
+			if(_user && _user.points != data.userPoints)
 			{
 				_user.points = data.userPoints;
 				
@@ -104,7 +104,7 @@ package game.application.game.battle
 			}
 			
 			
-			if(_opponent.points != data.opponentPoints)
+			if(_opponent && _opponent.points != data.opponentPoints)
 			{
 				_opponent.points = data.userPoints;
 				
@@ -196,6 +196,16 @@ package game.application.game.battle
 		public function getAction():GameBattleAction
 		{
 			return _actionList.shift();
+		}
+		
+		public function getUserPlayerInfo():GamePlayerData
+		{
+			return _user;
+		}
+		
+		public function getOpponentPlayerInfo():GamePlayerData
+		{
+			return _opponent;
 		}
 		
 	}

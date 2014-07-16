@@ -89,9 +89,11 @@ package game.activity.view.application.game
 						// data.ship =  ShipData - инфа по кораблю который был потоплен
 						// data.fieldPoint = Vector.<ShipPositionPoint> - точки на поле вокруг горабля.
 						
-//						executeBattleProxyAction();
+//						
 						
 						_gameView.sunkUserShip(action.getData());
+						
+						executeBattleProxyAction();
 						break;
 					}
 						
@@ -99,6 +101,38 @@ package game.activity.view.application.game
 					{
 						_gameView.sunkOponentShip(action.getData());
 						executeBattleProxyAction();						
+						break;
+					}
+						
+					case GameBattleAction.USER_POINTS_UPDATED:
+					{
+						// action.getData() - points (uint) юзера
+						// если нужна вся инфа по юзеру или оппоненту можешь получить их  _gameBattleProxy.getUserPlayerInfo():GamePlayerData и _gameBattleProxy.getOpponentPlayerInfo():GamePlayerData
+						executeBattleProxyAction();
+						break;
+					}
+						
+					case GameBattleAction.OPPONENT_POINTS_UPDATED:
+					{
+						// action.getData() - points (uint) оппонента
+						// если нужна вся инфа по юзеру или оппоненту можешь получить их  _gameBattleProxy.getUserPlayerInfo():GamePlayerData и _gameBattleProxy.getOpponentPlayerInfo():GamePlayerData
+						executeBattleProxyAction();
+						break;
+					}
+						
+					case GameBattleAction.OPPONENT_EXP_UPDATED:
+					{
+						// action.getData() - exp (uint) оппонента
+						// если нужна вся инфа по юзеру или оппоненту можешь получить их  _gameBattleProxy.getUserPlayerInfo():GamePlayerData и _gameBattleProxy.getOpponentPlayerInfo():GamePlayerData
+						executeBattleProxyAction();
+						break;
+					}
+						
+					case GameBattleAction.USER_EXP_UPDATED:
+					{
+						// action.getData() - exp (uint) опюзераонента
+						// если нужна вся инфа по юзеру или оппоненту можешь получить их  _gameBattleProxy.getUserPlayerInfo():GamePlayerData и _gameBattleProxy.getOpponentPlayerInfo():GamePlayerData
+						executeBattleProxyAction();
 						break;
 					}
 						

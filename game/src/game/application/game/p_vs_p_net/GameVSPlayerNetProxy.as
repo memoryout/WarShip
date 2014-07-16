@@ -219,7 +219,7 @@ package game.application.game.p_vs_p_net
 		
 		private function updateUserData(action:UserInfoData):void
 		{
-			
+			_battleProxy.updateUserData( action );
 		}
 		
 		
