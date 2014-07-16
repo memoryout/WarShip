@@ -39,7 +39,7 @@ package game.services.net.http
 			_vars = new URLVariables();
 			var par:String;
 			for(par in _data) _vars[par] = _data[par];
-			_vars["id"] = _id;
+			_vars["request_id"] = _id;
 			
 			_onComplete = onComplete;
 			_onError = onError;
