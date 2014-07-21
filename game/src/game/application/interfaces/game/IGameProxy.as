@@ -8,5 +8,6 @@ package game.application.interfaces.game
 	{
 		function getShipsList():Vector.<ShipData>;
 		function hitPoint(x:uint, y:uint):void;
+		function destroy():void;
 	}
 }

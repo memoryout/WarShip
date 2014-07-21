@@ -11,5 +11,6 @@ package game.application.interfaces.actions
 		function finishQueue():void;
 		function getNextAction():ActionQueueData;
 		function get dispatcher():IEventDispatcher;
+		function destroy():void;
 	}
 }

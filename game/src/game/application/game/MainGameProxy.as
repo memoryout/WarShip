@@ -45,5 +45,10 @@ package game.application.game
 		{
 			
 		}
+		
+		public function destroy():void
+		{
+			
+		}
 	}
 }

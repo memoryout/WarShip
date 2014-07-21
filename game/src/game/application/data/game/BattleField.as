@@ -125,5 +125,12 @@ package game.application.data.game
 			var point:ShipPositionPoint = new ShipPositionPoint(x, y);
 			v.push(point);
 		}
+		
+		
+		
+		public function destroy():void
+		{
+			
+		}
 	}
 }

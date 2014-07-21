@@ -4,6 +4,7 @@ package game.application
 	
 	import game.GameType;
 	import game.application.commands.game.CreateNewGameCommand;
+	import game.application.commands.game.FinishCurrentGameCommand;
 	import game.application.commands.game.UserShipsLocatedComlete;
 	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.connection.ActionsQueueEvent;
@@ -35,6 +36,7 @@ package game.application
 			this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
 			this.facade.registerCommand(ApplicationCommands.CREATE_NEW_GAME, CreateNewGameCommand);
 			this.facade.registerCommand(ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE, UserShipsLocatedComlete);
+			this.facade.registerCommand(ApplicationCommands.FINISH_CURRENT_GAME, FinishCurrentGameCommand);
 		}
 		
 		
@@ -59,6 +61,18 @@ package game.application
 			
 			
 			if(_currentGameProxy) this.facade.registerProxy( _currentGameProxy );
+		}
+		
+		
+		public function finishCurrentGame():void
+		{
+			if(_currentGameProxy)
+			{
+				_currentGameProxy.destroy();
+				_currentGameProxy = null;
+			}
+			
+			this.sendNotification( ApplicationEvents.GAME_CORE_READY_TO_START_GAME );
 		}
 		
 		

@@ -37,7 +37,8 @@ package game.activity.view.application.menu
 		{
 			return [
 					ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS,
-					ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE
+					ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
+					ApplicationEvents.GAME_CORE_READY_TO_START_GAME
 					];
 		}
 		
@@ -58,6 +59,12 @@ package game.activity.view.application.menu
 				{
 					if(_currentPage) _currentPage.hide();
 					_currentPage = null;
+					break;
+				}
+					
+				case ApplicationEvents.GAME_CORE_READY_TO_START_GAME:
+				{
+					showSelectGameTypePage();
 					break;
 				}
 			}

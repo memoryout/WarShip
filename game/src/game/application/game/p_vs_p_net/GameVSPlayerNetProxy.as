@@ -201,6 +201,7 @@ package game.application.game.p_vs_p_net
 				{
 					stopUpdateTimer();
 					_battleProxy.setStatus(GameBattleStatus.INCOMING_USER_WON);
+					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
 					break;
 				}
 					
@@ -208,6 +209,7 @@ package game.application.game.p_vs_p_net
 				{
 					stopUpdateTimer();
 					_battleProxy.setStatus(GameBattleStatus.OPPONENT_WON);
+					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
 					break;
 				}
 			}
@@ -305,6 +307,23 @@ package game.application.game.p_vs_p_net
 			_requestRepeatTimer.stop();
 			
 			_serverProxy.getGameUpdate();
+		}
+		
+		
+		
+		override public function destroy():void
+		{
+			stopUpdateTimer();
+			
+			if(_actionsQueue)
+			{
+				_actionsQueue.dispatcher.addEventListener(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, processActionsQueue);
+				_actionsQueue.destroy();
+			}
+			
+			this.facade.removeCommand(ApplicationCommands.USER_HIT_POINT);
+			this.facade.removeProxy( this.proxyName );
+			 
 		}
 	}
 }

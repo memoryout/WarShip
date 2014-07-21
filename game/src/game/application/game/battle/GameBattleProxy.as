@@ -208,5 +208,19 @@ package game.application.game.battle
 			return _opponent;
 		}
 		
+		
+		public function destroy():void
+		{
+			if(_userField) _userField.destroy();
+			if(_opponentField) _opponentField.destroy();
+			
+			_userShips = null;
+			_opponentShips = null;
+			_userField = null;
+			_opponentField = null;
+			_user = null;
+			_opponent = null;
+		}
+		
 	}
 }

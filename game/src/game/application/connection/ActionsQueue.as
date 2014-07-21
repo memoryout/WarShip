@@ -257,5 +257,14 @@ package game.application.connection
 			
 			_queue.push( action );
 		}
+		
+		
+		
+		public function destroy():void
+		{
+			_queue.length = 0;
+			
+			this.facade.removeProxy( this.proxyName );
+		}
 	}
 }

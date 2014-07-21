@@ -7,5 +7,6 @@ package game.application.interfaces
 		function runApplication():void;
 		function createGame(type:uint):void;
 		function getCurrentGame():IGameProxy;
+		function finishCurrentGame():void;
 	}
 }
