@@ -1,5 +1,6 @@
 package game.application.game.p_vs_p_net
 {
+	import flash.events.Event;
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
@@ -7,7 +8,6 @@ package game.application.game.p_vs_p_net
 	import game.application.ApplicationEvents;
 	import game.application.BaseProxy;
 	import game.application.ProxyList;
-	import game.application.commands.game.ActionQueueComplete;
 	import game.application.commands.game.UserInGameActionCommand;
 	import game.application.connection.ActionQueueData;
 	import game.application.connection.ActionType;
@@ -26,9 +26,9 @@ package game.application.game.p_vs_p_net
 	import game.application.game.battle.GameBattleStatus;
 	import game.application.interfaces.actions.IActionsQueue;
 	import game.application.interfaces.game.p_vs_p_net.IGameVSPlayerNet;
-	import game.application.server.ServerConnectionProxy;
-	import game.application.server.ServerConnectionProxyEvents;
-	import game.application.server.ServerResponceDataType;
+	import game.application.net.ServerConnectionProxy;
+	import game.application.net.ServerConnectionProxyEvents;
+	import game.application.net.ServerResponceDataType;
 	import game.utils.ShipPositionSupport;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
@@ -57,7 +57,8 @@ package game.application.game.p_vs_p_net
 			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
-			this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ActionQueueComplete);
+			_actionsQueue.dispatcher.addEventListener(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, processActionsQueue);
+			//this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ActionQueueComplete);
 			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
 		}		
 		
@@ -108,7 +109,7 @@ package game.application.game.p_vs_p_net
 		}
 		
 		
-		override public function processActionsQueue():void
+		public function processActionsQueue(e:Event):void
 		{
 			
 			_battleProxy.startDataUpdate();
@@ -173,6 +174,8 @@ package game.application.game.p_vs_p_net
 		
 		private function updateGameStatusInfo(action:GameInfoData):void
 		{
+			_battleProxy.updateGameInfo( action );
+			
 			switch(action.status)
 			{
 				case GameBattleStatus.STEP_OF_OPPONENT:

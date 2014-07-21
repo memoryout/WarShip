@@ -7,10 +7,13 @@ package game.application
 	import game.application.commands.game.UserShipsLocatedComlete;
 	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.connection.ActionsQueueEvent;
+	import game.application.game.p_vs_computer.GameVSComputer;
 	import game.application.game.p_vs_p_net.GameVSPlayerNetProxy;
 	import game.application.interfaces.IMainApplicationProxy;
 	import game.application.interfaces.game.IGameProxy;
-	import game.application.server.ServerConnectionProxyEvents;
+	import game.application.interfaces.net.IServerConnectionProxy;
+	import game.application.net.ServerConnectionProxyEvents;
+	import game.application.net.ServerConnectionStatus;
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
@@ -42,7 +45,14 @@ package game.application
 			{
 				case GameType.P_VS_P_NET:
 				{
-					_currentGameProxy = new GameVSPlayerNetProxy(ProxyList.GAME_VS_PLAYER_NET)
+					
+					createGameVsPlayerByNet();
+					break;
+				}
+					
+				case GameType.P_VS_C:
+				{
+					createGameVsComputer();
 					break;
 				}
 			}
@@ -64,6 +74,28 @@ package game.application
 		private function handlerGameAlreadyExist(e:Event):void
 		{
 			
+		}
+		
+		
+		
+		private function createGameVsPlayerByNet():void
+		{
+			var serverProxy:IServerConnectionProxy = this.facade.retrieveProxy(ProxyList.SERVER_PROXY) as IServerConnectionProxy;
+			
+			if(serverProxy && serverProxy.getNetStatus() == ServerConnectionStatus.ENABLED)
+			{
+				_currentGameProxy = new GameVSPlayerNetProxy(ProxyList.GAME_VS_PLAYER_NET);
+			}
+			else
+			{
+				trace("server connection disabled");
+			}
+		}
+		
+		
+		private function createGameVsComputer():void
+		{
+			_currentGameProxy = new GameVSComputer( ProxyList.GAME_VS_COMPUTER );
 		}
 	}
 }

@@ -92,7 +92,7 @@ package game.application.game.battle
 		
 		public function updateGameInfo(data:GameInfoData):void
 		{
-			var action:GameBattleAction
+			var action:GameBattleAction;
 			
 			if(_user && _user.points != data.userPoints)
 			{

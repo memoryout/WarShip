@@ -1,4 +1,4 @@
-package game.application.server
+package game.application.net
 {
 	import game.AppGlobalVariables;
 	import game.application.BaseProxy;
@@ -6,7 +6,7 @@ package game.application.server
 	import game.application.data.user.UserData;
 	import game.application.interfaces.actions.IActionsQueue;
 	import game.application.interfaces.data.IUserDataProxy;
-	import game.application.interfaces.server.IServerConnectionProxy;
+	import game.application.interfaces.net.IServerConnectionProxy;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
 	import game.services.net.ServerConnectionEvent;

@@ -1,4 +1,4 @@
-package game.application.interfaces.server
+package game.application.interfaces.net
 {
 	public interface IServerConnectionProxy
 	{

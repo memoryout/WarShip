@@ -1,7 +1,7 @@
 package game.application.commands.startup
 {
 	import game.application.ProxyList;
-	import game.application.server.ServerConnectionProxyEvents;
+	import game.application.net.ServerConnectionProxyEvents;
 	import game.application.startup.StartupProxy;
 	
 	import org.puremvc.as3.interfaces.INotification;

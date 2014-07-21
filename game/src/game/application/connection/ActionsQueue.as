@@ -1,21 +1,25 @@
 package game.application.connection
 {
+	import flash.events.Event;
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	
 	import game.application.BaseProxy;
 	import game.application.connection.actions.AuthorizationData;
+	import game.application.connection.actions.DestroyShipData;
 	import game.application.connection.actions.ErrorData;
 	import game.application.connection.actions.GameInfoData;
 	import game.application.connection.actions.HitInfoData;
 	import game.application.connection.actions.OpponentInfoData;
-	import game.application.connection.actions.DestroyShipData;
 	import game.application.connection.actions.UserInfoData;
 	import game.application.interfaces.actions.IActionsQueue;
 	
 	public class ActionsQueue extends BaseProxy implements IActionsQueue
 	{
 		private const _queue:				Vector.<ActionQueueData> = new Vector.<ActionQueueData>;
+		
+		private const _dispacther:			EventDispatcher = new EventDispatcher();
+		private const _event:				Event = new Event(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE);
 		
 		public function ActionsQueue(proxyName:String=null)
 		{
@@ -26,6 +30,12 @@ package game.application.connection
 		override public function onRegister():void
 		{
 			
+		}
+		
+		
+		public function get dispatcher():IEventDispatcher
+		{
+			return _dispacther;
 		}
 		
 		
@@ -70,6 +80,7 @@ package game.application.connection
 		
 		public function finishQueue():void
 		{
+			_dispacther.dispatchEvent( _event );
 			this.sendNotification(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, this);
 		}
 		

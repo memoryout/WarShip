@@ -7,7 +7,7 @@ package game.application.commands
 	import game.application.ProxyList;
 	import game.application.connection.ActionsQueue;
 	import game.application.data.user.UserDataProxy;
-	import game.application.server.ServerConnectionProxy;
+	import game.application.net.ServerConnectionProxy;
 	import game.application.startup.StartupProxy;
 	import game.services.ServicesList;
 	import game.services.asset.AssetManager;

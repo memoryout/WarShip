@@ -40,10 +40,6 @@ package game.application.game
 			
 		}
 		
-		public function processActionsQueue():void
-		{
-			
-		}
 		
 		public function hitPoint(x:uint, y:uint):void
 		{

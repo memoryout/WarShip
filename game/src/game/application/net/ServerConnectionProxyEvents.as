@@ -1,4 +1,4 @@
-package game.application.server
+package game.application.net
 {
 	public class ServerConnectionProxyEvents
 	{

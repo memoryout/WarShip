@@ -4,7 +4,7 @@ package game.application.commands.server
 	import game.application.data.user.UserData;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.server.ServerResponce;
-	import game.application.server.ServerResponceDataType;
+	import game.application.net.ServerResponceDataType;
 	import game.application.server.data.AuthorizationData;
 	import game.application.server.data.ResponceData;
 	import game.application.startup.StartupProxy;

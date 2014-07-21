@@ -7,7 +7,6 @@ package game.application.interfaces.game
 	public interface IGameProxy extends IProxy
 	{
 		function getShipsList():Vector.<ShipData>;
-		function processActionsQueue():void;
 		function hitPoint(x:uint, y:uint):void;
 	}
 }

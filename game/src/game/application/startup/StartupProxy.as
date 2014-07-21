@@ -21,8 +21,8 @@ package game.application.startup
 	import game.application.data.user.UserData;
 	import game.application.data.user.UserDataProxy;
 	import game.application.interfaces.data.IUserDataProxy;
-	import game.application.interfaces.server.IServerConnectionProxy;
-	import game.application.server.ServerConnectionProxyEvents;
+	import game.application.interfaces.net.IServerConnectionProxy;
+	import game.application.net.ServerConnectionProxyEvents;
 	import game.services.ServicesList;
 	import game.services.device.DeviceInfo;
 	import game.services.device.DeviceManagerEvents;
