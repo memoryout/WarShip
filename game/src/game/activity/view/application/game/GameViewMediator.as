@@ -108,6 +108,7 @@ package game.activity.view.application.game
 					{
 						// action.getData() - points (uint) юзера
 						// если нужна вся инфа по юзеру или оппоненту можешь получить их  _gameBattleProxy.getUserPlayerInfo():GamePlayerData и _gameBattleProxy.getOpponentPlayerInfo():GamePlayerData
+						_gameView.updateProgressLine("user", action.getData());
 						executeBattleProxyAction();
 						break;
 					}
@@ -116,6 +117,7 @@ package game.activity.view.application.game
 					{
 						// action.getData() - points (uint) оппонента
 						// если нужна вся инфа по юзеру или оппоненту можешь получить их  _gameBattleProxy.getUserPlayerInfo():GamePlayerData и _gameBattleProxy.getOpponentPlayerInfo():GamePlayerData
+						_gameView.updateProgressLine("opponent", action.getData());
 						executeBattleProxyAction();
 						break;
 					}

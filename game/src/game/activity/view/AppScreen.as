@@ -1,5 +1,7 @@
 package game.activity.view
 {
+	import flash.desktop.NativeApplication;
+	import flash.desktop.SystemIdleMode;
 	import flash.display.DisplayObject;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -55,7 +57,7 @@ package game.activity.view
 		
 		
 		private function handlerAddedToStage(e:Event):void
-		{
+		{		
 			this.removeEventListener(Event.ADDED_TO_STAGE, handlerAddedToStage);
 			
 			_canvas = new Sprite();

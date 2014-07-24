@@ -33,6 +33,8 @@ package game.activity.view.application.game
 		
 		private var shipsDescriptionContainer:Array;
 		
+		private var popUp:			MovieClip;
+		
 		public function GameView()
 		{
 			createViewComponents();
@@ -70,26 +72,28 @@ package game.activity.view.application.game
 		public function waiting():void
 		{
 //			this.alpha = 0.5;
-			_txt.text = "WAITING";
+//			_txt.text = "WAITING";
 		}
 		
 		
 		public function opponentStep():void
 		{
 			this.alpha = 1;
-			_txt.text = "OPPONENT STEP";
+//			_txt.text = "OPPONENT STEP";
+			popUp.visible = true;
 		}
 		
 		public function userStep():void
 		{
 			this.alpha = 1;
-			_txt.text = "USER STEP";
+//			_txt.text = "USER STEP";
+			popUp.visible = false;
 		}
 		
 		public function waitingGame():void
 		{
 //			this.alpha = 0.5;
-			_txt.text = "WAITNIG GAME ANSWER";
+//			_txt.text = "WAITNIG GAME ANSWER";
 		}
 		
 		public function sunkUserShip(val:Object):void
@@ -333,15 +337,22 @@ package game.activity.view.application.game
 				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);								
 				
 				
-				_txt = new TextField();
+				/*_txt = new TextField();
 				_txt.background = true;
 				_txt.x = 820;
 				_txt.y = 20;
 				_txt.width = 100;
 				_txt.height = 50;
 				
-				this.addChild( _txt );
+				this.addChild( _txt );*/
+				
+				
 			}
+			
+			classInstance = BaseMediator.getSourceClass("viewPopUp");
+			
+			popUp = new classInstance();
+			this.addChild( popUp );			
 		}
 		
 		
@@ -435,6 +446,24 @@ package game.activity.view.application.game
 			
 			if(_userField.contains(e.currentTarget as MovieClip)) 
 				_userField.removeChild(e.currentTarget as MovieClip);			
+		}
+		
+		public function updateProgressLine(str:String, val:Object):void
+		{
+			var progressLine:MovieClip;
+			
+			trace("val: ", val);
+			
+			if(str == "user")
+			{
+				progressLine = (_skin.getChildByName("topBar") as MovieClip).getChildByName("oponent_progress_line") as MovieClip;
+				
+			}else if(str == "opponent")
+			{
+				progressLine = (_skin.getChildByName("topBar") as MovieClip).getChildByName("user_progress_line") as MovieClip;
+			}
+			
+			progressLine.gotoAndStop(val+1);			
 		}
 	}
 }

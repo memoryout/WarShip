@@ -1,6 +1,7 @@
 package
 {
 	import flash.desktop.NativeApplication;
+	import flash.desktop.SystemIdleMode;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
@@ -30,18 +31,23 @@ package
 			this.removeEventListener(Event.ADDED_TO_STAGE, handlerAddedToStage);
 			
 			NativeApplication.nativeApplication.addEventListener(Event.DEACTIVATE, handlerApplicationDeactivate);
+			NativeApplication.nativeApplication.addEventListener(Event.ACTIVATE, handlerApplicationActivate);
 			NativeApplication.nativeApplication.addEventListener(Event.EXITING, handlerApplicationExit);
 			NativeApplication.nativeApplication.addEventListener(KeyboardEvent.KEY_DOWN, handlerKeyDown);
-			
+						
 			ApplicationFacade.getInstance().startup( this.stage );
 		}
-		
 		
 		private function handlerApplicationDeactivate(e:Event):void
 		{
 			trace("handlerApplicationDeactivate");
 			//ApplicationFacade.getInstance().applicationClosed();
-			
+			NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.KEEP_AWAKE;						
+		}
+		
+		private function handlerApplicationActivate(e:Event):void
+		{
+			NativeApplication.nativeApplication.systemIdleMode = SystemIdleMode.NORMAL;						
 		}
 		
 		
