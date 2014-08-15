@@ -425,9 +425,9 @@ package game.activity.view.application.game
 			
 			for (var i:int = 0; i < val.length; i++) 
 			{				
-				var ship:MovieClip = _userField.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
-				ship.x = val[i].x*cellSize;
-				ship.y = val[i].y*cellSize;
+				var ship:MovieClip = _skin.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
+				ship.x = val[i].x*cellSize + _userField.x;
+				ship.y = val[i].y*cellSize + _userField.y;
 				
 				if(val[i].dirrection == 0) ship.gotoAndStop(1);		
 				else					   ship.gotoAndStop(2);			
