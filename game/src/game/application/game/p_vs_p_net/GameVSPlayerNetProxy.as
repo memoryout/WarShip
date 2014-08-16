@@ -6,17 +6,17 @@ package game.application.game.p_vs_p_net
 	
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
-	import game.application.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.commands.game.UserInGameActionCommand;
-	import game.application.connection.ActionQueueData;
-	import game.application.connection.ActionType;
-	import game.application.connection.ActionsQueueEvent;
-	import game.application.connection.actions.DestroyShipData;
-	import game.application.connection.actions.GameInfoData;
-	import game.application.connection.actions.HitInfoData;
-	import game.application.connection.actions.OpponentInfoData;
-	import game.application.connection.actions.UserInfoData;
+	import game.application.connection.ChannelData;
+	import game.application.connection.ChannelDataType;
+	import game.application.connection.ServerDataChannelEvent;
+	import game.application.connection.ServerDataChannelLocalEvent;
+	import game.application.connection.data.DestroyShipData;
+	import game.application.connection.data.GameInfoData;
+	import game.application.connection.data.HitInfoData;
+	import game.application.connection.data.OpponentInfoData;
+	import game.application.connection.data.UserInfoData;
 	import game.application.data.NotificationType;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipDirrection;
@@ -24,11 +24,13 @@ package game.application.game.p_vs_p_net
 	import game.application.game.MainGameProxy;
 	import game.application.game.battle.GameBattleProxy;
 	import game.application.game.battle.GameBattleStatus;
-	import game.application.interfaces.actions.IActionsQueue;
+	import game.application.interfaces.channel.IServerDataChannel;
 	import game.application.interfaces.game.p_vs_p_net.IGameVSPlayerNet;
 	import game.application.net.ServerConnectionProxy;
 	import game.application.net.ServerConnectionProxyEvents;
 	import game.application.net.ServerResponceDataType;
+	import game.library.BaseProxy;
+	import game.library.LocalEvent;
 	import game.utils.ShipPositionSupport;
 	
 	public class GameVSPlayerNetProxy extends MainGameProxy implements IGameVSPlayerNet
@@ -39,7 +41,7 @@ package game.application.game.p_vs_p_net
 		
 		private var _battleProxy:		GameBattleProxy;
 		private var _serverProxy:		ServerConnectionProxy;
-		private var _actionsQueue:		IActionsQueue;
+		private var _dataChannel:		IServerDataChannel;
 		
 		private var _requestRepeatTimer:Timer;
 		
@@ -53,12 +55,11 @@ package game.application.game.p_vs_p_net
 		{
 			super.generateShipList( shipsDeckList );
 			
-			_actionsQueue = this.facade.retrieveProxy(ProxyList.ACTIONS_QUEUE_PROXY) as IActionsQueue;
+			_dataChannel = this.facade.retrieveProxy(ProxyList.CLIENT_DATA_CHANNEL) as IServerDataChannel;
 			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
-			_actionsQueue.dispatcher.addEventListener(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, processActionsQueue);
-			//this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ActionQueueComplete);
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
 			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
 		}		
 		
@@ -109,63 +110,58 @@ package game.application.game.p_vs_p_net
 		}
 		
 		
-		public function processActionsQueue(e:Event):void
+		public function processActionsQueue(dataMessage:LocalEvent):void
 		{
 			
 			_battleProxy.startDataUpdate();
 			
-			var action:ActionQueueData;
+			var action:ChannelData;
 			
-			action = _actionsQueue.getNextAction();
+			action = dataMessage.data as ChannelData//_actionsQueue.getNextAction();
 			
-			while(action)
+			switch(action.type)
 			{
-				switch(action.type)
+				case ChannelDataType.GAME_STATUS_INFO:
 				{
-					case ActionType.GAME_STATUS_INFO:
-					{
-						updateGameStatusInfo(action as GameInfoData);
-						break;
-					}
+					updateGameStatusInfo(action as GameInfoData);
+					break;
+				}
+					
+				case ChannelDataType.OPPONENT_INFO:
+				{
+					updateOpponentData(action as OpponentInfoData);
+					break;
+				}
+					
+				case ChannelDataType.USER_INFO:
+				{
+					updateUserData(action as UserInfoData);
+					break;
+				}
+					
+				case ChannelDataType.OPPONENT_HIT_INFO:
+				{
+					parseOpponentHitInfo(action as HitInfoData);
+					break;
+				}
 						
-					case ActionType.OPPONENT_INFO:
-					{
-						updateOpponentData(action as OpponentInfoData);
-						break;
-					}
-						
-					case ActionType.USER_INFO:
-					{
-						updateUserData(action as UserInfoData);
-						break;
-					}
-						
-					case ActionType.OPPONENT_HIT_INFO:
-					{
-						parseOpponentHitInfo(action as HitInfoData);
-						break;
-					}
-						
-					case ActionType.OPPONENT_DESTROY_USER_SHIP:
-					{
-						parseOpponentDestroyUserShipAction(action as DestroyShipData);
-						break;
-					}
-						
-					case ActionType.USER_HIT_INFO:
-					{
-						parseUserHitInfo(action as HitInfoData);
-						break;
-					}
-						
-					case ActionType.USER_DESTROY_OPPONENT_SHIP:
-					{
-						parseUserDestroyOpponentShipAction(action as DestroyShipData);
-						break;
-					}	
+				case ChannelDataType.OPPONENT_DESTROY_USER_SHIP:
+				{
+					parseOpponentDestroyUserShipAction(action as DestroyShipData);
+					break;
+				}
+					
+				case ChannelDataType.USER_HIT_INFO:
+				{
+					parseUserHitInfo(action as HitInfoData);
+					break;
 				}
 				
-				action = _actionsQueue.getNextAction();
+				case ChannelDataType.USER_DESTROY_OPPONENT_SHIP:
+				{
+					parseUserDestroyOpponentShipAction(action as DestroyShipData);
+					break;
+				}	
 			}
 			
 			_battleProxy.finishDataUpdate();
@@ -315,10 +311,9 @@ package game.application.game.p_vs_p_net
 		{
 			stopUpdateTimer();
 			
-			if(_actionsQueue)
+			if(_dataChannel)
 			{
-				_actionsQueue.dispatcher.addEventListener(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, processActionsQueue);
-				_actionsQueue.destroy();
+				_dataChannel.removeLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
 			}
 			
 			this.facade.removeCommand(ApplicationCommands.USER_HIT_POINT);

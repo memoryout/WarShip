@@ -42,8 +42,8 @@ package game.activity.view.application.menu.pages.ships_positions
 			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
 			_proxy = mainApp.getCurrentGame();
 			
-//			_shipsList = _proxy.getShipsList();
-//			_view.setShipsData( _shipsList );
+			_shipsList = _proxy.getShipsList();
+			_view.setShipsData( _shipsList );
 			
 			////
 //			ShipPositionSupport.getInstance().shipsAutoArrangement(_shipsList, 10, 10);

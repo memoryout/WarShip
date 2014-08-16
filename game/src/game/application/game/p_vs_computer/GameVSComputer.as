@@ -1,29 +1,50 @@
 package game.application.game.p_vs_computer
 {
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
+	
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
 	import game.application.commands.game.UserInGameActionCommand;
 	import game.application.computer.ComputerAI;
-	import game.application.connection.ActionsQueueEvent;
+	import game.application.connection.ChannelData;
+	import game.application.connection.ChannelDataType;
+	import game.application.connection.ServerDataChannelEvent;
+	import game.application.connection.ServerDataChannelLocalEvent;
+	import game.application.connection.data.DestroyShipData;
+	import game.application.connection.data.GameInfoData;
+	import game.application.connection.data.HitInfoData;
+	import game.application.connection.data.OpponentInfoData;
+	import game.application.connection.data.UserInfoData;
+	import game.application.data.game.ShipData;
+	import game.application.data.game.ShipDirrection;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.game.MainGameProxy;
 	import game.application.game.battle.GameBattleProxy;
 	import game.application.game.battle.GameBattleStatus;
-	import game.application.interfaces.actions.IActionsQueue;
+	import game.application.interfaces.channel.IServerDataChannel;
+	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.server.ILocalGameServer;
+	import game.library.LocalEvent;
+	import game.utils.ShipPositionSupport;
 	
 	public class GameVSComputer extends MainGameProxy
 	{
+		private const REPEAT_TIMEOUT:	uint = 3000;
 		public static const LOCAL_PLAYER_ID:		String = "local_player";
 		
 		private const shipsDeckList:	Vector.<uint> = new <uint>[4, 3, 3, 2, 2, 2, 1, 1, 1, 1];
 		
-		private var _actionsQueue:		IActionsQueue;
+		private var _dataChannel:		IServerDataChannel;
 		private var _battleProxy:		GameBattleProxy;
-		private var _localServerProxy:	ILocalGameServer;
 		
-		private var _computerAi:		ComputerAI;
+		private var _userId:			String;
+		
+		private var _requestRepeatTimer:Timer;
+		
+		private var _serverConnectionSupport:GameVSComputerServerInterface;
+		
 		
 		public function GameVSComputer(proxyName:String=null)
 		{
@@ -35,18 +56,22 @@ package game.application.game.p_vs_computer
 		{
 			super.generateShipList( shipsDeckList );
 			
-			_localServerProxy = this.facade.retrieveProxy(ProxyList.LOCAL_GAME_SERVER) as ILocalGameServer;
-			_actionsQueue = this.facade.retrieveProxy(ProxyList.ACTIONS_QUEUE_PROXY) as IActionsQueue;
+			_serverConnectionSupport = new GameVSComputerServerInterface();
+			_serverConnectionSupport.init();
 			
-			_computerAi = new ComputerAI();
+			_dataChannel = this.facade.retrieveProxy( ProxyList.CLIENT_DATA_CHANNEL ) as IServerDataChannel;
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
 			
-			_localServerProxy.initGame();
-			_localServerProxy.registerPlayer( LOCAL_PLAYER_ID );
-			_localServerProxy.registerPlayer( ComputerAI.PLAYER_ID );
-
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
 			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
+			
+			
+			
+			var userDataProxy:IUserDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			_userId = userDataProxy.getUserData().deviceID;
+			
+			_serverConnectionSupport.registerUser( _userId );
 		}
 		
 		override public function userLocatedShips():void
@@ -66,7 +91,7 @@ package game.application.game.p_vs_computer
 			}
 			
 			
-			_localServerProxy.sendUserShipLocation( ships );
+			_serverConnectionSupport.sendUserShipLocation( ships, _userId );
 			
 			createGameBattleProxy();
 			
@@ -75,6 +100,82 @@ package game.application.game.p_vs_computer
 			_battleProxy.finishDataUpdate();
 		}
 		
+		override public function hitPoint(x:uint, y:uint):void
+		{
+			if( _battleProxy.isWaterCeil(x, y) )
+			{
+				_battleProxy.setStatus(GameBattleStatus.WAITINIG_GAME_ANSWER);
+				_battleProxy.finishDataUpdate();
+				
+				_serverConnectionSupport.sendHitPointPosition( x, y, _userId );
+				
+				startUpdateInfoTimer();
+			}
+			else
+			{
+				this.log("hit error point x=" + x.toString() + " y=" + y.toString() ); 
+			}
+		}
+		
+		
+		public function processActionsQueue(dataMessage:LocalEvent):void
+		{
+			
+			_battleProxy.startDataUpdate();
+			
+			var action:ChannelData;
+			
+			action = dataMessage.data as ChannelData//_actionsQueue.getNextAction();
+			
+			switch(action.type)
+			{
+				case ChannelDataType.GAME_STATUS_INFO:
+				{
+					updateGameStatusInfo(action as GameInfoData);
+					break;
+				}
+					
+				case ChannelDataType.OPPONENT_INFO:
+				{
+					updateOpponentData(action as OpponentInfoData);
+					break;
+				}
+					
+				case ChannelDataType.USER_INFO:
+				{
+					updateUserData(action as UserInfoData);
+					break;
+				}
+					
+				case ChannelDataType.OPPONENT_HIT_INFO:
+				{
+					parseOpponentHitInfo(action as HitInfoData);
+					break;
+				}
+					
+				case ChannelDataType.OPPONENT_DESTROY_USER_SHIP:
+				{
+					parseOpponentDestroyUserShipAction(action as DestroyShipData);
+					break;
+				}
+					
+				case ChannelDataType.USER_HIT_INFO:
+				{
+					parseUserHitInfo(action as HitInfoData);
+					break;
+				}
+					
+				case ChannelDataType.USER_DESTROY_OPPONENT_SHIP:
+				{
+					parseUserDestroyOpponentShipAction(action as DestroyShipData);
+					break;
+				}	
+			}
+			
+			_battleProxy.finishDataUpdate();
+		}
+		
+		
 		private function createGameBattleProxy():void
 		{
 			_battleProxy = new GameBattleProxy()
@@ -82,6 +183,149 @@ package game.application.game.p_vs_computer
 			
 			_battleProxy.init(10, 10);
 			_battleProxy.initUserShips( shipsList );
+		}
+		
+		
+		private function updateGameStatusInfo(action:GameInfoData):void
+		{
+			_battleProxy.updateGameInfo( action );
+			
+			switch(action.status)
+			{
+				case GameBattleStatus.STEP_OF_OPPONENT:
+				{
+					startUpdateInfoTimer();
+					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
+					break;
+				}
+				case GameBattleStatus.WAITING_FOR_START:
+				{
+					startUpdateInfoTimer();
+					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
+					break;
+				}
+					
+				case GameBattleStatus.STEP_OF_INCOMING_USER:
+				{
+					_battleProxy.setStatus(GameBattleStatus.STEP_OF_INCOMING_USER);
+					break;
+				}
+					
+				case GameBattleStatus.INCOMING_USER_WON:
+				{
+					stopUpdateTimer();
+					_battleProxy.setStatus(GameBattleStatus.INCOMING_USER_WON);
+					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
+					break;
+				}
+					
+				case GameBattleStatus.OPPONENT_WON:
+				{
+					stopUpdateTimer();
+					_battleProxy.setStatus(GameBattleStatus.OPPONENT_WON);
+					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
+					break;
+				}
+			}
+		}
+		
+		
+		private function updateOpponentData(action:OpponentInfoData):void
+		{
+			_battleProxy.updateOpponentData( action );
+		}
+		
+		
+		private function updateUserData(action:UserInfoData):void
+		{
+			_battleProxy.updateUserData( action );
+		}
+		
+		
+		
+		
+		private function parseOpponentHitInfo(action:HitInfoData):void
+		{
+			_battleProxy.opponentMakeHit(action.pointX, action.pointY, action.status);
+		}
+		
+		private function parseOpponentDestroyUserShipAction(action:DestroyShipData):void
+		{
+			var shipData:ShipData = ShipPositionSupport.getInstance().getShipByStartPosition(action.startX, action.startY, shipsList);
+			
+			_battleProxy.opponentSankUserShip(shipData);
+		}
+		
+		
+		
+		
+		private function parseUserHitInfo(action:HitInfoData):void
+		{
+			_battleProxy.userMakeHit(action.pointX, action.pointY, action.status);
+		}
+		
+		private function parseUserDestroyOpponentShipAction(action:DestroyShipData):void
+		{
+			var shipData:ShipData = new ShipData();
+			shipData.x = action.startX;
+			shipData.y = action.startY;
+			shipData.deck = action.decks;
+			
+			if(action.startX != action.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
+			else shipData.dirrection = ShipDirrection.VERTICAL;
+			
+			_battleProxy.userSankOpponentsShip(shipData);
+		}
+		
+		
+		private function startUpdateInfoTimer():void
+		{
+			if(!_requestRepeatTimer)
+			{
+				_requestRepeatTimer = new Timer(REPEAT_TIMEOUT);
+				_requestRepeatTimer.addEventListener(TimerEvent.TIMER, handlerUpdateInfoTimer);
+			}
+			else
+			{
+				_requestRepeatTimer.reset();
+			}
+			
+			_requestRepeatTimer.start();
+		}
+		
+		private function stopUpdateTimer():void
+		{
+			if(_requestRepeatTimer) 
+			{
+				_requestRepeatTimer.stop();
+				_requestRepeatTimer.removeEventListener(TimerEvent.TIMER, handlerUpdateInfoTimer);	
+			}
+			
+			_requestRepeatTimer = null;
+		}
+		
+		
+		private function handlerUpdateInfoTimer(e:TimerEvent):void
+		{
+			_requestRepeatTimer.stop();
+			
+			//_serverProxy.getGameUpdate();
+		}
+		
+		
+		
+		override public function destroy():void
+		{
+			stopUpdateTimer();
+			
+			if(_dataChannel)
+			{
+				_dataChannel.removeLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
+			}
+			
+			this.facade.removeCommand(ApplicationCommands.USER_HIT_POINT);
+			this.facade.removeProxy( this.proxyName );
+			
 		}
 	}
 }

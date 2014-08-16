@@ -6,8 +6,9 @@ package game.application.data.user
 	
 	import game.AppGlobalVariables;
 	import game.application.ApplicationEvents;
-	import game.application.BaseProxy;
 	import game.application.interfaces.data.IUserDataProxy;
+	import game.library.BaseProxy;
+	import game.library.LocalDispactherProxy;
 	import game.services.ServicesList;
 	import game.services.interfaces.ISQLManager;
 	import game.services.sqllite.SQLManager;
@@ -15,7 +16,7 @@ package game.application.data.user
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
 	
-	public class UserDataProxy extends BaseProxy implements IUserDataProxy
+	public class UserDataProxy extends LocalDispactherProxy implements IUserDataProxy
 	{
 		private var _sqlManager:			ISQLManager;
 		
@@ -73,7 +74,12 @@ package game.application.data.user
 		{
 			if(request)
 			{
-				if(request.result && request.result.length) createUsersList(request.result);	
+				if(request.result && request.result.length) createUsersList(request.result);
+				else _usersList.length = 0;
+			}
+			else
+			{
+				_usersList.length = 0;
 			}
 			
 			request.destroy();
@@ -121,6 +127,28 @@ package game.application.data.user
 		}
 		
 		private function handlerErrorCreateUser(request:UserDataProxyRequest):void
+		{
+			
+		}
+		//--------- ----------------- ----------
+		
+		
+		//--------- DELETE USER ----------
+		public function deleteUser(userId:uint):void
+		{
+			var requestMessage:String = 'DELETE FROM "main"."user" WHERE "rowid"=' + _userData.id;
+			
+			var request:UserDataProxyRequest = new UserDataProxyRequest();
+			request.setData(_sqlManager, requestMessage, handlerDeleteComplete, handlerDeleteError);
+		}
+		
+		
+		private function handlerDeleteComplete(request:UserDataProxyRequest):void
+		{
+			this.dispactherLocalEvent( UserDataProxyEvent.USER_DELETE_COMPLETE);
+		}
+		
+		private function handlerDeleteError(request:UserDataProxyRequest):void
 		{
 			
 		}

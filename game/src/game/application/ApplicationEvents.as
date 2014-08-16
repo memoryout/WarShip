@@ -16,6 +16,7 @@ package game.application
 		public static const USER_DATA_PROXY_CONNECTED:		String = "event.user_data_proxy.connected";
 		public static const USER_DATA_RECEIVE_USERS_LIST:	String = "event.user_data_proxy.users_list_receive";
 		public static const USER_DATA_USER_CREATED:			String = "event.user_data_proxy.user.created";
+		public static const USER_DATA_USER_DELETED:			String = "event.user_data_proxy.user.deleted";
 		
 		public static const REQUIRED_USER_SHIPS_POSITIONS:	String = "event.game.required_ships_positions";
 		

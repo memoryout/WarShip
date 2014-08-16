@@ -1,6 +1,6 @@
 package game.application.game
 {
-	import game.application.BaseProxy;
+	import game.library.BaseProxy;
 	import game.application.data.game.ShipData;
 	import game.application.interfaces.game.IGameProxy;
 	
@@ -22,6 +22,9 @@ package game.application.game
 			for(i = 0; i < decksList.length; i++)
 			{
 				ship = new ShipData();
+				
+				ship.x = -10;
+				ship.y = -10;
 				
 				ship.deck = decksList[i];
 				shipsList[i] =  ship ;

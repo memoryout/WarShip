@@ -6,8 +6,7 @@ package game.application
 	import game.application.commands.game.CreateNewGameCommand;
 	import game.application.commands.game.FinishCurrentGameCommand;
 	import game.application.commands.game.UserShipsLocatedComlete;
-	import game.application.commands.startup.ServerAuthorizationResult;
-	import game.application.connection.ActionsQueueEvent;
+	import game.application.connection.ServerDataChannelEvent;
 	import game.application.game.p_vs_computer.GameVSComputer;
 	import game.application.game.p_vs_p_net.GameVSPlayerNetProxy;
 	import game.application.interfaces.IMainApplicationProxy;
@@ -17,6 +16,7 @@ package game.application
 	import game.application.net.ServerConnectionStatus;
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
+	import game.library.BaseProxy;
 	
 	public class MainApplicationProxy extends BaseProxy implements IMainApplicationProxy
 	{
@@ -33,7 +33,7 @@ package game.application
 		
 		public function runApplication():void
 		{
-			this.facade.registerCommand(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
+			//this.facade.registerCommand(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
 			this.facade.registerCommand(ApplicationCommands.CREATE_NEW_GAME, CreateNewGameCommand);
 			this.facade.registerCommand(ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE, UserShipsLocatedComlete);
 			this.facade.registerCommand(ApplicationCommands.FINISH_CURRENT_GAME, FinishCurrentGameCommand);

@@ -1,8 +1,9 @@
 package game.application.interfaces.data
 {
 	import game.application.data.user.UserData;
+	import game.library.ILocalDispactherProxy;
 
-	public interface IUserDataProxy
+	public interface IUserDataProxy extends ILocalDispactherProxy
 	{
 		function connect():void;
 		function getUserData():UserData;
@@ -11,5 +12,6 @@ package game.application.interfaces.data
 		function commitChanges():void;
 		function retrieveUsersList():void;
 		function createNewUser(name:String):void;
+		function deleteUser(id:uint):void;
 	}
 }

@@ -1,20 +1,23 @@
 package game.application.net
 {
 	import game.AppGlobalVariables;
-	import game.application.BaseProxy;
 	import game.application.ProxyList;
+	import game.application.connection.ServerDataChannel;
 	import game.application.data.user.UserData;
-	import game.application.interfaces.actions.IActionsQueue;
+	import game.application.interfaces.channel.IServerDataChannel;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.net.IServerConnectionProxy;
+	import game.library.BaseProxy;
 	import game.services.ServicesList;
 	import game.services.interfaces.IServerConnection;
 	import game.services.net.ServerConnectionEvent;
 	
+	import org.puremvc.as3.interfaces.IProxy;
+	
 	public class ServerConnectionProxy extends BaseProxy implements IServerConnectionProxy
 	{
 		private var _serverConnection:				IServerConnection;
-		private var _actionsQueue:					IActionsQueue;
+		private var _dataChannel:					IServerDataChannel;
 		
 		private var _connectionStatus:				uint;
 		
@@ -29,7 +32,14 @@ package game.application.net
 		override public function onRegister():void
 		{
 			_serverConnection = ServicesList.getSearvice( ServicesList.SERVER_CONNECTION ) as IServerConnection;
-			_actionsQueue = this.facade.retrieveProxy(ProxyList.ACTIONS_QUEUE_PROXY) as IActionsQueue;
+			
+			_dataChannel = this.facade.retrieveProxy(ProxyList.ACTIONS_QUEUE_PROXY) as IServerDataChannel;
+			
+			if(!_dataChannel)
+			{
+				_dataChannel = new ServerDataChannel(ProxyList.CLIENT_DATA_CHANNEL)
+				this.facade.registerProxy( _dataChannel as IProxy );
+			}
 		}
 		
 		
@@ -100,8 +110,6 @@ package game.application.net
 			var data:Object = e.data;
 			
 			parseResponce(data);
-			
-			trace(data);
 		}
 		
 		
@@ -132,9 +140,11 @@ package game.application.net
 		{
 			this.log( JSON.stringify(data) );
 			
-			_actionsQueue.startQueue();
-			_actionsQueue.parseRowData(data);
-			_actionsQueue.finishQueue();
+			_dataChannel.processRawData( data );
+			
+			//_actionsQueue.startQueue();
+			//_actionsQueue.parseRowData(data);
+			//_actionsQueue.finishQueue();
 			
 			_connectionStatus = ServerConnectionStatus.ENABLED;
 		}

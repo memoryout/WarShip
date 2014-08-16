@@ -3,7 +3,7 @@ package game.activity.view.log
 	import flash.display.DisplayObjectContainer;
 	
 	import game.activity.BaseMediator;
-	import game.application.BaseProxy;
+	import game.library.BaseProxy;
 	
 	import org.puremvc.as3.interfaces.INotification;
 	

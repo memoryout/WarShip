@@ -1,8 +1,8 @@
-package game.application.connection.actions
+package game.application.connection.data
 {
-	import game.application.connection.ActionQueueData;
+	import game.application.connection.ChannelData;
 	
-	public class ErrorData extends ActionQueueData
+	public class ErrorData extends ChannelData
 	{
 		public var code:			uint;
 		public var description:		String;

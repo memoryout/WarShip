@@ -1,8 +1,8 @@
-package game.application.connection.actions
+package game.application.connection.data
 {
-	import game.application.connection.ActionQueueData;
+	import game.application.connection.ChannelData;
 	
-	public class HitInfoData extends ActionQueueData
+	public class HitInfoData extends ChannelData
 	{
 		public var pointX:		int;
 		public var pointY:		int;

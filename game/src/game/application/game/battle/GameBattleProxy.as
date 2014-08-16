@@ -3,11 +3,11 @@ package game.application.game.battle
 	import flash.events.Event;
 	
 	import game.application.ApplicationEvents;
-	import game.application.BaseProxy;
+	import game.library.BaseProxy;
 	import game.application.ProxyList;
-	import game.application.connection.actions.GameInfoData;
-	import game.application.connection.actions.OpponentInfoData;
-	import game.application.connection.actions.UserInfoData;
+	import game.application.connection.data.GameInfoData;
+	import game.application.connection.data.OpponentInfoData;
+	import game.application.connection.data.UserInfoData;
 	import game.application.data.game.BattleField;
 	import game.application.data.game.GamePlayerData;
 	import game.application.data.game.ShipData;

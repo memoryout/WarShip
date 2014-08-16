@@ -16,5 +16,9 @@ package game.application
 		public static const GAME_BATTLE_PROXY:		String = "proxy.game.battle";
 		
 		public static const ACTIONS_QUEUE_PROXY:	String = "actions_queue_proxy";
+		
+		
+		public static const CLIENT_DATA_CHANNEL:	String = "client_data_channel";
+		public static const LOCAL_DATA_CHANNEL:		String = "local_data_channel";
 	}
 }

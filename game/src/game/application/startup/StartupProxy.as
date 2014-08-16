@@ -9,20 +9,25 @@ package game.application.startup
 	import game.AppGlobalVariables;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
-	import game.application.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.commands.authorization.SetUserAuthorizationCommand;
 	import game.application.commands.startup.NewUserCreatedCommand;
-	import game.application.commands.startup.ServerAuthorizationResult;
 	import game.application.commands.startup.ServerConectionResult;
 	import game.application.commands.startup.UserDataProxyConnectedProxy;
 	import game.application.commands.startup.UserDataProxyReceiveUsersList;
-	import game.application.connection.ActionsQueueEvent;
+	import game.application.connection.ChannelDataType;
+	import game.application.connection.ServerDataChannelEvent;
+	import game.application.connection.ServerDataChannelLocalEvent;
+	import game.application.connection.data.AuthorizationData;
 	import game.application.data.user.UserData;
 	import game.application.data.user.UserDataProxy;
+	import game.application.data.user.UserDataProxyEvent;
+	import game.application.interfaces.channel.IServerDataChannel;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.net.IServerConnectionProxy;
 	import game.application.net.ServerConnectionProxyEvents;
+	import game.library.BaseProxy;
+	import game.library.LocalEvent;
 	import game.services.ServicesList;
 	import game.services.device.DeviceInfo;
 	import game.services.device.DeviceManagerEvents;
@@ -45,6 +50,8 @@ package game.application.startup
 		private var _server:					IServerConnectionProxy;
 		
 		private var _serverConnection:			IServerConnection;
+		
+		private var _dataChannel:				IServerDataChannel;
 		
 		private var _timeoutID:					uint;
 		
@@ -139,6 +146,7 @@ package game.application.startup
 		
 		public function userDataConnected():void
 		{
+			this.facade.removeCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED);
 			this.facade.registerCommand(ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST, UserDataProxyReceiveUsersList);
 			_userDataProxy.retrieveUsersList();
 			
@@ -146,6 +154,8 @@ package game.application.startup
 		
 		public function usersListReceive():void
 		{
+			this.facade.removeCommand( ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST );
+			
 			_userList = _userDataProxy.getUsersList();
 			
 			if(_userList.length == 0)
@@ -215,14 +225,6 @@ package game.application.startup
 			
 			this.facade.registerCommand( ApplicationEvents.USER_DATA_USER_CREATED, NewUserCreatedCommand);
 			_userDataProxy.createNewUser( name );
-			
-			
-			/*var userData:UserData = _userDataProxy.getUserData();
-			userData.name = login;
-				
-			_userDataProxy.commitChanges();
-			
-			authorizationSeccussesComplete();*/
 		}
 		
 		
@@ -305,27 +307,92 @@ package game.application.startup
 		
 		private function signInOnServer():void
 		{
-			this.facade.registerCommand( ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
+			_dataChannel = this.facade.retrieveProxy(ProxyList.CLIENT_DATA_CHANNEL) as IServerDataChannel;
+			
+			if( _dataChannel )
+			{
+				_dataChannel.addLocalListener( ServerDataChannelLocalEvent.CHANNEL_DATA, handlerDataChannel);
+			}
+			
+			//this.facade.registerCommand( ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
+			
+			_timeoutID = setTimeout( handlerSignInError, AppGlobalVariables.SERVER_CONNECTION_TIMEOUT );
 			
 			_server.signIn();
-			_timeoutID = setTimeout( handlerSignInError, 2000 );
+			
 		}
 		
 		
-		public function handlerSignInComplete():void
+		private function handlerDataChannel(dataMessage:LocalEvent):void
 		{
-			this.facade.removeCommand( ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE);
+			var type:uint = dataMessage.data.type;
+			
+			if(type == ChannelDataType.AUTHORIZATION)
+			{
+				updateUserAuthorizationData( dataMessage.data as AuthorizationData);
+			}
+		}
+		
+		
+		private function updateUserAuthorizationData(data:AuthorizationData):void
+		{
+			if(data.error)
+			{
+				clearTimeout( _timeoutID );
+				
+				if(data.errorCode == 3)
+				{
+					_userDataProxy.addLocalListener(UserDataProxyEvent.USER_DELETE_COMPLETE, handlerUserDeleteComplete);
+					_userDataProxy.deleteUser( _userData.id );
+					_userDataProxy.commitChanges();
+				}
+			}
+			else
+			{
+				if(_userDataProxy)
+				{
+					if(data.login && _userData.getValue("login") != data.login) _userData.setValue("login", data.login);
+					if(data.pass && _userData.getValue("pass") != data.pass) _userData.setValue("pass", data.pass);
+					
+					_userDataProxy.commitChanges();
+				}
+				
+				
+				var serverConnection:IServerConnection = ServicesList.getSearvice( ServicesList.SERVER_CONNECTION ) as IServerConnection;
+				if(serverConnection)
+				{
+					serverConnection.setSessionKey( data.session );
+				}
+				
+				handlerSignInComplete();
+			}
+		}
+		
+		private function handlerUserDeleteComplete(event:LocalEvent):void
+		{
+			_userDataProxy.removeLocalListener(UserDataProxyEvent.USER_DELETE_COMPLETE, handlerUserDeleteComplete);
+			userDataConnected();
+		}
+		
+		
+		private function handlerSignInComplete():void
+		{
+			this.facade.removeCommand( ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE);
 			
 			clearTimeout( _timeoutID );
-			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
-			//_serverConnection.removeEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
 			
 			completeStartup();
 		}
 		
 		public function handlerSignInError():void
 		{
-			this.facade.removeCommand( ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE);
+			//this.facade.removeCommand( ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE);
+			
+			if( _dataChannel )
+			{
+				_dataChannel.removeLocalListener( ServerDataChannelLocalEvent.CHANNEL_DATA, handlerDataChannel);
+			}
+			
 			
 			clearTimeout( _timeoutID );
 			

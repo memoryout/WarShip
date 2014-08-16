@@ -1,12 +1,14 @@
 package game.application.server
 {
-	import game.application.BaseProxy;
-	import game.application.connection.ActionsQueue;
+	import game.application.connection.ServerDataChannel;
 	import game.application.interfaces.server.ILocalGameServer;
+	import game.library.BaseProxy;
 
 	public class LocalGameServer extends BaseProxy implements ILocalGameServer
 	{
 		private const _players:			Vector.<LocalServerPlayer> = new Vector.<LocalServerPlayer>;
+		
+		private var _currentPlayer:		LocalServerPlayer;
 		
 		public function LocalGameServer(proxyName:String = null)
 		{
@@ -47,14 +49,42 @@ package game.application.server
 		}
 		
 		
-		public function sendUserShipLocation( ships:Array ):void
+		public function sendUserShipLocation( ships:Array, userId:String ):void
+		{
+			var player:LocalServerPlayer = getPalyer( userId );
+			
+			if(player)
+			{
+				player.createShips( ships );
+			}
+			
+			
+			var i:int;
+			i = _players.length;
+			while(i--)
+			{
+				if(_players[i].id == id) return;
+			}
+			
+		}
+		
+		
+		public function sendHitPointPosition(x:uint, y:uint, userId:String ):void
 		{
 			
 		}
 		
-		public function sendHitPointPosition(x:uint, y:uint):void
+		
+		private function getPalyer(id:String):LocalServerPlayer
 		{
+			var i:int;
+			i = _players.length;
+			while(i--)
+			{
+				if(_players[i].id == id) return _players[i];
+			}
 			
+			return null;
 		}
 	}
 }

@@ -1,6 +1,6 @@
 package game.application.connection
 {
-	public class ActionType
+	public class ChannelDataType
 	{
 		private static var _globalId:					uint = 0;
 		

@@ -1,8 +1,8 @@
-package game.application.connection.actions
+package game.application.connection.data
 {
-	import game.application.connection.ActionQueueData;
+	import game.application.connection.ChannelData;
 	
-	public class DestroyShipData extends ActionQueueData
+	public class DestroyShipData extends ChannelData
 	{
 		public var decks:			int;
 		public var status:			int;

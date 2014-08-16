@@ -17,7 +17,7 @@ package game.activity.view.application.windows.authorization_users
 		
 		public function SelectCurrentUserWindowMediator(viewComponent:Object)
 		{
-			super(NAME, viewComponent);
+			super(NAME + Math.random().toString(), viewComponent);
 		}
 		
 		
@@ -28,6 +28,17 @@ package game.activity.view.application.windows.authorization_users
 			
 			_view.addEventListener(SelectCurrentUserWindow.SELECT_USER, handlerSelectUser);
 			_view.addEventListener(SelectCurrentUserWindow.CREATE_NEW_USER, handlerCreateNewUser);
+			
+			var startup:StartupProxy = this.facade.retrieveProxy(ProxyList.STARTUP_PROXY) as StartupProxy;
+			if(startup)
+			{
+				_view.setUserList( startup.getUserList() );
+			}
+		}
+		
+		public function reCreate():void
+		{
+			_view.removeUserList();
 			
 			var startup:StartupProxy = this.facade.retrieveProxy(ProxyList.STARTUP_PROXY) as StartupProxy;
 			if(startup)

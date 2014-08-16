@@ -4,24 +4,24 @@ package game.application.connection
 	import flash.events.EventDispatcher;
 	import flash.events.IEventDispatcher;
 	
-	import game.application.BaseProxy;
-	import game.application.connection.actions.AuthorizationData;
-	import game.application.connection.actions.DestroyShipData;
-	import game.application.connection.actions.ErrorData;
-	import game.application.connection.actions.GameInfoData;
-	import game.application.connection.actions.HitInfoData;
-	import game.application.connection.actions.OpponentInfoData;
-	import game.application.connection.actions.UserInfoData;
-	import game.application.interfaces.actions.IActionsQueue;
+	import game.application.connection.data.AuthorizationData;
+	import game.application.connection.data.DestroyShipData;
+	import game.application.connection.data.ErrorData;
+	import game.application.connection.data.GameInfoData;
+	import game.application.connection.data.HitInfoData;
+	import game.application.connection.data.OpponentInfoData;
+	import game.application.connection.data.UserInfoData;
+	import game.application.interfaces.channel.IServerDataChannel;
+	import game.library.BaseProxy;
+	import game.library.LocalDispactherProxy;
 	
-	public class ActionsQueue extends BaseProxy implements IActionsQueue
+	public class ServerDataChannel extends LocalDispactherProxy implements IServerDataChannel
 	{
-		private const _queue:				Vector.<ActionQueueData> = new Vector.<ActionQueueData>;
+		private const _queue:				Vector.<ChannelData> = new Vector.<ChannelData>;
 		
-		private const _dispacther:			EventDispatcher = new EventDispatcher();
-		private const _event:				Event = new Event(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE);
+		private const _event:				Event = new Event(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE);
 		
-		public function ActionsQueue(proxyName:String=null)
+		public function ServerDataChannel(proxyName:String=null)
 		{
 			super(proxyName);
 		}
@@ -33,15 +33,62 @@ package game.application.connection
 		}
 		
 		
-		public function get dispatcher():IEventDispatcher
+		public function processRawData(data:Object):void
 		{
-			return _dispacther;
+			if(data.cmd)
+			{
+				switch(data.cmd)
+				{
+					case "authorize":
+					{
+						parseAuthorizationData(data);
+						break;
+					}
+						
+					case "start_game":
+					{
+						parseGameInfoDataResponce(data);
+						break;
+					}
+						
+					case "get_updates":
+					{
+						parseGameInfoDataResponce(data);
+						break;
+					}
+						
+					case "game_play":
+					{
+						parseGameInfoDataResponce(data);
+						break;
+					}
+				}
+			}
+			
+			
+			sendData();
+		}
+		
+		
+		public function sendData():void
+		{
+			this.sendNotification(ServerDataChannelEvent.ACTIONS_QUEUE_CREATE, proxyName);
+			
+			var i:int;
+			for(i = 0; i < _queue.length; i++)
+			{
+				this.dispactherLocalEvent( ServerDataChannelLocalEvent.CHANNEL_DATA, _queue[i]);
+			}
+			
+			_queue.length = 0;
+			
+			this.sendNotification(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, this);
 		}
 		
 		
 		public function startQueue():void
 		{
-			this.sendNotification(ActionsQueueEvent.ACTIONS_QUEUE_CREATE);
+			
 		}
 		
 		public function parseRowData(data:Object):void
@@ -75,16 +122,21 @@ package game.application.connection
 					}
 				}
 			}
+			
+			/*if(data.error)
+			{
+				switch(data.cmd)
+			}*/
 		}
 		
 		
 		public function finishQueue():void
 		{
-			_dispacther.dispatchEvent( _event );
-			this.sendNotification(ActionsQueueEvent.ACTIONS_QUEUE_COMPLETE, this);
+			dispacther.dispatchEvent( _event );
+			this.sendNotification(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, this);
 		}
 		
-		public function getNextAction():ActionQueueData
+		public function getNextAction():ChannelData
 		{
 			return _queue.shift();
 		}
@@ -97,14 +149,23 @@ package game.application.connection
 		{
 			var loginInfo:Object = data.loginInfo;
 			
+			var auth:AuthorizationData;
+			auth = new AuthorizationData();
+			
 			if(loginInfo)
 			{
-				var auth:AuthorizationData = new AuthorizationData();
-				
 				auth.login = loginInfo.login;
 				auth.name = loginInfo.name;
 				auth.pass = loginInfo.pass;
 				auth.session = loginInfo.session;
+				
+				_queue.push( auth );
+			}
+			else if(data.error)
+			{
+				auth.error = true;
+				auth.errorCode = data.error.code;
+				auth.errorMessage = data.error.description;
 				
 				_queue.push( auth );
 			}
@@ -156,8 +217,8 @@ package game.application.connection
 		{
 			var action:HitInfoData;
 			
-			if(isUser) action = new HitInfoData(ActionType.USER_HIT_INFO);
-			else action = new HitInfoData(ActionType.OPPONENT_HIT_INFO);
+			if(isUser) action = new HitInfoData(ChannelDataType.USER_HIT_INFO);
+			else action = new HitInfoData(ChannelDataType.OPPONENT_HIT_INFO);
 			
 			action.pointX = data.target[0];
 			action.pointY = data.target[1];
@@ -173,8 +234,8 @@ package game.application.connection
 		{
 			var action:DestroyShipData;
 			
-			if(isUser) action = new DestroyShipData(ActionType.USER_DESTROY_OPPONENT_SHIP);
-			else action = new DestroyShipData(ActionType.OPPONENT_DESTROY_USER_SHIP);
+			if(isUser) action = new DestroyShipData(ChannelDataType.USER_DESTROY_OPPONENT_SHIP);
+			else action = new DestroyShipData(ChannelDataType.OPPONENT_DESTROY_USER_SHIP);
 			
 			action.decks = data.decks;
 			action.status = data.status;
@@ -248,7 +309,7 @@ package game.application.connection
 		
 		private function createErrorAction(data:Object):void
 		{
-			var action:ErrorData = new ErrorData(ActionType.ERROR);
+			var action:ErrorData = new ErrorData(ChannelDataType.ERROR);
 			
 			action.code = data.code;
 			action.description = data.description;
@@ -260,11 +321,13 @@ package game.application.connection
 		
 		
 		
-		public function destroy():void
+		override public function destroy():void
 		{
 			_queue.length = 0;
 			
 			this.facade.removeProxy( this.proxyName );
+			
+			super.destroy();
 		}
 	}
 }

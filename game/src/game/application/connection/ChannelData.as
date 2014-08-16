@@ -1,10 +1,10 @@
 package game.application.connection
 {
-	public class ActionQueueData
+	public class ChannelData
 	{
 		protected var _type:				uint;
 		
-		public function ActionQueueData(type:uint = 0)
+		public function ChannelData(type:uint = 0)
 		{
 			if(type) _type = type;
 		}

@@ -34,6 +34,18 @@ package game.activity.view.application.windows.authorization_users
 			createViewComponents();
 		}
 		
+		public function removeUserList():void
+		{
+			var par:Object;
+			for(par in _buttonsCache)
+			{
+				(par as TextField).removeEventListener(MouseEvent.CLICK, handlerSelectUser);
+				_skin.removeChild( (par as TextField) );
+				
+				delete _buttonsCache[par];
+			}
+		}
+		
 		
 		public function setUserList(v:Vector.<UserData>):void
 		{

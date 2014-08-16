@@ -1,4 +1,4 @@
-package game.application
+package game.library
 {
 	import flash.events.EventDispatcher;
 	
