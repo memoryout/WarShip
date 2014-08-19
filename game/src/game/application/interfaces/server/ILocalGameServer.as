@@ -1,8 +1,9 @@
 package game.application.interfaces.server
 {
 	import game.application.data.game.ShipData;
+	import game.library.ILocalDispactherProxy;
 
-	public interface ILocalGameServer
+	public interface ILocalGameServer extends ILocalDispactherProxy
 	{
 		function sendHitPointPosition(x:uint, y:uint, userId:String):void;
 		

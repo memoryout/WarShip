@@ -86,63 +86,10 @@ package game.application.connection
 		}
 		
 		
-		public function startQueue():void
+		public function pushData(data:ChannelData):void
 		{
-			
+			_queue.push( data );
 		}
-		
-		public function parseRowData(data:Object):void
-		{
-			if(data.cmd)
-			{
-				switch(data.cmd)
-				{
-					case "authorize":
-					{
-						parseAuthorizationData(data);
-						break;
-					}
-						
-					case "start_game":
-					{
-						parseGameInfoDataResponce(data);
-						break;
-					}
-						
-					case "get_updates":
-					{
-						parseGameInfoDataResponce(data);
-						break;
-					}
-						
-					case "game_play":
-					{
-						parseGameInfoDataResponce(data);
-						break;
-					}
-				}
-			}
-			
-			/*if(data.error)
-			{
-				switch(data.cmd)
-			}*/
-		}
-		
-		
-		public function finishQueue():void
-		{
-			dispacther.dispatchEvent( _event );
-			this.sendNotification(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, this);
-		}
-		
-		public function getNextAction():ChannelData
-		{
-			return _queue.shift();
-		}
-		
-		
-		
 		
 		
 		private function parseAuthorizationData(data:Object):void
@@ -254,7 +201,7 @@ package game.application.connection
 		{
 			var action:GameInfoData = new GameInfoData();
 			
-			action.gameTime = data.game_type;
+			action.gameTime = data.game_time;
 			action.status = data.status;
 			action.timeOut = data.time_out;
 			action.userPoints = data.points;

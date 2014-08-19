@@ -8,7 +8,7 @@ package game.application.server
 	{
 		private var _id:			String;
 		
-		private const _gameField:	Dictionary = new Dictionary();
+		private const _ships:		Vector.<LocalServerShip> = new Vector.<LocalServerShip>;
 		
 		public function LocalServerPlayer(id:String)
 		{
@@ -27,19 +27,35 @@ package game.application.server
 			var i:int, j:int;
 			var ship:LocalServerShip;
 			
+			trace("-----------------", id, data.length);
 			for(i = 0; i < data.length; i++)
 			{
+				trace("set", data[i]);
 				ship = new LocalServerShip();
 				ship.setCoords( data[i] );
 				
-				trace(data[i]);
+				_ships.push( ship );
 			}
+		}
+		
+		public function tryHit(x:uint, y:uint):Boolean
+		{
+			var res:Boolean = false;
+			
+			var i:int;
+			for(i = 0; i < _ships.length; i++)
+			{
+				res = _ships[i].tryToDrown(x, y);
+				if(res) break;
+			}
+			
+			return res;
 		}
 		
 		
 		public function isReadyToStart():Boolean
 		{
-			return true;
+			return _ships.length > 0;
 		}
 	}
 }

@@ -176,13 +176,13 @@ package game.application.game.p_vs_p_net
 			{
 				case GameBattleStatus.STEP_OF_OPPONENT:
 				{
-					startUpdateInfoTimer();
+					//startUpdateInfoTimer();
 					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
 					break;
 				}
 				case GameBattleStatus.WAITING_FOR_START:
 				{
-					startUpdateInfoTimer();
+					//startUpdateInfoTimer();
 					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
 					break;
 				}
@@ -195,7 +195,7 @@ package game.application.game.p_vs_p_net
 					
 				case GameBattleStatus.INCOMING_USER_WON:
 				{
-					stopUpdateTimer();
+					//stopUpdateTimer();
 					_battleProxy.setStatus(GameBattleStatus.INCOMING_USER_WON);
 					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
 					break;
@@ -203,7 +203,7 @@ package game.application.game.p_vs_p_net
 					
 				case GameBattleStatus.OPPONENT_WON:
 				{
-					stopUpdateTimer();
+					//stopUpdateTimer();
 					_battleProxy.setStatus(GameBattleStatus.OPPONENT_WON);
 					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
 					break;

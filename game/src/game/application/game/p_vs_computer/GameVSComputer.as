@@ -57,6 +57,7 @@ package game.application.game.p_vs_computer
 			super.generateShipList( shipsDeckList );
 			
 			_serverConnectionSupport = new GameVSComputerServerInterface();
+			this.facade.registerProxy( _serverConnectionSupport );
 			_serverConnectionSupport.init();
 			
 			_dataChannel = this.facade.retrieveProxy( ProxyList.CLIENT_DATA_CHANNEL ) as IServerDataChannel;
@@ -90,14 +91,17 @@ package game.application.game.p_vs_computer
 				ships.push( arr );
 			}
 			
-			
-			_serverConnectionSupport.sendUserShipLocation( ships, _userId );
-			
 			createGameBattleProxy();
-			
 			
 			_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
 			_battleProxy.finishDataUpdate();
+			
+			_serverConnectionSupport.sendUserShipLocation( ships, _userId );
+			
+			
+			
+			
+			
 		}
 		
 		override public function hitPoint(x:uint, y:uint):void
