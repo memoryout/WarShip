@@ -73,6 +73,7 @@ package game.application.connection
 		public function sendData():void
 		{
 			this.sendNotification(ServerDataChannelEvent.ACTIONS_QUEUE_CREATE, proxyName);
+			this.dispactherLocalEvent( ServerDataChannelLocalEvent.ACTIONS_QUEUE_CREATE);
 			
 			var i:int;
 			for(i = 0; i < _queue.length; i++)
@@ -82,6 +83,7 @@ package game.application.connection
 			
 			_queue.length = 0;
 			
+			this.dispactherLocalEvent( ServerDataChannelLocalEvent.ACTIONS_QUEUE_COMPLETE);
 			this.sendNotification(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, this);
 		}
 		

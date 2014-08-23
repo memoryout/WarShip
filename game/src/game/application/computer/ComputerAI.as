@@ -1,5 +1,7 @@
 package game.application.computer
 {
+	import flash.utils.setTimeout;
+	
 	import game.application.ProxyList;
 	import game.application.connection.ChannelData;
 	import game.application.connection.ChannelDataType;
@@ -120,7 +122,7 @@ package game.application.computer
 					
 				case GameBattleStatus.STEP_OF_INCOMING_USER:
 				{
-					makeNextHit();
+					setTimeout(makeNextHit,1000);
 					//_battleProxy.setStatus(GameBattleStatus.STEP_OF_INCOMING_USER);
 					break;
 				}

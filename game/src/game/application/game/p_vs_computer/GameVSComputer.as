@@ -61,7 +61,10 @@ package game.application.game.p_vs_computer
 			_serverConnectionSupport.init();
 			
 			_dataChannel = this.facade.retrieveProxy( ProxyList.CLIENT_DATA_CHANNEL ) as IServerDataChannel;
+			
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_CREATE, actionsQueueStart);
 			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_COMPLETE, actionsQueueFinish);
 			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
@@ -121,12 +124,14 @@ package game.application.game.p_vs_computer
 			}
 		}
 		
+		private function actionsQueueStart(dataMessage:LocalEvent):void
+		{
+			_battleProxy.startDataUpdate();
+		}
+		
 		
 		public function processActionsQueue(dataMessage:LocalEvent):void
 		{
-			
-			_battleProxy.startDataUpdate();
-			
 			var action:ChannelData;
 			
 			action = dataMessage.data as ChannelData//_actionsQueue.getNextAction();
@@ -176,6 +181,11 @@ package game.application.game.p_vs_computer
 				}	
 			}
 			
+			
+		}
+		
+		private function actionsQueueFinish(dataMessage:LocalEvent):void
+		{
 			_battleProxy.finishDataUpdate();
 		}
 		

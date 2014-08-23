@@ -31,7 +31,7 @@ package game.application.server
 			{
 				if(arr[0][0] == arr[1][0])
 				{
-					for(i = arr[0][1]; i < arr[1][1]; i++)
+					for(i = arr[0][1]; i <= arr[1][1]; i++)
 					{
 						_coordX[ deck ] = arr[0][0];
 						_coordY[ deck ] = i;
@@ -41,7 +41,7 @@ package game.application.server
 				}
 				else 
 				{
-					for(i = arr[0][0]; i < arr[1][0]; i++)
+					for(i = arr[0][0]; i <= arr[1][0]; i++)
 					{
 						_coordX[ deck ] = i;
 						_coordY[ deck ] = arr[0][1];
@@ -68,6 +68,22 @@ package game.application.server
 			}
 			
 			if( _state.indexOf(0) == -1 ) _isSank = true;
+			
+			return res;
+		}
+		
+		public function thisShipIsSank(x:uint, y:uint):Boolean
+		{
+			var res:Boolean = false;
+			var i:uint;
+			for(i = 0; i < _coordX.length; i++)
+			{
+				if( _coordX[i] == x && _coordY[i] == y )
+				{
+					res = _isSank;
+					break;
+				}
+			}
 			
 			return res;
 		}

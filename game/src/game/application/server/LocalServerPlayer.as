@@ -27,10 +27,8 @@ package game.application.server
 			var i:int, j:int;
 			var ship:LocalServerShip;
 			
-			trace("-----------------", id, data.length);
 			for(i = 0; i < data.length; i++)
 			{
-				trace("set", data[i]);
 				ship = new LocalServerShip();
 				ship.setCoords( data[i] );
 				
@@ -38,14 +36,32 @@ package game.application.server
 			}
 		}
 		
-		public function tryHit(x:uint, y:uint):Boolean
+		public function tryHit(x:uint, y:uint):LocalServerShip
+		{
+			var res:LocalServerShip;
+			
+			var i:int;
+			for(i = 0; i < _ships.length; i++)
+			{
+				if( !_ships[i].isSank() && _ships[i].tryToDrown(x, y) )
+				{
+					res = _ships[i];
+					break;
+				}
+			}
+			
+			return res;
+		}
+		
+		
+		public function isShipDestroyed( x:uint, y:uint ):Boolean
 		{
 			var res:Boolean = false;
 			
 			var i:int;
 			for(i = 0; i < _ships.length; i++)
 			{
-				res = _ships[i].tryToDrown(x, y);
+				res = _ships[i].thisShipIsSank(x, y);
 				if(res) break;
 			}
 			

@@ -59,7 +59,10 @@ package game.application.game.p_vs_p_net
 			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_CREATE, actionsQueueStart);
 			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_COMPLETE, actionsQueueFinish);
+			
 			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
 		}		
 		
@@ -109,11 +112,16 @@ package game.application.game.p_vs_p_net
 			}
 		}
 		
+		private function actionsQueueStart(dataMessage:LocalEvent):void
+		{
+			_battleProxy.startDataUpdate();
+		}
+		
 		
 		public function processActionsQueue(dataMessage:LocalEvent):void
 		{
 			
-			_battleProxy.startDataUpdate();
+			//_battleProxy.startDataUpdate();
 			
 			var action:ChannelData;
 			
@@ -164,6 +172,11 @@ package game.application.game.p_vs_p_net
 				}	
 			}
 			
+			//_battleProxy.finishDataUpdate();
+		}
+		
+		private function actionsQueueFinish(dataMessage:LocalEvent):void
+		{
 			_battleProxy.finishDataUpdate();
 		}
 		
@@ -176,13 +189,13 @@ package game.application.game.p_vs_p_net
 			{
 				case GameBattleStatus.STEP_OF_OPPONENT:
 				{
-					//startUpdateInfoTimer();
+					startUpdateInfoTimer();
 					_battleProxy.setStatus(GameBattleStatus.STEP_OF_OPPONENT);
 					break;
 				}
 				case GameBattleStatus.WAITING_FOR_START:
 				{
-					//startUpdateInfoTimer();
+					startUpdateInfoTimer();
 					_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
 					break;
 				}
@@ -195,7 +208,7 @@ package game.application.game.p_vs_p_net
 					
 				case GameBattleStatus.INCOMING_USER_WON:
 				{
-					//stopUpdateTimer();
+					stopUpdateTimer();
 					_battleProxy.setStatus(GameBattleStatus.INCOMING_USER_WON);
 					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
 					break;
@@ -203,7 +216,7 @@ package game.application.game.p_vs_p_net
 					
 				case GameBattleStatus.OPPONENT_WON:
 				{
-					//stopUpdateTimer();
+					stopUpdateTimer();
 					_battleProxy.setStatus(GameBattleStatus.OPPONENT_WON);
 					this.sendNotification( ApplicationCommands.FINISH_CURRENT_GAME);
 					break;

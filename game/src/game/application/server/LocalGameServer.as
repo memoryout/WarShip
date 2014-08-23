@@ -3,6 +3,8 @@ package game.application.server
 	import game.application.connection.ServerDataChannel;
 	import game.application.interfaces.server.ILocalGameServer;
 	import game.application.server.messages.MessageData;
+	import game.application.server.messages.MessageDestroyShip;
+	import game.application.server.messages.MessageHit;
 	import game.application.server.messages.MessageType;
 	import game.library.BaseProxy;
 	import game.library.LocalDispactherProxy;
@@ -95,12 +97,21 @@ package game.application.server
 			{
 				var targetPlayer:LocalServerPlayer = getOtherPlayer();
 				
-				if( targetPlayer.tryHit(x, y) )
+				var shipData:LocalServerShip;
+				
+				shipData = targetPlayer.tryHit(x, y);
+				
+				if( shipData )
 				{
+					playerHitShip(x, y);
+					
+					if( shipData.isSank() ) playerDestroyShip(shipData);
+					
 					setActivePlayer(_currentPlayerIndex);
 				}
 				else
 				{
+					playerFailHit(x, y);
 					setNextActivePlayer();
 				}
 				
@@ -122,6 +133,39 @@ package game.application.server
 			if(_currentPlayerIndex >= _players.length) _currentPlayerIndex = 0;
 			
 			setActivePlayer( _currentPlayerIndex );
+		}
+		
+		
+		private function playerHitShip(x:uint, y:uint):void
+		{
+			var msg:MessageHit = new MessageHit(MessageType.PLAYER_HIT_SHIP, _currentPlayer.id);
+			msg.x = x;
+			msg.y = y;
+			
+			addMessage( msg );
+		}
+		
+		private function playerFailHit(x:uint, y:uint):void
+		{
+			var msg:MessageHit = new MessageHit(MessageType.PLAYER_MISSED, _currentPlayer.id);
+			msg.x = x;
+			msg.y = y;
+			
+			addMessage( msg );
+		}
+		
+		
+		private function playerDestroyShip( shipData:LocalServerShip ):void
+		{
+			var msg:MessageDestroyShip = new MessageDestroyShip(MessageType.PLAYER_SANK_SHIP, _currentPlayer.id);
+			msg.deck = shipData.deck;
+			msg.startX = shipData.getX(0);
+			msg.startY = shipData.getY(0);
+			
+			msg.finishX = shipData.getX(shipData.deck - 1);
+			msg.finishY = shipData.getY(shipData.deck - 1);
+			
+			addMessage( msg );
 		}
 		
 		
