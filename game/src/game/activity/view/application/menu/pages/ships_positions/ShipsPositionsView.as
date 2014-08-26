@@ -50,8 +50,10 @@ package game.activity.view.application.menu.pages.ships_positions
 		
 		private var dragedShip:				MovieClip;
 		private var rotatedShip:			MovieClip;
+		private var shipsHolder:			MovieClip;
 		
-		private var initShipPoint:Point = new Point();		
+		private var initShipPoint:			Point = new Point();		
+		private var initShipsPositions:		Array;
 		
 		private var shipsLocationProcess:	ShipsLocationProcess = new ShipsLocationProcess();	
 		
@@ -115,15 +117,6 @@ package game.activity.view.application.menu.pages.ships_positions
 				_skin = new classInstance();
 				this.addChild( _skin );
 				_skin.addEventListener(MouseEvent.CLICK, handlerMouseClick);
-				
-				/*
-				_shipPlaceholder = _skin.getChildByName("player_field") as MovieClip;
-				
-				for (var j:String in _shipPlaceholder) 				
-				{
-					_shipPlaceholder.getChildByName(j).addEventListener(MouseEvent.MOUSE_DOWN, mouseMoveActivate);			
-					(_shipPlaceholder.getChildByName(j) as MovieClip).buttonMode = true;
-				}*/
 			}
 			
 			classInstance = BaseMediator.getSourceClass("viewGame");
@@ -137,7 +130,9 @@ package game.activity.view.application.menu.pages.ships_positions
 					_skin.addChildAt( _skinGameView.getChildAt(i), 0);
 				}
 				
-				_skin.setChildIndex(_skin.getChildByName("location_table"), _skin.numChildren - 1);
+				shipsHolder = _skin.getChildByName("location_table") as MovieClip;
+				
+				_skin.setChildIndex(shipsHolder, _skin.numChildren - 1);
 				
 				_skin.setChildIndex(_skin.getChildByName("btn_rotate"), _skin.numChildren - 1);
 				_skin.setChildIndex(_skin.getChildByName("btn_shuffle"), _skin.numChildren - 1);
@@ -145,12 +140,21 @@ package game.activity.view.application.menu.pages.ships_positions
 				
 				cellSize = _skin.getChildByName("player_field").width/10;
 				tableHolder = _skin.getChildByName("player_field") as MovieClip;
+				
+				var topBar:MovieClip = _skin.getChildByName("topBar") as MovieClip;
+				
+				(topBar.getChildByName("logo_right_side") as MovieClip).visible = false;
+				
+				(topBar.getChildByName("oponent_progress_line") as MovieClip).visible = false;
+				(topBar.getChildByName("user_progress_line") as MovieClip).visible = false;
+				(topBar.getChildByName("number_table") as MovieClip).visible = false;				
 			}
 		}
 		
 		private function shipsUpdate():void
 		{
-			_shipCache = new Dictionary();
+			_shipCache 			= new Dictionary();
+			initShipsPositions  = new Array();
 				
 			for (var i:int = 0; i < shipsArray.length; i++) 					
 			{			
@@ -160,8 +164,8 @@ package game.activity.view.application.menu.pages.ships_positions
 				
 				ship.addEventListener(MouseEvent.MOUSE_DOWN, mouseMoveActivate);			
 				ship.buttonMode = true;
-					
-//				_shipCache[ship] = _ships[i];
+				
+				initShipsPositions.push({"x":ship.x, "y":ship.y});
 			}
 		}
 		
@@ -175,8 +179,6 @@ package game.activity.view.application.menu.pages.ships_positions
 				
 				ship.x = _ships[i].x*cellSize + tableHolder.x;
 				ship.y = _ships[i].y*cellSize + tableHolder.y;
-				
-				trace("x: ", _ships[i].x, "y: ", _ships[i].y, "deck: ", _ships[i].deck);
 				
 				ship.gotoAndStop(_ships[i].dirrection + 1);
 				
@@ -214,23 +216,22 @@ package game.activity.view.application.menu.pages.ships_positions
 			var shipLining:MovieClip, layerIndex:int, 			
 			hitMc:MovieClip = e.currentTarget as MovieClip;		
 			
-			var x_coef:int = shipsLocationProcess.correctRange((hitMc.x - tableHolder.x + 12)/cellSize);
-			var y_coef:int = shipsLocationProcess.correctRange((hitMc.y - tableHolder.y + 12)/cellSize);
+			var x_coef:int = shipsLocationProcess.correctRange((hitMc.x - tableHolder.x + cellSize/2)/cellSize);
+			var y_coef:int = shipsLocationProcess.correctRange((hitMc.y - tableHolder.y + cellSize/2)/cellSize);
 			
-			var a:Array 			= hitMc.name.split("s");
-			var deckNArray:Array	= a[1].split("_");
-			var shipsDeck:int  		= int(deckNArray[0]);			
-			var shipDirection:int 	= hitMc.currentFrame - 1;	
+			defineShip(e.currentTarget as MovieClip);
 			
+			var deckNArray:Array = hitMc.name.split("s")[1].split("_");
+		
 			_skin.setChildIndex(hitMc, _skin.numChildren - 1);		
 			
-			if(!tableIsAdd)
+			if(!tableIsAdd && checkIfIsOnShipsTable(e.currentTarget.x, e.currentTarget.y) )
 			{
 				tableIsAdd = true;
 				if(_skin.getChildIndex(hitMc) - 1 >= 0) 
 					layerIndex = _skin.getChildIndex(hitMc) - 1;
 				
-				addTable(shipLining, shipsDeck, shipDirection+1, layerIndex);
+				addTable(shipLining, activeShip.deck, activeShip.dirrection+1, layerIndex);
 			}				
 			
 			shipLining = tableHolder.getChildByName(SHIP_LINING_NAME) as MovieClip;
@@ -242,37 +243,49 @@ package game.activity.view.application.menu.pages.ships_positions
 				shipsLocationProcess.resetShipLocation(0, 0, int(deckNArray[1]));						
 			}
 			
-			rotateShipDescription.column = x_coef;
+			rotateShipDescription.column  = x_coef;
 			rotateShipDescription.line	  = y_coef;
-			rotateShipDescription.orient = shipDirection;
-			rotateShipDescription.deck	  = shipsDeck;	
+			rotateShipDescription.orient  = activeShip.dirrection;
+			rotateShipDescription.deck	  = activeShip.deck;	
 			
-			if(!isColision)
-			{			
-				canLocate = true;				
-				setTint(shipLining, GREEN, 0, 1);
-				
-			}else{
-				
-				canLocate = false;				
-				setTint(shipLining, RED, 0, 1);
-			}
-			
-			if(shipDirection == 0)
+			if(tableIsAdd)
 			{
-				shipLining.x = shipsLocationProcess.correctRangeForMoving(x_coef, shipsDeck)*cellSize;
-				shipLining.y = y_coef*cellSize;						
-				
-			}else if(shipDirection == 1)
-			{				
-				shipLining.x = x_coef*cellSize;
-				shipLining.y = shipsLocationProcess.correctRangeForMoving(y_coef, shipsDeck)*cellSize;
-			}
+				if(!checkIfIsOnShipsTable(e.currentTarget.x, e.currentTarget.y))
+				{
+					tableIsAdd = false;
+					removeTable();
+					
+				}else if(shipLining)
+				{
+					if(!isColision)
+					{			
+						canLocate = true;					
+						setTint(shipLining, GREEN, 0, 1);
+						
+					}else{
+						
+						canLocate = false;						
+						setTint(shipLining, RED, 0, 1);
+					}
+					
+					if(activeShip.dirrection == 0)
+					{
+						shipLining.x = shipsLocationProcess.correctRangeForMoving(x_coef, activeShip.deck)*cellSize;
+						shipLining.y = y_coef*cellSize;						
+						
+					}else if(activeShip.dirrection == 1)
+					{				
+						shipLining.x = x_coef*cellSize;
+						shipLining.y = shipsLocationProcess.correctRangeForMoving(y_coef, activeShip.deck)*cellSize;
+					}
+				}					
+			}		
 		}
 		
 		private function setTint(_element:MovieClip, _color:uint, _time:int = 0, _alpha:Number = 1):void
 		{
-			TweenLite.to(_element, _time, {tint:_color,  alpha:_alpha});	
+			if(_element)
+				TweenLite.to(_element, _time, {tint:_color,  alpha:_alpha});	
 		}
 		
 		/**
@@ -304,36 +317,41 @@ package game.activity.view.application.menu.pages.ships_positions
 			isCleared = tableIsAdd = false;
 			dragedShip = rotatedShip = e.currentTarget as MovieClip;					
 			
-			var a:Array 		 = dragedShip.name.split("s");
-			var deckNArray:Array = a[1].split("_");
-			var shipsDeck:int  	 = int(deckNArray[0]);	
-			var shipOrient:int 	 = (dragedShip.currentFrame - 1);	
 			var shipLining:MovieClip = tableHolder.getChildByName(SHIP_LINING_NAME) as MovieClip;			
 			
-			if(canLocate)
+			if(canLocate && checkIfIsOnShipsTable(e.currentTarget.x, e.currentTarget.y))
 			{
 				dragedShip.x = shipLining.x + tableHolder.x;
 				dragedShip.y = shipLining.y + tableHolder.y; 
 				
+			}else if(checkIfIsOnShipsHolder(e.currentTarget.x, e.currentTarget.y))
+			{			
+				dragedShip.x = initShipsPositions[activeShip.idx].x;
+				dragedShip.y = initShipsPositions[activeShip.idx].y;
+				dragedShip.gotoAndStop(0);				
+				
 			}else{
 				
-				dragedShip.x = shipLining.x = initShipPoint.x;
-				dragedShip.y = shipLining.y = initShipPoint.y; 	
+				dragedShip.x = initShipPoint.x;
+				dragedShip.y = initShipPoint.y; 	
+				
+				if(shipLining)
+				{
+					shipLining.x = initShipPoint.x;
+					shipLining.y = initShipPoint.y; 	
+				}
 			}	
 			
-			removeTable();			
-			
-			var x_coef:int = shipsLocationProcess.correctRange((dragedShip.x + 20)/cellSize);
-			var y_coef:int = shipsLocationProcess.correctRange((dragedShip.y + 5)/cellSize);
+			removeTable();	
 			
 			if(!isColision)
 			{
 				for (var i:int = 0; i < _ships.length; i++) 
 				{
-					if(_ships[i].x == activeShip.x &&  _ships[i].y == activeShip.y)
+					if(_ships[i].id == activeShip.idx)
 					{
-						_ships[i].x == activeShip.x;
-						_ships[i].y == activeShip.y;
+						_ships[i].x = activeShip.x;
+						_ships[i].y = activeShip.y;
 						break;
 					}					
 				}
@@ -351,16 +369,21 @@ package game.activity.view.application.menu.pages.ships_positions
 			{	
 				var shipLining:MovieClip, layerIndex:int, directionForRotate:int;					
 				
-				activeShip = _shipCache[rotatedShip];
+				if(!activeShip)
+					activeShip = new ShipData();
 				
-				if(rotateShipDescription.orient == ShipDirrection.VERTICAL)
+				defineShip(dragedShip);
+				
+				activeShip = _ships[activeShip.idx];
+				
+				if(activeShip.dirrection == ShipDirrection.VERTICAL)
 				{
 					activeShip.dirrection = ShipDirrection.HORIZONTAL;
 					directionForRotate = 0;
 				}					
 				else 
 				{
-					directionForRotate = ShipDirrection.VERTICAL;
+					activeShip.dirrection = ShipDirrection.VERTICAL;
 					directionForRotate = 1;
 				}
 				
@@ -373,24 +396,12 @@ package game.activity.view.application.menu.pages.ships_positions
 					else 
 						rotateShipDescription.orient = directionForRotate;
 					
-					rotatedShip.gotoAndStop(directionForRotate + 1);				
-					
-					for (var i:int = 0; i < _ships.length; i++) 
-					{
-						if(_ships[i].x == activeShip.x &&  _ships[i].y == activeShip.y)
-						{							
-							if(_ships[i].dirrection == ShipDirrection.HORIZONTAL)	
-								_ships[i].dirrection = ShipDirrection.VERTICAL;
-							else 
-								_ships[i].dirrection = ShipDirrection.HORIZONTAL;
-							break;
-						}						
-					}
+					rotatedShip.gotoAndStop(directionForRotate + 1);					
 					
 				}else
 				{					
-					if(_shipPlaceholder.getChildIndex(rotatedShip) - 1 >= 0) 
-						layerIndex = _shipPlaceholder.getChildIndex(rotatedShip) - 1;
+//					if(_shipPlaceholder.getChildIndex(rotatedShip) - 1 >= 0) 
+//						layerIndex = _shipPlaceholder.getChildIndex(rotatedShip) - 1;
 					
 					addTable(shipLining, rotateShipDescription.deck, directionForRotate+1, layerIndex);
 					
@@ -421,14 +432,37 @@ package game.activity.view.application.menu.pages.ships_positions
 			}			
 		}
 		
+		private function defineShip(activeElement:MovieClip):void
+		{					
+			activeShip.deck 		= int(activeElement.name.split("s")[1].split("_")[0]);		
+			activeShip.idx			= int(activeElement.name.split("s")[1].split("_")[1]);
+			activeShip.dirrection 	= activeElement.currentFrame - 1;					
+		}
+		
 		/**
 		 *  Adding and showing lining under ship.
 		 */		
 		private function removeTable():void
 		{	
-			if(tableHolder.contains(tableHolder.getChildByName(SHIP_LINING_NAME) as MovieClip))
+			if(tableHolder.getChildByName(SHIP_LINING_NAME) && tableHolder.contains(tableHolder.getChildByName(SHIP_LINING_NAME) as MovieClip))
 				tableHolder.removeChild(tableHolder.getChildByName(SHIP_LINING_NAME) as MovieClip);		
-		}		
+		}	
+		
+		private function checkIfIsOnShipsTable(x:uint, y:uint):Boolean
+		{			
+			if(x >= tableHolder.x && x <= tableHolder.x + tableHolder.width && y >= tableHolder.y && y <= tableHolder.y + tableHolder.height)
+				return true;							
+			
+			return false;			
+		}
+		
+		private function checkIfIsOnShipsHolder(x:uint, y:uint):Boolean
+		{			
+			if(x >= shipsHolder.x && x <= shipsHolder.x + shipsHolder.width && y >= shipsHolder.y && y <= shipsHolder.y + shipsHolder.height)
+				return true;							
+			
+			return false;			
+		}
 		
 		private function handlerMouseClick(e:MouseEvent):void
 		{
@@ -439,6 +473,7 @@ package game.activity.view.application.menu.pages.ships_positions
 				case "btn_shuffle":
 				{
 					this.dispatchEvent( new Event(AUTO_ARRANGEMENT) );
+					rotatedShip = null;
 					break;
 				}
 					

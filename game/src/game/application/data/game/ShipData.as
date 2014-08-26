@@ -11,6 +11,7 @@ package game.application.data.game
 		private var _x:				int;
 		private var _y:				int;
 		private var _dirrection:	uint;
+		private var _id:			uint;
 		
 		public function ShipData()
 		{
@@ -68,6 +69,15 @@ package game.application.data.game
 			return _coordinates;
 		}
 		
+		public function set idx(value:int):void
+		{
+			_id = value;
+		}
+		
+		public function get idx():int
+		{
+			return _id;
+		}		
 		
 		private function updateCoordinates():void
 		{
