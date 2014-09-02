@@ -98,8 +98,6 @@ package game.activity.view.application.game
 		
 		public function sunkUserShip(val:Object):void
 		{
-			trace("a");
-			
 			var i:int;
 			
 			for (i = 0; i < val.fieldPoint.length; i++) 
@@ -141,8 +139,7 @@ package game.activity.view.application.game
 			{				
 				if(shipsDescriptionContainer[i].x == val.ship.x && shipsDescriptionContainer[i].y == val.ship.y)
 				{
-					_userField.removeChild(_userField.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
-					shipsDescriptionContainer.splice(1, i);
+					_skin.removeChild(_skin.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
 					break;
 				}								
 			}	
@@ -151,19 +148,17 @@ package game.activity.view.application.game
 		}
 		
 		private function checkIfCellWasSelected(val:Object, container:Array):Boolean
-		{
-			var res:Boolean;
-			
+		{			
 			for (var i:int = 0; i < container.length; i++) 
 			{
 				if(container[i][0] == val.x && container[i][1] == val.y)
 				{
-					res = true;
+					return true;
 					break;
 				}
 			}
 			
-			return res;
+			return false;
 		}
 		
 		private function cleanBrokenCellsOnFeild(x:uint, y:uint, field:MovieClip):void
@@ -195,7 +190,7 @@ package game.activity.view.application.game
 			field.addChild(drownedShip);			
 			
 			drownedShip.x = cellSize*x;
-			drownedShip.y =  cellSize*y;
+			drownedShip.y = cellSize*y;
 			
 			drownedShip.gotoAndStop(deck);
 			
@@ -233,16 +228,15 @@ package game.activity.view.application.game
 				cellTable.name = "broken_" + x.toString() + "_" + y.toString();				
 			}			
 			
-			_opponentField.addChildAt(hitElement, 0);
-			_opponentField.addChildAt(cellTable,  0);
+			_skin.addChildAt(hitElement, _skin.numChildren - 1);
+			_skin.addChildAt(cellTable,  _skin.numChildren - 1);
 			
-			hitElement.x = cellTable.x = cellSize*x;
-			hitElement.y = cellTable.y = cellSize*y;
+			hitElement.x = cellTable.x = cellSize*x + _opponentField.x;
+			hitElement.y = cellTable.y = cellSize*y + _opponentField.y;
 			
 			if(result > 0)
 			{
 				brokenCellCounter++;
-				trace("brokenCellCounter: ", brokenCellCounter);
 				cellTable.gotoAndStop(brokenCellCounter);
 			}
 				
@@ -254,11 +248,10 @@ package game.activity.view.application.game
 			cellTable.scaleX  = cellTable.scaleY  = scale;			
 			hitElement.scaleX = hitElement.scaleY = scale;		
 			
-//			_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
-//			_opponentField.graphics.endFill();
-			
 			hitElement.gotoAndPlay(2);				
 			hitElement.addEventListener("finish_hit", removeHitAnimation);		
+			
+			lockGame();
 		}
 		
 		
@@ -292,11 +285,11 @@ package game.activity.view.application.game
 				cellTable.name = "broken_" + x.toString() + "_" + y.toString();		
 			}			
 			
-			_userField.addChildAt(hitElement, 0);
-			_userField.addChildAt(cellTable,  0);
+			_skin.addChildAt(hitElement, _skin.numChildren-1);
+			_skin.addChildAt(cellTable,  _skin.numChildren-1);
 			
-			hitElement.x = cellTable.x = cellSize*x;
-			hitElement.y = cellTable.y = cellSize*y;
+			hitElement.x = cellTable.x = cellSize*x + _userField.x;
+			hitElement.y = cellTable.y = cellSize*y + _userField.y;
 			
 			if(result > 0)
 				cellTable.gotoAndStop(22);
@@ -375,14 +368,19 @@ package game.activity.view.application.game
 			_ceilX = uint(_opponentField.mouseX/cellSize);
 			_ceilY = uint(_opponentField.mouseY/cellSize);
 			
-			var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
-			var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;
+			if( _opponentField.getChildByName("column"))
+			{
+				var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
+				column.alpha = 1;			
+				column.x	 = _ceilX*cellSize;		
+			}
 			
-			column.alpha = 1;			
-			line.alpha   = 1;
-			
-			column.x	= _ceilX*cellSize;		
-			line.y  	= (_ceilY + 1)*cellSize;
+			if( _opponentField.getChildByName("line"))
+			{
+				var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;
+				line.alpha  = 1;
+				line.y  	= (_ceilY + 1)*cellSize;
+			}
 			
 			_opponentField.addEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
 			_opponentField.addEventListener(MouseEvent.MOUSE_OUT,   handlerSelectCellOut);
@@ -408,7 +406,10 @@ package game.activity.view.application.game
 		
 		private function handlerSelectCellOut(e:MouseEvent):void
 		{
-			(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			if(_opponentField.getChildByName("column"))
+				(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			
+			if(_opponentField.getChildByName("line"))
 			(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
 			
 			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
@@ -441,11 +442,10 @@ package game.activity.view.application.game
 			
 		private function removeHitAnimation(e:Event):void
 		{
-			if(_opponentField.contains(e.currentTarget as MovieClip)) 
-				_opponentField.removeChild(e.currentTarget as MovieClip);
+			if(_skin.contains(e.currentTarget as MovieClip)) 
+				_skin.removeChild(e.currentTarget as MovieClip);
 			
-			if(_userField.contains(e.currentTarget as MovieClip)) 
-				_userField.removeChild(e.currentTarget as MovieClip);			
+			unlockGame();
 		}
 		
 		public function updateProgressLine(str:String, val:Object):void
