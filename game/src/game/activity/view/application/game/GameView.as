@@ -140,6 +140,7 @@ package game.activity.view.application.game
 				if(shipsDescriptionContainer[i].x == val.ship.x && shipsDescriptionContainer[i].y == val.ship.y)
 				{
 					_skin.removeChild(_skin.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
+					shipsDescriptionContainer[i].sunk = true;
 					break;
 				}								
 			}	
@@ -226,10 +227,12 @@ package game.activity.view.application.game
 				cellTable = new classInstance();				
 				classInstance = null;	
 				cellTable.name = "broken_" + x.toString() + "_" + y.toString();				
-			}			
-			
-			_skin.addChildAt(hitElement, _skin.numChildren - 1);
+			}	
+					
 			_skin.addChildAt(cellTable,  _skin.numChildren - 1);
+			_skin.addChildAt(hitElement, _skin.numChildren - 1);	
+			
+			setShotAnimation();
 			
 			hitElement.x = cellTable.x = cellSize*x + _opponentField.x;
 			hitElement.y = cellTable.y = cellSize*y + _opponentField.y;
@@ -247,9 +250,9 @@ package game.activity.view.application.game
 			
 			cellTable.scaleX  = cellTable.scaleY  = scale;			
 			hitElement.scaleX = hitElement.scaleY = scale;		
-			
-			hitElement.gotoAndPlay(2);				
-			hitElement.addEventListener("finish_hit", removeHitAnimation);		
+							
+			hitElement.addEventListener("finish_hit", removeAnimation);	
+			hitElement.gotoAndPlay(2);					
 			
 			lockGame();
 		}
@@ -284,9 +287,9 @@ package game.activity.view.application.game
 				classInstance = null;		
 				cellTable.name = "broken_" + x.toString() + "_" + y.toString();		
 			}			
-			
-			_skin.addChildAt(hitElement, _skin.numChildren-1);
+						
 			_skin.addChildAt(cellTable,  _skin.numChildren-1);
+			_skin.addChildAt(hitElement, _skin.numChildren-1);
 			
 			hitElement.x = cellTable.x = cellSize*x + _userField.x;
 			hitElement.y = cellTable.y = cellSize*y + _userField.y;
@@ -300,18 +303,81 @@ package game.activity.view.application.game
 			
 			cellTable.scaleX  = cellTable.scaleY  = scale;			
 			hitElement.scaleX = hitElement.scaleY = scale;	
-			
-			//			_opponentField.graphics.drawRect(rectX, rectY, _opponentField.width/10, _opponentField.height/10);
-			//			_opponentField.graphics.endFill();
-			
+						
 			hitElement.gotoAndPlay(2);				
-			hitElement.addEventListener("finish_hit", removeHitAnimation);		
+			hitElement.addEventListener("finish_hit", removeAnimation);		
 			
 			selectedOponentCell.push([x, y]);
 			
 			trace("x: ", x, "y: ", y);
 		}
 		
+		private function setShotAnimation():void
+		{		
+			var i:int, shipLink:MovieClip, highRange:int;
+						
+			var randomShipShot:int = Math.random()*shipsDescriptionContainer.length;
+			
+			while(shipsDescriptionContainer[randomShipShot].sunk)
+			{
+				randomShipShot = Math.random()*shipsDescriptionContainer.length;
+			}
+						
+			if(shipsDescriptionContainer[randomShipShot].deck == 4)
+			{
+				if(shipsDescriptionContainer[randomShipShot].dirrection == 0)
+					highRange = 1;
+				else
+					highRange = 3;
+				
+				for (i = 0; i < highRange; i++) 
+				{
+					shipLink = shipsDescriptionContainer[randomShipShot].shipLink;					
+					addShotAnimation(shipLink, i);
+				}				
+				
+			}else if(shipsDescriptionContainer[randomShipShot].deck == 3)
+			{
+				if(shipsDescriptionContainer[randomShipShot].dirrection == 0)
+					highRange = 1;
+				else
+					highRange = 2;
+				
+				for (i = 0; i < highRange; i++) 
+				{
+					shipLink = shipsDescriptionContainer[randomShipShot].shipLink;					
+					addShotAnimation(shipLink, i);
+				}				
+				
+			}else if(shipsDescriptionContainer[randomShipShot].deck == 2)
+			{				
+				shipLink = shipsDescriptionContainer[randomShipShot].shipLink;								
+				addShotAnimation(shipLink, 0);
+				
+			}else if(shipsDescriptionContainer[randomShipShot].deck == 1)
+			{
+				shipLink = shipsDescriptionContainer[randomShipShot].shipLink;				
+				addShotAnimation(shipLink, 0);
+			}			
+		}
+		
+		private function addShotAnimation(shipLink:MovieClip, pointIndex:int):void
+		{
+			var classInstance:Class = BaseMediator.getSourceClass("shotAni"), shotAni:MovieClip;			
+			
+			if(classInstance)
+			{
+				shotAni = new classInstance();				
+				classInstance = null;	
+			}	
+			
+			_skin.addChildAt(shotAni,  _skin.numChildren - 1);
+			shotAni.x = (shipLink.getChildByName("point_" + pointIndex) as MovieClip).x + shipLink.x;
+			shotAni.y = (shipLink.getChildByName("point_" + pointIndex) as MovieClip).y + shipLink.y;
+			
+			shotAni.addEventListener("finish_shot", removeAnimation);	
+			shotAni.gotoAndPlay(2);		
+		}
 		
 		private function createViewComponents():void
 		{
@@ -327,19 +393,7 @@ package game.activity.view.application.game
 				
 				cellSize = (_userField.getChildByName("field") as MovieClip).width/10; // calculate cell size
 				
-				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);								
-				
-				
-				/*_txt = new TextField();
-				_txt.background = true;
-				_txt.x = 820;
-				_txt.y = 20;
-				_txt.width = 100;
-				_txt.height = 50;
-				
-				this.addChild( _txt );*/
-				
-				
+				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);					
 			}
 			
 			classInstance = BaseMediator.getSourceClass("viewPopUp");
@@ -433,14 +487,14 @@ package game.activity.view.application.game
 				if(val[i].dirrection == 0) ship.gotoAndStop(1);		
 				else					   ship.gotoAndStop(2);			
 				
-				shipsDescriptionContainer.push({"shipName":ship.name, "x":val[i].x, "y":val[i].y});
+				shipsDescriptionContainer.push({"shipName":ship.name, "x":val[i].x, "y":val[i].y, "sunk":false, "deck":val[i].deck, "shipLink":ship, "dirrection":val[i].dirrection });
 				
 //				trace("x:", val[i].x, "y:", val[i].y, "direction: ", val[i].dirrection,  "deck: ", val[i].deck);
 			}			
 		}
 		
 			
-		private function removeHitAnimation(e:Event):void
+		private function removeAnimation(e:Event):void
 		{
 			if(_skin.contains(e.currentTarget as MovieClip)) 
 				_skin.removeChild(e.currentTarget as MovieClip);
