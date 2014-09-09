@@ -21,5 +21,6 @@ package game.application
 		public static const REQUIRED_USER_SHIPS_POSITIONS:	String = "event.game.required_ships_positions";
 		
 		public static const BUTTLE_PROXY_INIT_COMPLETE:		String = "event.buttle.init.complete";
+		public static const BUTTLE_PROXY_GAME_READY_TO_START:String = "event.battle.ready.to.start";
 	}
 }

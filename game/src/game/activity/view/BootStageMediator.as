@@ -90,7 +90,7 @@ package game.activity.view
 		
 		private function createLogView():void
 		{
-			this.facade.registerMediator( new LogMediator( _appScreen.getLogLayer() ) );
+			//this.facade.registerMediator( new LogMediator( _appScreen.getLogLayer() ) );
 		}
 	}
 }

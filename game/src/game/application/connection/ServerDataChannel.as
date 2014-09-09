@@ -223,6 +223,7 @@ package game.application.connection
 			action.games_won = data.games_won;
 			action.rank = data.rank;
 			action.ships_destroyed = data.ships_destroyed;
+			action.name = data.name;
 			
 			_queue.push( action );
 		}

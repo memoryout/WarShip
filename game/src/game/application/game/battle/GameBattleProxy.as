@@ -44,7 +44,6 @@ package game.application.game.battle
 		
 		public function init(fieldWidth:uint, fieldHeight:uint):void
 		{
-			
 			_userField = new BattleField();
 			_userField.init(fieldWidth, fieldHeight);
 			
@@ -62,7 +61,14 @@ package game.application.game.battle
 		
 		public function updateOpponentData(data:OpponentInfoData):void
 		{
-			if(!_opponent) _opponent = new GamePlayerData();
+			if(!_opponent) 
+			{
+				_opponent = new GamePlayerData();
+				_opponent.name = data.name;
+				
+				checkIsGameCanStart();
+			}
+				
 			
 			if( _opponent.exp != data.exp )
 			{
@@ -220,6 +226,15 @@ package game.application.game.battle
 			_opponentField = null;
 			_user = null;
 			_opponent = null;
+		}
+		
+		
+		private function checkIsGameCanStart():void
+		{
+			if(_user && _opponent && _userShips.length > 0 && _currentStatus == uint.MAX_VALUE)
+			{
+				this.sendNotification( ApplicationEvents.BUTTLE_PROXY_GAME_READY_TO_START );
+			}
 		}
 		
 	}

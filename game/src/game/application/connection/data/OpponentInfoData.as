@@ -10,6 +10,7 @@ package game.application.connection.data
 		public var games_won:		Number;
 		public var rank:			int;
 		public var ships_destroyed:	uint;
+		public var name:			String;
 		
 		public function OpponentInfoData()
 		{
