@@ -6,6 +6,8 @@ package game.application
 		public static const START_UP_SOURCE_LOAD_COMPLETE:	String = "event.start_up.source.load.complete";
 		public static const START_UP_SOURCE_LOAD_ERROR:		String = "event.start_up.source.load.error";
 		
+		public static const GAME_CONTEXT_CREATE_COMPLETE:	String = "event.game.context.create.complete";
+		
 		public static const REQUIRED_USER_AUTHORIZATION:	String = "event.start_up.required.user_authorization";
 		public static const REQUIRED_SELECT_ACTIVE_USER:	String = "event.start_up.required.user_select";
 	

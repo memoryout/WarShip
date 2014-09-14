@@ -4,6 +4,7 @@ package game.application.game.p_vs_p_net
 	import flash.events.TimerEvent;
 	import flash.utils.Timer;
 	
+	import game.GameType;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
@@ -56,6 +57,8 @@ package game.application.game.p_vs_p_net
 			super.generateShipList( shipsDeckList );
 			
 			_dataChannel = this.facade.retrieveProxy(ProxyList.CLIENT_DATA_CHANNEL) as IServerDataChannel;
+			
+			this.sendNotification(ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE, GameType.P_VS_P_NET);
 			
 			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			

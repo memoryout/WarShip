@@ -3,6 +3,7 @@ package game.activity.view
 	import flash.display.Stage;
 	
 	import game.activity.view.application.ApplicationMediator;
+	import game.activity.view.application.LayoutManager;
 	import game.activity.view.log.LogMediator;
 	import game.activity.view.preloader.PreloaderMediator;
 	import game.application.ApplicationCommands;
@@ -28,7 +29,12 @@ package game.activity.view
 		{
 			buildView();
 			
-			this.facade.registerMediator( new ApplicationMediator( _appScreen.getAppViewLayer() ) );
+			var layoutManager = new LayoutManager();
+			_appScreen.getAppViewLayer().addChild( layoutManager );
+			
+			layoutManager.createActivitiLayout( ApplicationMediator );
+			
+			//this.facade.registerMediator( new ApplicationMediator(ApplicationMediator.NAME, _appScreen.getAppViewLayer() ) );
 			
 			
 			createLogView();
@@ -84,7 +90,7 @@ package game.activity.view
 		
 		private function startUpComplete():void
 		{
-			//this.facade.registerMediator( new ApplicationMediator( _appScreen.getAppViewLayer() ) );
+			
 		}
 		
 		

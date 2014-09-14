@@ -1,19 +1,24 @@
 package game.activity.view.application
 {
 	import flash.display.DisplayObjectContainer;
+	import flash.events.Event;
 	
 	import game.GameType;
 	import game.activity.BaseMediator;
+	import game.activity.view.application.context.pvc.PvCContextMediator;
+	import game.activity.view.application.context.pvpnet.PvPNetGameContextMediator;
 	import game.activity.view.application.game.GameViewMediator;
+	import game.activity.view.application.lobby.GameLobby;
 	import game.activity.view.application.menu.MenuMediator;
 	import game.activity.view.application.windows.WindowsMediator;
+	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
 	import game.application.interfaces.IMainApplicationProxy;
 	
 	import org.puremvc.as3.interfaces.INotification;
 	
-	public class ApplicationMediator extends BaseMediator
+	public class ApplicationMediator extends ActivityLayoutMediator
 	{
 		public static const NAME:				String = "mediator.application";
 		
@@ -21,7 +26,10 @@ package game.activity.view.application
 		
 		private var _appProxy:				IMainApplicationProxy;
 		
-		public function ApplicationMediator(viewComponent:Object)
+		
+		private var _gameLobby:				GameLobby;
+		
+		public function ApplicationMediator(name:String, viewComponent:Object)
 		{
 			super(NAME, viewComponent);
 		}
@@ -32,7 +40,7 @@ package game.activity.view.application
 			_appView = new ApplicationView();
 			(viewComponent as DisplayObjectContainer).addChild( _appView );
 			
-			_appProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
+			//_appProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;
 			
 			createWindowsMediator();
 		}
@@ -42,7 +50,8 @@ package game.activity.view.application
 		{
 			return [
 						ApplicationEvents.START_UP_COMPLETE,
-						ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE
+						ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
+						ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE
 					];
 		}
 		
@@ -54,13 +63,20 @@ package game.activity.view.application
 			{
 				case ApplicationEvents.START_UP_COMPLETE:
 				{
-					createMenuMediator();
+					createGameLobby();
+					//createMenuMediator();
 					break;
 				}
 					
 				case ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE:
 				{
 					createGameMediator();
+					break;
+				}
+					
+				case ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE:
+				{
+					createGameContextActivity( notification.getBody() as uint );
 					break;
 				}
 			}
@@ -81,6 +97,70 @@ package game.activity.view.application
 		private function createGameMediator():void
 		{
 			this.facade.registerMediator( new GameViewMediator( _appView.getGameLayer() ) );
+		}
+		
+		
+		private function createGameLobby():void
+		{
+			_gameLobby = new GameLobby();
+			(viewComponent as DisplayObjectContainer).addChild( _gameLobby );
+			_gameLobby.addEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
+			_gameLobby.addEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			
+		}
+		
+		
+		private function handlerCreateUserVsComputerContext(e:Event):void
+		{
+			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
+			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			
+			this.sendNotification(ApplicationCommands.CREATE_NEW_GAME, GameType.P_VS_C);
+		}
+		
+		private function handlerCreateUserVsUserNetContext(e:Event):void
+		{
+			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
+			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			
+			this.sendNotification(ApplicationCommands.CREATE_NEW_GAME, GameType.P_VS_P_NET);
+		}
+		
+		
+		
+		private function createGameContextActivity(type:uint):void
+		{
+			switch(type)
+			{
+				case GameType.P_VS_P_NET:
+				{
+					createActivity( PvPNetGameContextMediator, PvPNetGameContextMediator.NAME );
+					break;
+				}
+				
+				case GameType.P_VS_C:
+				{
+					createActivity( PvCContextMediator, PvCContextMediator.NAME );
+					break;
+				}
+			}
+		}
+		
+		
+		
+		override public function onPause():void
+		{
+			var canvas:DisplayObjectContainer = this.viewComponent as DisplayObjectContainer;
+			if(canvas.contains(_gameLobby)) canvas.removeChild( _gameLobby );
+			
+			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
+			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			_gameLobby = null;
+		}
+		
+		override public function onStop():void
+		{
+			
 		}
 	}
 }
