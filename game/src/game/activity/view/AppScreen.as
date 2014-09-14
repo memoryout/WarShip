@@ -63,9 +63,9 @@ package game.activity.view
 			_canvas = new Sprite();
 			super.addChild( _canvas );
 			
-			rescaleCanvas();
-			
 			initViewLayers();
+			
+			rescaleCanvas();			
 		}
 		
 		
@@ -80,7 +80,7 @@ package game.activity.view
 		
 		private function rescaleCanvas():void
 		{
-			var screeWidth:Number = Math.max(this.stage.fullScreenWidth, this.stage.fullScreenHeight);
+			/*var screeWidth:Number = Math.max(this.stage.fullScreenWidth, this.stage.fullScreenHeight);
 			var screenHeight:Number = Math.min(this.stage.fullScreenWidth, this.stage.fullScreenHeight);
 			
 			var scaleKoef:Number = screeWidth / ViewGlobalVariables.SOURCE_WIDTH;
@@ -91,7 +91,7 @@ package game.activity.view
 			
 			if(newSize > screenHeight) scaleKoef = screenHeight / ViewGlobalVariables.SOURCE_HEIGHT;
 			
-			_canvas.scaleX = _canvas.scaleY = scaleKoef;
+			_canvas.scaleX = _canvas.scaleY = scaleKoef;*/
 			
 //			_canvas.x = (screeWidth - ViewGlobalVariables.SOURCE_WIDTH * scaleKoef) >> 1;
 //			_canvas.y = (screenHeight - ViewGlobalVariables.SOURCE_HEIGHT * scaleKoef) >> 1;
@@ -124,14 +124,14 @@ package game.activity.view
 			
 			_canvas.scaleX = _canvas.scaleY = appScale;
 			
-			// scale the entire interface 
-//			base.scale = appScale; 
+//			 scale the entire interface 
+//			_canvas.scale = appScale; 
 			// map stays at the top left and fills the whole screen 
-//			base.map.x = 0; 
+//			_canvas.x = 0; 
 			// menus are centered horizontally 
-//			base.menus.x = appLeftOffset; 
+			_canvas.x = appLeftOffset; 
 			// crop some menus which are designed to run off the sides of the screen 
-//			base.scrollRect = appSize;
+//			_canvas.scrollRect = appSize;
 		}
 	}
 }

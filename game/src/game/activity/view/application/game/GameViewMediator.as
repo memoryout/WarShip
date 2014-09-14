@@ -41,6 +41,7 @@ package game.activity.view.application.game
 			
 			executeBattleProxyAction();
 			setSipLocation();
+			setName();
 		}
 		
 		private function handlerSelectCeil(e:Event):void
@@ -54,6 +55,11 @@ package game.activity.view.application.game
 		{
 			var mainApp:IMainApplicationProxy = this.facade.retrieveProxy(ProxyList.MAIN_APPLICATION_PROXY) as IMainApplicationProxy;		
 			_gameView.setShipsLocation( mainApp.getCurrentGame().getShipsList() );
+		}
+		
+		private function setName():void
+		{
+			_gameView.setUsersData(_gameBattleProxy.getUserPlayerInfo());
 		}
 		
 		private function executeBattleProxyAction():void

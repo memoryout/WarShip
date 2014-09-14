@@ -493,6 +493,11 @@ package game.activity.view.application.game
 			}			
 		}
 		
+		public function setUsersData(val:Object):void
+		{
+			trace(val);
+		}
+		
 			
 		private function removeAnimation(e:Event):void
 		{

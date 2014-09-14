@@ -256,9 +256,9 @@ package game.application.game.p_vs_computer
 			action = new DestroyShipData(ChannelDataType.USER_DESTROY_OPPONENT_SHIP);
 			opponentHitInfo = new DestroyShipData(ChannelDataType.OPPONENT_DESTROY_USER_SHIP);
 			
-			opponentHitInfo.decks = action.decks = msg.deck
-			action.status = action.status = 3;
-			
+			opponentHitInfo.decks  = action.decks = msg.deck
+			opponentHitInfo.status = action.status = 2;
+						
 			opponentHitInfo.startX = action.startX = msg.startX
 			opponentHitInfo.startY = action.startY = msg.startY;
 			

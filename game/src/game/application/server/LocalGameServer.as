@@ -105,7 +105,10 @@ package game.application.server
 				{
 					playerHitShip(x, y);
 					
-					if( shipData.isSank() ) playerDestroyShip(shipData);
+					if( shipData.isSank() ) 
+					{
+						playerDestroyShip(shipData);
+					}
 					
 					setActivePlayer(_currentPlayerIndex);
 				}
