@@ -411,8 +411,11 @@ package game.activity.view.application.game
 			
 			selectedUserCell.push([_ceilX, _ceilY]);
 			
-			(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
-			(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
+			if(_opponentField.getChildByName("column"))
+				(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			
+			if(_opponentField.getChildByName("line"))
+				(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
 			
 			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
 		}
@@ -447,14 +450,19 @@ package game.activity.view.application.game
 			
 			if(_ceilX <= 9 && _ceilY <= 9)
 			{
-				var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
-				var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;
+				if(_opponentField.getChildByName("column"))
+				{
+					var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
+					column.alpha = 1;		
+					column.x	= _ceilX*cellSize;		
+				}
 				
-				column.alpha = 1;			
-				line.alpha   = 1;
-				
-				column.x	= _ceilX*cellSize;		
-				line.y  	= (_ceilY + 1)*cellSize;
+				if(_opponentField.getChildByName("line"))
+				{
+					var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;				
+					line.alpha   = 1;
+					line.y  	= (_ceilY + 1)*cellSize;
+				}			
 			}		
 		}	
 		

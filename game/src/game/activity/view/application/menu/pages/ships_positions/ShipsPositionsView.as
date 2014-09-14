@@ -352,6 +352,9 @@ package game.activity.view.application.menu.pages.ships_positions
 					{
 						_ships[i].x = activeShip.x;
 						_ships[i].y = activeShip.y;
+						
+						trace("x: ", _ships[i].x, "y: ", _ships[i].y);
+						
 						break;
 					}					
 				}

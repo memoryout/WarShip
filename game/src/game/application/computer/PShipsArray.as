@@ -8,7 +8,7 @@ package game.application.computer
 		private var Ships:								Vector.<Ship>;		
 		private var shipPosition:						Vector.<Array>;
 		
-		static private const MAXIMUM_CELL_VALUES:		int = 9;
+		static private const MAXIMUM_CELL_VALUES:		int = 10;
 		static private const FIELD_LENGHT:				int = 10;
 		
 		static private const EMPTY_CELL_INDEX:			int = 0;
@@ -48,10 +48,10 @@ package game.application.computer
 		/**
 		 *  Returning vector of Ships.
 		 */	
-		public function getShipsPosition():Vector.<Vector.<Ship>>
+		public function getShipsPosition(edges:Boolean = false):Vector.<Vector.<Ship>>
 		{		
 			initVariables();
-			fillBattleField();
+			fillBattleField(edges);
 			
 			var res:Vector.<Vector.<Ship>> = new Vector.<Vector.<Ship>>;
 			res.push(Ships);				
@@ -89,19 +89,52 @@ package game.application.computer
 		/**
 		 * Filling ships with the necessary parameters of the battlefield. 
 		 */		
-		private function fillBattleField():void
+		private function fillBattleField(edges:Boolean = false):void
 		{			
-			fillBattlefieldTargetElements(FOUR_DECK_SHIP_NUMBER,	FOUR_DECK_INDEX);
-			fillBattlefieldTargetElements(THREE_DECK_SHIP_NUMBER, 	THREE_DECK_INDEX);
-			fillBattlefieldTargetElements(TWO_DECK_SHIP_NUMBER,		TWO_DECK_INDEX);
-			fillBattlefieldTargetElements(ONE_DECK_SHIP_NUMBER,		ONE_DECK_INDEX);		
+			if(edges)
+			{
+				fillBattlefieldTargetElementsEdge();
+				fillBattlefieldTargetElements(ONE_DECK_SHIP_NUMBER,		ONE_DECK_INDEX,   edges);	
+				
+			}else
+			{
+				fillBattlefieldTargetElements(FOUR_DECK_SHIP_NUMBER,	FOUR_DECK_INDEX,  edges);
+				fillBattlefieldTargetElements(THREE_DECK_SHIP_NUMBER, 	THREE_DECK_INDEX, edges);
+				fillBattlefieldTargetElements(TWO_DECK_SHIP_NUMBER,		TWO_DECK_INDEX,	  edges);
+				fillBattlefieldTargetElements(ONE_DECK_SHIP_NUMBER,		ONE_DECK_INDEX,   edges);	
+			}
+				
+				
+		}
+		
+		private function fillBattlefieldTargetElementsEdge():void
+		{
+			var column:	int, line:int, direction:int, deck:int;
+			var strategy:Array = StrategyLocationShips.Get().strategyArray[createRandomNumber(3)];		
+//			var strategy:Array = StrategyLocationShips.Get().strategyArray[0];	
+//			
+			for (var i:int = 0; i < strategy.length; i++) 
+			{
+				shipPosition	= new Vector.<Array>;
+				
+				column 		= strategy[i].column;
+				line   		= strategy[i].line;
+				direction   = strategy[i].dirrection;
+				deck		= strategy[i].deck;
+				
+				if(	checkBattleFieldForFreeSpace( column, line, direction, deck) )
+				{
+					putShipInBattleField(column, line, direction, deck);
+					saveDataAboutShipLocation(direction, deck);		
+				}
+			}	
 		}
 		
 		/**
 		 * 	Get the value of a column, line, and direction calling createRandomNumber. 
 		 *  Check the received parameters. If received parameters were approached, call putShipInBattleField, saveDataAboutShipLocation;
 		 */		
-		private function fillBattlefieldTargetElements(_shipNumber:int, _deckNumber:int):void
+		private function fillBattlefieldTargetElements(_shipNumber:int, _deckNumber:int, edges:Boolean = false):void
 		{
 			var column:	int, line:int, direction:int;
 			
@@ -112,14 +145,14 @@ package game.application.computer
 				column 		= createRandomNumber(FIELD_LENGHT);
 				line   		= createRandomNumber(FIELD_LENGHT);
 				direction   = createRandomNumber(2);
-				
+					
 				if(	checkBattleFieldForFreeSpace( column, line, direction, _deckNumber) )
 				{
 					putShipInBattleField(column, line, direction, _deckNumber);
 					saveDataAboutShipLocation(direction, _deckNumber);							
 					_shipNumber--;
 				}
-			}
+			}		
 		}
 		
 		/**		
@@ -233,8 +266,12 @@ package game.application.computer
 				for (j = lineRanges[0]; j < lineRanges[1] + 1; j++) 
 				{
 					for (i = columnRanges[0]; i < columnRanges[1] + 1; i++) 
-					{
-						if(battleField[i][j] == EMPTY_CELL_INDEX)	battleField[i][j] = WATER_CELL_INDEX;										
+					{						
+						if(i < MAXIMUM_CELL_VALUES && j < MAXIMUM_CELL_VALUES)
+						{							
+							if(battleField[i][j] == EMPTY_CELL_INDEX)	
+								battleField[i][j] = WATER_CELL_INDEX;			
+						}
 					}
 				}				
 				
@@ -271,7 +308,11 @@ package game.application.computer
 				{
 					for (i = lineRanges[0]; i < lineRanges[1] + 1; i++) 
 					{
-						if(battleField[j][i] == EMPTY_CELL_INDEX)	battleField[j][i] = WATER_CELL_INDEX;
+						if(i < MAXIMUM_CELL_VALUES && j < MAXIMUM_CELL_VALUES)
+						{							
+							if(battleField[j][i] == EMPTY_CELL_INDEX)	
+								battleField[j][i] = WATER_CELL_INDEX;
+						}							
 					}
 				}				
 			}			

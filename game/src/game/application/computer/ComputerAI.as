@@ -19,6 +19,10 @@ package game.application.computer
 
 	public class ComputerAI extends BaseProxy
 	{
+		public static const LOW:			int = 0;
+		public static const MIDDLE:			int = 1;
+		public static const HIGH:			int = 2;
+		
 		public static const PLAYER_ID:		String = "computer_id";
 		
 		private var _dataChannel:			IServerDataChannel;
@@ -32,6 +36,8 @@ package game.application.computer
 		
 		private var _userData:				Data;	
 		private var _playLogic:				PlayLogic;
+		
+		private var gameLevel:				int;
 		
 		public function ComputerAI()
 		{
@@ -64,7 +70,7 @@ package game.application.computer
 		
 		private function generateShipsPosition():void
 		{			
-			_userData.userShips 	  = PShipsArray.Get().getShipsPosition();
+			_userData.userShips 	  = PShipsArray.Get().getShipsPosition(true);
 			_userData.userBattleField = PShipsArray.Get().getBattleField();
 			
 			shipsPositions = new Array();

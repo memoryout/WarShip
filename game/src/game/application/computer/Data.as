@@ -2,14 +2,14 @@ package game.application.computer
 {
 	public class Data
 	{		
-		public static const OPPONENT_PLAYER:				uint = 0;
-		public static const OPPONENT_COMPUTER:				uint = 1;
+		public static const OPPONENT_PLAYER:	uint = 0;
+		public static const OPPONENT_COMPUTER:	uint = 1;
 				
-		static private const FIELD_LENGHT:				int = 10;
+		static private const FIELD_LENGHT:		int = 10;
 		
-		public var key:String;
-		public var name:String;
-		public var login:String;
+		public var key:					String;
+		public var name:				String;
+		public var login:				String;
 			
 		public var userShips:			Vector.<Vector.<Ship>> = new Vector.<Vector.<Ship>>;
 		public var enemyShips:			Vector.<Vector.<Ship>> = new Vector.<Vector.<Ship>>;
@@ -19,9 +19,9 @@ package game.application.computer
 		
 		public var selectedElements:	Vector.<Array> = new Vector.<Array>;
 		
-		private var _id:			uint;    // current game id
+		private var _id:				uint;    // current game id
 		
-		public var _status:			uint;	 // current game status		
+		public var _status:				uint;	 // current game status		
 		
 		public var hitedPlayerShipPosition:			Array = new Array();
 		public var pushedIndexesForFindLastCell:	Array = new Array();
