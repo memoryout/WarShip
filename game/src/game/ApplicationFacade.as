@@ -2,12 +2,14 @@ package game
 {
 	import flash.display.Stage;
 	
+	import game.application.ApplicationCommands;
+	import game.application.ApplicationEvents;
 	import game.application.commands.ApplicationCloseCommand;
 	import game.application.commands.BootCommand;
+	import game.application.commands.CommandPressBack;
 	
 	import org.puremvc.as3.patterns.facade.Facade;
 	import org.puremvc.as3.patterns.observer.Notification;
-	import game.application.ApplicationCommands;
 	
 	public class ApplicationFacade extends Facade
 	{	
@@ -26,6 +28,9 @@ package game
 		override protected function initializeController():void
 		{
 			super.initializeController();
+			
+			this.registerCommand(ApplicationCommands.USER_PRESS_BACK, CommandPressBack); 
+			
 			this.registerCommand("boot", BootCommand); 
 			this.registerCommand(ApplicationCommands.APPLICATION_CLOSE, ApplicationCloseCommand); 
 		}
@@ -41,6 +46,13 @@ package game
 		public function applicationClosed():void
 		{
 			this.notifyObservers( new Notification(ApplicationCommands.APPLICATION_CLOSE) );
+		}
+		
+		
+		public function userPressBack():void
+		{
+			
+			this.notifyObservers( new Notification(ApplicationCommands.USER_PRESS_BACK) );
 		}
 	}
 }

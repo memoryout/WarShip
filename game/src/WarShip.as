@@ -58,7 +58,7 @@ package
 				case Keyboard.BACK:
 				{
 					e.preventDefault();
-					trace("Keyboard.BACK")
+					ApplicationFacade.getInstance().userPressBack();
 					break;
 				}
 					

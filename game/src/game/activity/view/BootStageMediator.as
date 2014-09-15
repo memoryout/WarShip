@@ -29,7 +29,7 @@ package game.activity.view
 		{
 			buildView();
 			
-			var layoutManager = new LayoutManager();
+			var layoutManager:LayoutManager = new LayoutManager();
 			_appScreen.getAppViewLayer().addChild( layoutManager );
 			
 			layoutManager.createActivitiLayout( ApplicationMediator );

@@ -24,5 +24,8 @@ package game.application
 		
 		public static const BUTTLE_PROXY_INIT_COMPLETE:		String = "event.buttle.init.complete";
 		public static const BUTTLE_PROXY_GAME_READY_TO_START:String = "event.battle.ready.to.start";
+		
+		
+		public static const USER_PRESS_BACK:				String = "event.user.press.back";
 	}
 }

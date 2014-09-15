@@ -14,5 +14,7 @@ package game.application
 		public static const USER_HIT_POINT:				String = "cmd.app.game.hit_point";
 		
 		public static const FINISH_CURRENT_GAME:		String = "cmd.game.finish";
+		
+		public static const USER_PRESS_BACK:			String = "cmd.user.press.back";
 	}
 }

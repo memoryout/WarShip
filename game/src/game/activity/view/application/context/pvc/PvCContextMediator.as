@@ -30,7 +30,8 @@ package game.activity.view.application.context.pvc
 		{
 			return [
 				ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
-				ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS
+				ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS,
+				ApplicationEvents.USER_PRESS_BACK
 			];
 		}
 		
@@ -49,6 +50,12 @@ package game.activity.view.application.context.pvc
 				case ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS:
 				{
 					createUserShipPositionFragment();
+					break;
+				}
+					
+				case ApplicationEvents.USER_PRESS_BACK:
+				{
+					trace("ApplicationEvents.USER_PRESS_BACK");
 					break;
 				}
 			}
