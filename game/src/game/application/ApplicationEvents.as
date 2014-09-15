@@ -21,11 +21,14 @@ package game.application
 		public static const USER_DATA_USER_DELETED:			String = "event.user_data_proxy.user.deleted";
 		
 		public static const REQUIRED_USER_SHIPS_POSITIONS:	String = "event.game.required_ships_positions";
+		public static const REQUIRED_CHOOSE_DIFFICULT_LEVEL:String = "event.game.required_choose_difficult_level";
 		
 		public static const BUTTLE_PROXY_INIT_COMPLETE:		String = "event.buttle.init.complete";
 		public static const BUTTLE_PROXY_GAME_READY_TO_START:String = "event.battle.ready.to.start";
 		
 		
-		public static const USER_PRESS_BACK:				String = "event.user.press.back";
+		public static const USER_PRESS_BACK:				String = "event.user.press.back_button";
+		
+		
 	}
 }

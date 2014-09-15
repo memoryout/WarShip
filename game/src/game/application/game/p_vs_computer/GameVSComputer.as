@@ -7,6 +7,7 @@ package game.application.game.p_vs_computer
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
+	import game.application.commands.game.SetDifficulLevelCommand;
 	import game.application.commands.game.UserInGameActionCommand;
 	import game.application.computer.ComputerAI;
 	import game.application.connection.ChannelData;
@@ -67,9 +68,16 @@ package game.application.game.p_vs_computer
 			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
 			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_COMPLETE, actionsQueueFinish);
 			
-			this.sendNotification(ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE, GameType.P_VS_P_NET);
+			this.sendNotification(ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE, GameType.P_VS_C);
 			
-			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
+			this.facade.registerCommand( ApplicationCommands.USER_CHOOSE_DIFFICULT_LEVEL, SetDifficulLevelCommand);
+			
+			// !!!!! ALARM --- ALARM ---- ALARM --- ALARM -- Do not cross the line ----- !!!!!!
+			this.sendNotification(ApplicationEvents.REQUIRED_CHOOSE_DIFFICULT_LEVEL);		// это сообщение принимает game.activity.view.application.context.pvc.PvCContextMediator и создаёт попап.
+			
+			
+			
+			//this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
 			
 			this.facade.registerCommand(ApplicationCommands.USER_HIT_POINT, UserInGameActionCommand);
 			
@@ -80,6 +88,17 @@ package game.application.game.p_vs_computer
 			
 			_serverConnectionSupport.registerUser( _userId );
 		}
+		
+		
+		public function setDifficultLevel(level:uint):void
+		{
+			this.facade.removeCommand( ApplicationCommands.USER_CHOOSE_DIFFICULT_LEVEL );
+			
+			_serverConnectionSupport.setDifficultLevel( level - 1 ); 		// level - 1 , потому что вьюха присылает левелы от 1 до 3.
+			
+			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
+		}
+		
 		
 		override public function userLocatedShips():void
 		{

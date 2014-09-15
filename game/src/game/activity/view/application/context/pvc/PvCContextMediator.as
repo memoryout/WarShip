@@ -3,6 +3,7 @@ package game.activity.view.application.context.pvc
 	import flash.display.DisplayObjectContainer;
 	
 	import game.activity.view.application.ActivityLayoutMediator;
+	import game.activity.view.application.context.pvc.level.ChooseLevelMediator;
 	import game.activity.view.application.game.GameViewMediator;
 	import game.activity.view.application.menu.pages.ships_positions.ShipsPositionsMediator;
 	import game.application.ApplicationEvents;
@@ -31,7 +32,8 @@ package game.activity.view.application.context.pvc
 			return [
 				ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
 				ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS,
-				ApplicationEvents.USER_PRESS_BACK
+				ApplicationEvents.USER_PRESS_BACK,
+				ApplicationEvents.REQUIRED_CHOOSE_DIFFICULT_LEVEL
 			];
 		}
 		
@@ -58,6 +60,12 @@ package game.activity.view.application.context.pvc
 					trace("ApplicationEvents.USER_PRESS_BACK");
 					break;
 				}
+					
+				case ApplicationEvents.REQUIRED_CHOOSE_DIFFICULT_LEVEL:
+				{
+					createChooseLevelFragment();
+					break;
+				}
 			}
 		}
 		
@@ -71,6 +79,11 @@ package game.activity.view.application.context.pvc
 		private function createGameInstance():void
 		{
 			this.facade.registerMediator( new GameViewMediator( _layout) );
+		}
+		
+		private function createChooseLevelFragment():void
+		{
+			this.facade.registerMediator( new ChooseLevelMediator( _layout) );
 		}
 	}
 }

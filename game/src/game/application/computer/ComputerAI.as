@@ -68,6 +68,12 @@ package game.application.computer
 		}
 		
 		
+		public function setDifficultLevel(level:uint):void
+		{
+			
+		}
+		
+		
 		private function generateShipsPosition():void
 		{			
 			_userData.userShips 	  = PShipsArray.Get().getShipsPosition(true);

@@ -67,6 +67,11 @@ package game.application.game.p_vs_computer
 			
 			_computerAI.init();
 		}
+		
+		public function setDifficultLevel(level:int):void
+		{
+			_computerAI.setDifficultLevel(level);
+		}
 				
 		
 		public function registerUser(userId:String):void

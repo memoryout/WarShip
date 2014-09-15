@@ -11,6 +11,8 @@ package game.application
 		
 		public static const USER_SHIPS_LOCATED_COMPLETE:String = "cmd.app.game.ships.located.complete";
 		
+		public static const USER_CHOOSE_DIFFICULT_LEVEL:String = "cmd.user.game.choose.difficult"
+		
 		public static const USER_HIT_POINT:				String = "cmd.app.game.hit_point";
 		
 		public static const FINISH_CURRENT_GAME:		String = "cmd.game.finish";
