@@ -61,8 +61,6 @@ package game.application.computer
 				_playLogic.saveGameData(_userData);
 			}
 			
-			generateShipsPosition();
-			
 			_hitX = -1;
 			_hitY = 0;
 		}
@@ -70,13 +68,24 @@ package game.application.computer
 		
 		public function setDifficultLevel(level:uint):void
 		{
+			gameLevel = level;
 			
-		}
+			if(level == LOW)
+			{
+				
+			}else if(level == MIDDLE)
+			{
+				generateShipsPosition(false);
+				
+			}else if(level == HIGH)
+			{
+				generateShipsPosition(true);
+			}
+		}		
 		
-		
-		private function generateShipsPosition():void
+		private function generateShipsPosition(setEdgeShipLocation:Boolean):void
 		{			
-			_userData.userShips 	  = PShipsArray.Get().getShipsPosition(true);
+			_userData.userShips 	  = PShipsArray.Get().getShipsPosition(setEdgeShipLocation);
 			_userData.userBattleField = PShipsArray.Get().getBattleField();
 			
 			shipsPositions = new Array();
@@ -86,8 +95,7 @@ package game.application.computer
 				var shipCoordinates:Vector.<Array> = _userData.userShips[0][i].coordinates;
 				shipsPositions.push([shipCoordinates[0], shipCoordinates[shipCoordinates.length-1]]);
 			}
-			
-			
+						
 			_serverConnection.sendUserShipLocation( shipsPositions, PLAYER_ID);
 		}
 		

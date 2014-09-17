@@ -91,12 +91,12 @@ package game.application.game.p_vs_computer
 		
 		
 		public function setDifficultLevel(level:uint):void
-		{
+		{		
 			this.facade.removeCommand( ApplicationCommands.USER_CHOOSE_DIFFICULT_LEVEL );
 			
-			_serverConnectionSupport.setDifficultLevel( level - 1 ); 		// level - 1 , потому что вьюха присылает левелы от 1 до 3.
+			_serverConnectionSupport.setDifficultLevel( level - 1 ); 		// level - 1 , потому что вьюха присылает левелы от 1 до 3.			
 			
-			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);
+			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);			
 		}
 		
 		
