@@ -396,11 +396,16 @@ package game.application.computer
 		
 		private function elementToSelect():Array
 		{			
-			var res:Array 			= new Array(), wasRemove:Boolean;		
-			var strategyArray:Array = getStrategyArray();			
-			var randomNumber:int    = randomElementsFromArrayWithStrategy(strategyArray);
-						
-			res = strategyArray[randomNumber];
+			var res:Array 			= new Array(), 			wasRemove:Boolean,	
+			 	strategyArray:Array = getStrategyArray(),			
+				randomNumber:int    = randomElement(strategyArray.length);
+			
+			if(_userData.levelOfGame == 0)
+			{
+				res = [randomElement(_userData.enemyBattleField[0].length), randomElement(_userData.enemyBattleField[0].length)];
+				
+			}else
+				res = strategyArray[randomNumber];
 			
 			if(res && res.length > 0 && _userData.enemyBattleField[res[1]][res[0]] == 1)
 			{
@@ -412,7 +417,7 @@ package game.application.computer
 					}
 					
 					strategyArray = getStrategyArray();				
-					randomNumber  = randomElementsFromArrayWithStrategy(strategyArray);
+					randomNumber  = randomElement(strategyArray.length);
 					
 					res = strategyArray[randomNumber];
 					
@@ -434,9 +439,9 @@ package game.application.computer
 			return [res[1], res[0]];
 		}
 		
-		private function randomElementsFromArrayWithStrategy(arr:Array):int
+		private function randomElement(val:int):int
 		{
-			return  Math.random()*arr.length;
+			return  Math.random()*val;
 		}
 		
 		private function getStrategyArray():Array

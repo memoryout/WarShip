@@ -40,6 +40,7 @@ package game.application.computer
 		public var infoAboutShipsDecksCom:	Array = [4,  3, 3,  2, 2, 2, 1, 1, 1, 1];
 		
 		public var _hitData:Object = new Object();
+		public var levelOfGame:int;
 				
 		public var strategyArrayOne:Array = 
 			[	[0,3], [0,7],

@@ -72,14 +72,18 @@ package game.application.computer
 			
 			if(level == LOW)
 			{
+				generateShipsPosition(false);
+				_userData.levelOfGame = LOW;
 				
 			}else if(level == MIDDLE)
 			{
 				generateShipsPosition(false);
+				_userData.levelOfGame = MIDDLE;
 				
 			}else if(level == HIGH)
 			{
 				generateShipsPosition(true);
+				_userData.levelOfGame = HIGH;
 			}
 		}		
 		
