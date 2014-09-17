@@ -49,7 +49,7 @@ package game.application.game.p_vs_computer
 			_localServer.addLocalListener(LocalServerEvents.MESSAGE, handlerServerMessage);
 			_localServer.addLocalListener(LocalServerEvents.FINISH_MESSAGE_QUEUE, handlerServerMessage);
 			
-//			_computerAI = new ComputerAI();
+			_computerAI = new ComputerAI();
 			
 			_userChannel = this.facade.retrieveProxy( ProxyList.CLIENT_DATA_CHANNEL ) as IServerDataChannel;
 			if( !_userChannel )
@@ -65,13 +65,13 @@ package game.application.game.p_vs_computer
 				this.facade.registerProxy( _computerChannel as IProxy );
 			}
 			
-//			_computerAI.init();
+			_computerAI.init();
 		}
 		
 		public function setDifficultLevel(level:int):void
 		{		
-			_computerAI = new ComputerAI();
-			_computerAI.init();
+			//_computerAI = new ComputerAI();
+			//_computerAI.init();
 			
 			_computerAI.setDifficultLevel(level);
 		}

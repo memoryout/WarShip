@@ -64,9 +64,7 @@ package game.application.game.p_vs_computer
 			
 			_dataChannel = this.facade.retrieveProxy( ProxyList.CLIENT_DATA_CHANNEL ) as IServerDataChannel;
 			
-			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_CREATE, actionsQueueStart);
-			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
-			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_COMPLETE, actionsQueueFinish);
+			
 			
 			this.sendNotification(ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE, GameType.P_VS_C);
 			
@@ -94,9 +92,12 @@ package game.application.game.p_vs_computer
 		{		
 			this.facade.removeCommand( ApplicationCommands.USER_CHOOSE_DIFFICULT_LEVEL );
 			
+			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);	
+			
 			_serverConnectionSupport.setDifficultLevel( level - 1 ); 		// level - 1 , потому что вьюха присылает левелы от 1 до 3.			
 			
-			this.sendNotification(ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS);			
+			
+					
 		}
 		
 		
@@ -120,6 +121,10 @@ package game.application.game.p_vs_computer
 			
 			_battleProxy.setStatus(GameBattleStatus.WAITING_FOR_START);
 			_battleProxy.finishDataUpdate();
+			
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_CREATE, actionsQueueStart);
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.CHANNEL_DATA, processActionsQueue);
+			_dataChannel.addLocalListener(ServerDataChannelLocalEvent.ACTIONS_QUEUE_COMPLETE, actionsQueueFinish);
 			
 			_serverConnectionSupport.sendUserShipLocation( ships, _userId );
 			
