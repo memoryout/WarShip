@@ -6,6 +6,8 @@ package game.activity.view.application.menu.pages.game_type
 	import game.GameType;
 	import game.activity.BaseMediator;
 	import game.activity.view.application.menu.MenuPageMediator;
+	import game.activity.view.application.menu.pages.profiler.ProfilerMediator;
+	import game.activity.view.application.menu.pages.profiler.ProfilerView;
 	import game.application.ApplicationCommands;
 	
 	public class SelectGameTypeMediator extends MenuPageMediator
@@ -26,7 +28,9 @@ package game.activity.view.application.menu.pages.game_type
 			(viewComponent as DisplayObjectContainer).addChild( _page );
 			
 			_page.addEventListener(SelectGameTypeView.COMPUTER, handlerSelectComputer);
-			_page.addEventListener(SelectGameTypeView.PLAYER, handlerSelectPlayer);
+			_page.addEventListener(SelectGameTypeView.PLAYER, 	handlerSelectPlayer);
+			
+			_page.addEventListener(SelectGameTypeView.PROFILER, handlerSelectProfiler);
 		}
 		
 		
@@ -55,6 +59,16 @@ package game.activity.view.application.menu.pages.game_type
 			_page.removeEventListener(SelectGameTypeView.PLAYER, handlerSelectPlayer);
 			
 			this.sendNotification(ApplicationCommands.CREATE_NEW_GAME, GameType.P_VS_P_NET);
+		}
+		
+		private function handlerSelectProfiler(e:Event):void
+		{
+			_page.removeEventListener(SelectGameTypeView.COMPUTER, handlerSelectComputer);
+			_page.removeEventListener(SelectGameTypeView.PLAYER, 	handlerSelectPlayer);
+			
+			_page.removeEventListener(SelectGameTypeView.PROFILER, handlerSelectProfiler);
+			
+			this.sendNotification(ApplicationCommands.CREATE_PROFILER, null);
 		}
 	}
 }

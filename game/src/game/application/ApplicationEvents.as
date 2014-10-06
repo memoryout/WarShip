@@ -15,6 +15,8 @@ package game.application
 		
 		public static const GAME_CORE_READY_TO_START_GAME:	String = "event.core.ready_to_start_game";
 		
+		public static const SHOW_USER_PROFILER:				String = "event.core.show_user_profiler";
+		
 		public static const USER_DATA_PROXY_CONNECTED:		String = "event.user_data_proxy.connected";
 		public static const USER_DATA_RECEIVE_USERS_LIST:	String = "event.user_data_proxy.users_list_receive";
 		public static const USER_DATA_USER_CREATED:			String = "event.user_data_proxy.user.created";

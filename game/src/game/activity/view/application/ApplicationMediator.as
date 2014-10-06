@@ -10,6 +10,7 @@ package game.activity.view.application
 	import game.activity.view.application.game.GameViewMediator;
 	import game.activity.view.application.lobby.GameLobby;
 	import game.activity.view.application.menu.MenuMediator;
+	import game.activity.view.application.menu.pages.profiler.ProfilerMediator;
 	import game.activity.view.application.windows.WindowsMediator;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
@@ -51,7 +52,8 @@ package game.activity.view.application
 			return [
 						ApplicationEvents.START_UP_COMPLETE,
 						ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
-						ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE
+						ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE,
+						ApplicationEvents.SHOW_USER_PROFILER
 					];
 		}
 		
@@ -79,10 +81,20 @@ package game.activity.view.application
 					createGameContextActivity( notification.getBody() as uint );
 					break;
 				}
+				
+				case ApplicationEvents.SHOW_USER_PROFILER:
+				{
+					showUserProfilerPage();
+					break;
+				}
 			}
 		}
 		
-		
+		private function showUserProfilerPage():void
+		{
+			this.facade.registerMediator( new ProfilerMediator( viewComponent as DisplayObjectContainer ) );
+		}
+				
 		private function createMenuMediator():void
 		{
 			this.facade.registerMediator( new MenuMediator( _appView.getMenuLayer() ) );
@@ -106,6 +118,7 @@ package game.activity.view.application
 			(viewComponent as DisplayObjectContainer).addChild( _gameLobby );
 			_gameLobby.addEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
 			_gameLobby.addEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			_gameLobby.addEventListener( GameLobby.PROFILER, handlerSelectProfiler);
 			
 		}
 		
@@ -124,6 +137,16 @@ package game.activity.view.application
 			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
 			
 			this.sendNotification(ApplicationCommands.CREATE_NEW_GAME, GameType.P_VS_P_NET);
+		}
+		
+		private function handlerSelectProfiler(e:Event):void
+		{			
+			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
+			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			
+			_gameLobby.removeEventListener( GameLobby.PROFILER, handlerSelectProfiler);
+			
+			this.sendNotification(ApplicationCommands.CREATE_PROFILER, null);
 		}
 		
 		

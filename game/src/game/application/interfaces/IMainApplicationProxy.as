@@ -8,5 +8,6 @@ package game.application.interfaces
 		function createGame(type:uint):void;
 		function getCurrentGame():IGameProxy;
 		function finishCurrentGame():void;
+		function createUserProfilerWindow():void;
 	}
 }

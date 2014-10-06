@@ -4,6 +4,7 @@ package game.activity.view.application.menu
 	
 	import game.activity.BaseMediator;
 	import game.activity.view.application.menu.pages.game_type.SelectGameTypeMediator;
+	import game.activity.view.application.menu.pages.profiler.ProfilerMediator;
 	import game.activity.view.application.menu.pages.ships_positions.ShipsPositionsMediator;
 	import game.application.ApplicationEvents;
 	
@@ -38,7 +39,7 @@ package game.activity.view.application.menu
 			return [
 					ApplicationEvents.REQUIRED_USER_SHIPS_POSITIONS,
 					ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
-					ApplicationEvents.GAME_CORE_READY_TO_START_GAME
+					ApplicationEvents.GAME_CORE_READY_TO_START_GAME					
 					];
 		}
 		
@@ -73,7 +74,8 @@ package game.activity.view.application.menu
 		
 		private function showSelectGameTypePage():void
 		{
-			if(_currentPage) _currentPage.hide();
+			if(_currentPage) 
+				_currentPage.hide();
 			
 			_currentPage = new SelectGameTypeMediator( _menuView.getMenuPageLayer() );
 			this.facade.registerMediator( _currentPage );
@@ -82,10 +84,11 @@ package game.activity.view.application.menu
 		
 		private function showShipsPositionsPage():void
 		{
-			if(_currentPage) _currentPage.hide();
+			if(_currentPage) 
+				_currentPage.hide();
 			
 			_currentPage = new ShipsPositionsMediator( _menuView.getMenuPageLayer() );
 			this.facade.registerMediator( _currentPage );
-		}
+		}			
 	}
 }

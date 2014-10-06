@@ -30,6 +30,7 @@ package game.activity.view.application.windows.authorization_users
 			_view.addEventListener(SelectCurrentUserWindow.CREATE_NEW_USER, handlerCreateNewUser);
 			
 			var startup:StartupProxy = this.facade.retrieveProxy(ProxyList.STARTUP_PROXY) as StartupProxy;
+			
 			if(startup)
 			{
 				_view.setUserList( startup.getUserList() );

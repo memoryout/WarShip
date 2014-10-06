@@ -18,5 +18,7 @@ package game.application
 		public static const FINISH_CURRENT_GAME:		String = "cmd.game.finish";
 		
 		public static const USER_PRESS_BACK:			String = "cmd.user.press.back";
+		
+		public static const CREATE_PROFILER:			String = "cmd.app.game.create_profiler";
 	}
 }

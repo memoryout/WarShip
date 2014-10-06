@@ -1,14 +1,20 @@
 package game.activity.view.application.windows.authorization_users
 {
+	import com.facebook.graph.FacebookMobile;
+	
 	import flash.display.MovieClip;
 	import flash.display.SimpleButton;
 	import flash.display.Sprite;
+	import flash.display.Stage;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Rectangle;
+	import flash.media.StageWebView;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.Dictionary;
 	
+	import game.AppGlobalVariables;
 	import game.activity.BaseMediator;
 	import game.application.data.user.UserData;
 	
@@ -27,11 +33,74 @@ package game.activity.view.application.windows.authorization_users
 		public var selectedID:		uint;
 		public var userName:		String;
 		
+		private var webView:StageWebView;
+		
+		private var loginBtn:SimpleButton;
+		private var label:String;
+		
 		public function SelectCurrentUserWindow()
 		{
 			super();
 			
 			createViewComponents();
+			
+			init();		
+		}
+		
+		private function init():void
+		{
+			loginBtn = _skin.getChildByName("login_btn") as SimpleButton;				
+			
+			FacebookMobile.init(AppGlobalVariables.APP_ID, onFacebookInit);
+			
+			loginBtn.addEventListener(MouseEvent.CLICK, handleLoginClick, false, 0, true);
+		}
+		
+		private function onFacebookInit(result:Object, fail:Object):void			
+		{			
+			if(result)				
+			{				
+				AppGlobalVariables.accessToken = result.accessToken;
+				label = "Logout";
+				loginBtn.alpha = 0.5;
+				
+			}else
+			{				
+				label = "Login";
+				loginBtn.alpha = 1;
+			}			
+		}
+		
+		private function handleLoginClick(event:MouseEvent):void 
+		{		
+			if (label == "Login") 
+			{				
+				FacebookMobile.login(onFacebookInit, this.stage , AppGlobalVariables.PERMISSIONS, getWebView(), "touch");
+			
+			} else {
+				trace("LOGOUT\n");				
+				FacebookMobile.logout(onLogout, AppGlobalVariables.FACEBOOK_APP_ORIGIN); //Redirect user back to your app url				
+			}
+		}
+		
+		private function onLogout(response:Object):void 
+		{
+			label = "Login";
+			loginBtn.alpha = 1;
+		}
+		
+		private function getWebView():StageWebView
+		{
+			if(webView)
+				webView.dispose();
+			
+			webView = new StageWebView();
+			webView.stage=this.stage;
+			webView.assignFocus();
+			
+			webView.viewPort = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
+			
+			return webView;
 		}
 		
 		public function removeUserList():void

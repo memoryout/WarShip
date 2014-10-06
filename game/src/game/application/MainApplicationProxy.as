@@ -4,6 +4,7 @@ package game.application
 	
 	import game.GameType;
 	import game.application.commands.game.CreateNewGameCommand;
+	import game.application.commands.game.CreateUserProfileCommand;
 	import game.application.commands.game.FinishCurrentGameCommand;
 	import game.application.commands.game.UserShipsLocatedComlete;
 	import game.application.connection.ServerDataChannelEvent;
@@ -14,9 +15,9 @@ package game.application
 	import game.application.interfaces.net.IServerConnectionProxy;
 	import game.application.net.ServerConnectionProxyEvents;
 	import game.application.net.ServerConnectionStatus;
+	import game.library.BaseProxy;
 	
 	import org.puremvc.as3.patterns.proxy.Proxy;
-	import game.library.BaseProxy;
 	
 	public class MainApplicationProxy extends BaseProxy implements IMainApplicationProxy
 	{
@@ -34,6 +35,7 @@ package game.application
 		public function runApplication():void
 		{
 			//this.facade.registerCommand(ServerDataChannelEvent.ACTIONS_QUEUE_COMPLETE, ServerAuthorizationResult);
+			this.facade.registerCommand(ApplicationCommands.CREATE_PROFILER, CreateUserProfileCommand);
 			this.facade.registerCommand(ApplicationCommands.CREATE_NEW_GAME, CreateNewGameCommand);
 			this.facade.registerCommand(ApplicationCommands.USER_SHIPS_LOCATED_COMPLETE, UserShipsLocatedComlete);
 			this.facade.registerCommand(ApplicationCommands.FINISH_CURRENT_GAME, FinishCurrentGameCommand);
@@ -61,6 +63,17 @@ package game.application
 			
 			
 			if(_currentGameProxy) this.facade.registerProxy( _currentGameProxy );
+		}
+		
+		public function createUserProfilerWindow():void
+		{
+			if(_currentGameProxy)
+			{
+				_currentGameProxy.destroy();
+				_currentGameProxy = null;
+			}
+			
+			this.sendNotification( ApplicationEvents.SHOW_USER_PROFILER );
 		}
 		
 		

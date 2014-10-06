@@ -1,5 +1,5 @@
 package game.application.startup
-{
+{	
 	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -56,7 +56,7 @@ package game.application.startup
 		private var _timeoutID:					uint;
 		
 		private var _userList:					Vector.<UserData>;
-		
+
 		public function StartupProxy(proxyName:String)
 		{
 			super(proxyName);
@@ -141,9 +141,9 @@ package game.application.startup
 			
 			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
 			_userDataProxy.connect();
+				
 		}
-		
-		
+				
 		public function userDataConnected():void
 		{
 			this.facade.removeCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED);

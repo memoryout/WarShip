@@ -11,6 +11,7 @@ package game.activity.view.application.lobby
 	{
 		public static const COMPUTER:	String = "computer";
 		public static const PLAYER:		String = "player";
+		public static const PROFILER:	String = "profiler";
 		
 		private var _skin:				MovieClip;
 		
@@ -54,6 +55,10 @@ package game.activity.view.application.lobby
 			else if(e.target.name == "computerPullBtn")
 			{
 				this.dispatchEvent( new Event(COMPUTER) );
+			}
+			else if(e.target.name == "profileBtn")
+			{
+				this.dispatchEvent( new Event(PROFILER) );
 			}
 		}
 	}
