@@ -13,7 +13,9 @@ package game.activity.view.application.windows.sign_in
 	{	
 		private var _skin:				MovieClip;
 		private var _btOk:				SimpleButton;
-		private var _txt:				TextField;
+		private var _txtName:			TextField;
+		private var _txtPass:			TextField;
+		private var _txtMail:			TextField;
 		
 		public function SignInWindow()
 		{
@@ -35,14 +37,26 @@ package game.activity.view.application.windows.sign_in
 				_btOk = _skin.getChildByName("ok_btn") as SimpleButton;
 				if(_btOk) _btOk.addEventListener(MouseEvent.CLICK, handlerClickOk);
 				
-				_txt = _skin.getChildByName("nameTxt") as TextField;
+				_txtName = _skin.getChildByName("nameTxt") as TextField;
+				_txtPass = _skin.getChildByName("passTxt") as TextField;
+				_txtMail = _skin.getChildByName("mailTxt") as TextField;
 			}
 		}
 		
 		
-		public function getValue():String
+		public function getName():String
 		{
-			return _txt.text;
+			return _txtName.text;
+		}
+		
+		public function getPass():String
+		{
+			return _txtPass.text;
+		}
+		
+		public function getMail():String
+		{
+			return _txtMail.text;
 		}
 		
 		

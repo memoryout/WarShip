@@ -29,7 +29,7 @@ package game.activity.view.application.windows.sign_in
 		
 		private function handlerSelectName(e:Event):void
 		{
-			this.sendNotification(ApplicationCommands.STARTUP_SET_LOGIN, _view.getValue() );
+			this.sendNotification(ApplicationCommands.STARTUP_SET_LOGIN, [_view.getName(), _view.getPass(), _view.getMail()]);
 			hide();
 		}
 		

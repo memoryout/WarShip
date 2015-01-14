@@ -218,13 +218,13 @@ package game.application.startup
 		}
 		
 		
-		public function setUserAuthorizationData(name:String):void
+		public function setUserAuthorizationData(data:Array):void
 		{
 			this.facade.removeCommand( ApplicationCommands.STARTUP_SET_LOGIN );
 			
 			
 			this.facade.registerCommand( ApplicationEvents.USER_DATA_USER_CREATED, NewUserCreatedCommand);
-			_userDataProxy.createNewUser( name );
+			_userDataProxy.createNewUser( data );
 		}
 		
 		

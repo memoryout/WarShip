@@ -31,7 +31,7 @@ package game.application.commands.authorization
 					
 				case ApplicationCommands.STARTUP_SET_LOGIN:
 				{
-					startup.setUserAuthorizationData(notification.getBody() as String);
+					startup.setUserAuthorizationData(notification.getBody() as Array);
 					break;
 				}
 			}

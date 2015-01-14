@@ -62,11 +62,11 @@ package game.application.net
 					_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
 					_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
 					
-					if( userData.getValue("login") && userData.getValue("pass") )
+					/*if( userData.getValue("login") && userData.getValue("pass") )
 					{
 						_serverConnection.signIn( userData.getValue("login"), userData.getValue("pass") );
 					}
-					else if( userData.getValue("deviceID") && userData.getValue("name") )
+					else */if( userData.getValue("deviceID") && userData.getValue("name") )
 					{
 						_serverConnection.createUser( userData.getValue("deviceID"), userData.getValue("name") );
 					}

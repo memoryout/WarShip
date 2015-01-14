@@ -65,12 +65,18 @@ package game.services.net
 		
 		public function createUser(userId:String, name:String):void
 		{
+//			obj.id = serId												!!!!!!!!!!was
+			
 			var req:Request = new Request();
 			
 			var obj:Object = new Object();
-			obj.cmd = ServerCommandList.SIGN_IN;
-			obj.name = name;
-			obj.id = userId;
+			obj.cmd = ServerCommandList.CREATE_USER;
+			obj.id = 1;
+			obj.login = "va2@gmail.com";
+			obj.pass = "asdcxz111";	
+			obj.name = name;					
+			obj.lang = 0;
+			obj.platform = 0;
 			
 			req.pushData( obj );
 			_connection.sendRequest( req );
@@ -82,9 +88,11 @@ package game.services.net
 			var req:Request = new Request();
 			
 			var obj:Object = new Object();
-			obj.cmd = ServerCommandList.SIGN_IN;
+			obj.cmd = ServerCommandList.LOGIN;
 			obj.login = login;
 			obj.pass = pass;
+			obj.lang = 0;
+			obj.platform = 0;
 			
 			req.pushData( obj );
 			_connection.sendRequest( req );

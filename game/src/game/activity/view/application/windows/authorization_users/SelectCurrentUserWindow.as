@@ -1,5 +1,9 @@
 package game.activity.view.application.windows.authorization_users
 {
+	import com.adobe.protocols.oauth2.OAuth2;
+	import com.adobe.protocols.oauth2.event.GetAccessTokenEvent;
+	import com.adobe.protocols.oauth2.grant.AuthorizationCodeGrant;
+	import com.adobe.protocols.oauth2.grant.IGrantType;
 	import com.facebook.graph.FacebookMobile;
 	
 	import flash.display.MovieClip;
@@ -10,6 +14,10 @@ package game.activity.view.application.windows.authorization_users
 	import flash.events.MouseEvent;
 	import flash.geom.Rectangle;
 	import flash.media.StageWebView;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
+	import flash.net.URLRequestMethod;
 	import flash.text.TextField;
 	import flash.text.TextFormat;
 	import flash.utils.Dictionary;
@@ -17,6 +25,8 @@ package game.activity.view.application.windows.authorization_users
 	import game.AppGlobalVariables;
 	import game.activity.BaseMediator;
 	import game.application.data.user.UserData;
+	
+	import org.as3commons.logging.setup.LogSetupLevel;
 	
 	public class SelectCurrentUserWindow extends Sprite
 	{
@@ -35,7 +45,10 @@ package game.activity.view.application.windows.authorization_users
 		
 		private var webView:StageWebView;
 		
-		private var loginBtn:SimpleButton;
+		private var loginBtnFacebook:		SimpleButton;
+		private var loginBtnGooglePlus:		SimpleButton;
+		private var loginBtnVK:				SimpleButton;
+		
 		private var label:String;
 		
 		public function SelectCurrentUserWindow()
@@ -44,16 +57,122 @@ package game.activity.view.application.windows.authorization_users
 			
 			createViewComponents();
 			
-			init();		
+			
+			addListaners();
+//			initVk();
+//			initFaceBook();		
 		}
 		
-		private function init():void
+		private function addListaners():void
+		{		
+			loginBtnFacebook.addEventListener(MouseEvent.CLICK, 	getOuth, false, 0, true);
+			loginBtnGooglePlus.addEventListener(MouseEvent.CLICK, 	getOuth, false, 0, true);
+			loginBtnVK.addEventListener(MouseEvent.CLICK, 			getOuth, false, 0, true);
+		}
+		
+		private function getOuth(e:Event):void
 		{
-			loginBtn = _skin.getChildByName("login_btn") as SimpleButton;				
+			var oauth2:OAuth2; 
+			var grant:IGrantType;
+		
+			if(e.target.name == "login_btn_facebook")
+			{
+//				oauth2 = new OAuth2(AppGlobalVariables.AUTH_ENDPOINT_FACEBOOK, AppGlobalVariables.TOKEN_ENDPOINT_FACEBOOK, LogSetupLevel.ALL);
+//				grant  = new AuthorizationCodeGrant(getWebView(), AppGlobalVariables.FACEBOOK_APP_ID, AppGlobalVariables.CLIENT_SECRET_FACEBOOK, AppGlobalVariables.REDIRECT_URL_FACEBOOK);
+				
+				FacebookMobile.init(AppGlobalVariables.FACEBOOK_APP_ID, onFacebookInit);
+				
+			}else if(e.target.name == "login_btn_google_plus")
+			{
+				oauth2 = new OAuth2(AppGlobalVariables.AUTH_ENDPOINT_GOOGLE_PLUS, AppGlobalVariables.TOKEN_ENDPOINT_GOOGLE_PLUS, LogSetupLevel.ALL);
+				grant  = new AuthorizationCodeGrant(getWebView(), AppGlobalVariables.CLIENT_ID_GOOGLE_PLUS, AppGlobalVariables.CLIENT_SECRET_GOOGLE_PLUS, AppGlobalVariables.URL_PLUS, AppGlobalVariables.SCOPE_PLUS);
+				
+			}else if(e.target.name == "login_btn_vk"){
+				
+				oauth2 = new OAuth2(AppGlobalVariables.AUTH_ENDPOINT_VK, AppGlobalVariables.TOKEN_ENDPOINT_VK, LogSetupLevel.ALL);
+				grant  = new AuthorizationCodeGrant(getWebView(), AppGlobalVariables.VK_APP_ID, AppGlobalVariables.VK_SECRET, AppGlobalVariables.URL_VK);
+			}
 			
-			FacebookMobile.init(AppGlobalVariables.APP_ID, onFacebookInit);
+			// make the call
 			
-			loginBtn.addEventListener(MouseEvent.CLICK, handleLoginClick, false, 0, true);
+			if(oauth2)
+			{
+				oauth2.addEventListener(GetAccessTokenEvent.TYPE, onGetAccessToken);
+				oauth2.getAccessToken(grant);
+			}
+			
+		}
+		
+		private function onGetAccessToken(getAccessTokenEvent:GetAccessTokenEvent):void
+		{
+			if (getAccessTokenEvent.errorCode == null && getAccessTokenEvent.errorMessage == null)
+			{
+				// success!
+				trace("Your access token value is: " + getAccessTokenEvent.accessToken);
+				if(webView)				webView.dispose();
+			}
+			else
+			{
+				// fail :(
+			}
+		} 
+		
+		private function initVk():void
+		{
+			import flash.media.StageWebView;
+			var sendHeader:URLRequestHeader = new URLRequestHeader("Content-type", "application/octet-stream");
+			
+			var url:String = "https://oauth.vk.com/authorize?" + "client_id=4579404" + "&scope=" + "user_id" 
+				+ "&redirect_uri=http://api.vk.com/blank.html" + "&display=page" + "&v=5.25" + "&response_type=token";
+			
+			var request:URLRequest = new URLRequest(url);
+			request.requestHeaders.push(sendHeader);
+			request.method = URLRequestMethod.GET;
+			
+			var requestor:URLLoader = new URLLoader();
+			requestor.addEventListener(Event.COMPLETE, apiVKAccessToken);
+			try {
+				requestor.load(request);
+			}catch (error:Error) {
+				trace("error# " + error.message);
+			}
+			
+			function apiVKAccessToken(e:Event):void {                    
+				//var stageWebView:StageWebView = new StageWebView()
+				var obj:Object = e.target.data;
+				var webView:StageWebView = new StageWebView();
+				webView.stage=this.stage;
+				webView.viewPort=new Rectangle(0,0,500,400);
+				//webView.addEventListener(ErrorEvent.ERROR,onError);
+				//webView.addEventListener(LocationChangeEvent.LOCATION_CHANGING,onChanging);
+				//webView.addEventListener(Event.COMPLETE,onComplete);
+				webView.loadURL(url);
+				trace(obj);
+				requestor.removeEventListener(Event.COMPLETE, apiVKAccessToken);
+				//                    flashVars['acces_token'] = stage.loaderInfo.parameters['http://api.vk.com/blank.html#access_token'];
+			} 
+		}	
+		
+		private function handleLoginClickVK(event:MouseEvent):void 
+		{		
+			if (label == "Login") 
+			{				
+				FacebookMobile.login(onFacebookInit, this.stage , AppGlobalVariables.FACEBOOK_PERMISSIONS, getWebView(), "touch");
+				
+			} else {
+				trace("LOGOUT\n");				
+				FacebookMobile.logout(onLogout, AppGlobalVariables.FACEBOOK_APP_ORIGIN); //Redirect user back to your app url				
+			}
+		}
+		
+		
+		private function initFaceBook():void
+		{
+//			loginBtn = _skin.getChildByName("login_btn") as SimpleButton;				
+			
+			FacebookMobile.init(AppGlobalVariables.FACEBOOK_APP_ID, onFacebookInit);
+			
+//			loginBtn.addEventListener(MouseEvent.CLICK, handleLoginClick, false, 0, true);
 		}
 		
 		private function onFacebookInit(result:Object, fail:Object):void			
@@ -62,12 +181,14 @@ package game.activity.view.application.windows.authorization_users
 			{				
 				AppGlobalVariables.accessToken = result.accessToken;
 				label = "Logout";
-				loginBtn.alpha = 0.5;
+//				loginBtn.alpha = 0.5;
+				trace("Your access token value is: " + result.accessToken);
 				
 			}else
 			{				
 				label = "Login";
-				loginBtn.alpha = 1;
+				FacebookMobile.login(onFacebookInit, this.stage , AppGlobalVariables.FACEBOOK_PERMISSIONS, getWebView(), "touch");
+//				loginBtn.alpha = 1;
 			}			
 		}
 		
@@ -75,7 +196,7 @@ package game.activity.view.application.windows.authorization_users
 		{		
 			if (label == "Login") 
 			{				
-				FacebookMobile.login(onFacebookInit, this.stage , AppGlobalVariables.PERMISSIONS, getWebView(), "touch");
+				FacebookMobile.login(onFacebookInit, this.stage , AppGlobalVariables.FACEBOOK_PERMISSIONS, getWebView(), "touch");
 			
 			} else {
 				trace("LOGOUT\n");				
@@ -86,7 +207,7 @@ package game.activity.view.application.windows.authorization_users
 		private function onLogout(response:Object):void 
 		{
 			label = "Login";
-			loginBtn.alpha = 1;
+//			loginBtn.alpha = 1;
 		}
 		
 		private function getWebView():StageWebView
@@ -163,6 +284,10 @@ package game.activity.view.application.windows.authorization_users
 				_skin = new classRef();
 				this.addChild( _skin );
 			}	
+			
+			loginBtnFacebook	=  _skin.getChildByName("login_btn_facebook") as SimpleButton;	
+			loginBtnGooglePlus	=  _skin.getChildByName("login_btn_google_plus") as SimpleButton;	
+			loginBtnVK			=  _skin.getChildByName("login_btn_vk") as SimpleButton;	
 		}
 		
 		

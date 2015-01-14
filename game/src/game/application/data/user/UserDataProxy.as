@@ -95,9 +95,9 @@ package game.application.data.user
 		
 		
 		//--------- CREATE NEW USER ----------
-		public function createNewUser(name:String):void
+		public function createNewUser(data:Array):void
 		{
-			var requestMessage:String = 'INSERT INTO "main"."user" ("name","deviceID","login","pass","exp") VALUES ("' + name + '", null, null, null, null)';
+			var requestMessage:String = 'INSERT INTO "main"."user" ("name","deviceID","login","pass","exp") VALUES ("' + data[0] + '", null, "' + data[1] + '", "' + data[2] + '", null)';
 			
 			var request:UserDataProxyRequest = new UserDataProxyRequest();
 			request.setData(_sqlManager, requestMessage, handlerUserCreated, handlerErrorCreateUser);

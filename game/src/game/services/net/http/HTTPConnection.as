@@ -52,7 +52,17 @@ package game.services.net.http
 		
 		private function onComplete(data:String):void
 		{
-			var obj:Object = JSON.parse(data);
+			/// when server is working on debug
+			var pattern:RegExp = /<br[\s|\/]*>/gi;
+			var output:String  = data.replace(pattern, "");
+			
+			var pattern2:RegExp = /&nbsp;/g;
+			var output2:String  = output.replace(pattern2, "");
+			/// when server is working on debug
+			
+			trace(output2);
+						
+			var obj:Object = JSON.parse(output2);
 			_currentRequest.setResult(obj);
 			this.onCompleteRequest( _currentRequest );
 			

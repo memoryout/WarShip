@@ -11,7 +11,7 @@ package game.application.interfaces.data
 		function selectCurrentUser(id:uint):void;
 		function commitChanges():void;
 		function retrieveUsersList():void;
-		function createNewUser(name:String):void;
+		function createNewUser(data:Array):void;
 		function deleteUser(id:uint):void;
 	}
 }
