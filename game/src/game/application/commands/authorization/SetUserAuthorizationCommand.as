@@ -2,6 +2,7 @@ package game.application.commands.authorization
 {
 	import game.application.ApplicationCommands;
 	import game.application.ProxyList;
+	import game.application.data.UserManualAuthorizationData;
 	import game.application.startup.StartupProxy;
 	
 	import org.puremvc.as3.interfaces.INotification;
@@ -31,7 +32,7 @@ package game.application.commands.authorization
 					
 				case ApplicationCommands.STARTUP_SET_LOGIN:
 				{
-					startup.setUserAuthorizationData(notification.getBody() as Array);
+					startup.setUserAuthorizationData(notification.getBody() as UserManualAuthorizationData);
 					break;
 				}
 			}

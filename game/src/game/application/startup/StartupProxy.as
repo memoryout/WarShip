@@ -19,6 +19,8 @@ package game.application.startup
 	import game.application.connection.ServerDataChannelEvent;
 	import game.application.connection.ServerDataChannelLocalEvent;
 	import game.application.connection.data.AuthorizationData;
+	import game.application.data.StartupInfo;
+	import game.application.data.UserManualAuthorizationData;
 	import game.application.data.user.UserData;
 	import game.application.data.user.UserDataProxy;
 	import game.application.data.user.UserDataProxyEvent;
@@ -56,6 +58,8 @@ package game.application.startup
 		private var _timeoutID:					uint;
 		
 		private var _userList:					Vector.<UserData>;
+		
+		private var _startupInfo:				StartupInfo;
 
 		public function StartupProxy(proxyName:String)
 		{
@@ -65,13 +69,22 @@ package game.application.startup
 		
 		override public function onRegister():void
 		{
+			_startupInfo = new StartupInfo();
+			
 			init();
+		}
+		
+		
+		public function getStartupInfo():StartupInfo
+		{
+			return _startupInfo;
 		}
 		
 		
 		private function init():void
 		{
 			this.sendNotification(ApplicationEvents.START_UP_INIT);
+			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_INIT) );
 			
 			var asset:IAssetManager = ServicesList.getSearvice( ServicesList.ASSET_MANAGER) as IAssetManager;
 			
@@ -84,13 +97,23 @@ package game.application.startup
 				var loaderInfo:LoaderInfo = asset.loadSource(AppGlobalVariables.SOURCE_URL);
 				loaderInfo.addEventListener(Event.INIT, handlerAssetInit);
 				loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, handlerAssetError);
+				
+				_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_START) );
+				_startupInfo.setLoaderInfo(loaderInfo);
 			}
 		}
 		
 		
 		private function handlerAssetError(e:IOErrorEvent):void
 		{
+			var loaderInfo:LoaderInfo = e.currentTarget as LoaderInfo;
+			loaderInfo.removeEventListener(Event.INIT, handlerAssetInit);
+			loaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, handlerAssetError);
+			
 			this.sendNotification(ApplicationEvents.START_UP_SOURCE_LOAD_ERROR);
+			
+			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_ERROR) );
+			_startupInfo.setLoaderInfo(null);
 		}
 		
 		private function handlerAssetInit(e:Event = null):void
@@ -103,6 +126,8 @@ package game.application.startup
 			
 			this.sendNotification(ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE);
 			
+			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE) );
+			_startupInfo.setLoaderInfo(null);
 			
 			getDeviceInfo();
 		}
@@ -112,6 +137,8 @@ package game.application.startup
 		{
 			var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
 			
+			_startupInfo.setDeviceManager(device);
+			
 			if(device.deviceInfo)
 			{
 				handlerDeviceInfo(null);
@@ -119,7 +146,10 @@ package game.application.startup
 			else
 			{
 				device.addEventListener(DeviceManagerEvents.DEVICE_ID_RECEIVE, handlerDeviceInfo);
-				device.retrieveDeviceInfo()
+				
+				_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_REQUEST_DEVICE_INFO) ); 
+				
+				device.retrieveDeviceInfo();
 			}
 		}
 		
@@ -131,12 +161,16 @@ package game.application.startup
 			var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
 			_deviceInfo = device.deviceInfo;
 			
+			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_DEVICE_INFO_RECEIVED) );
+			
 			checkAuthorization();
 		}
 		
 
 		private function checkAuthorization():void
 		{
+			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_AUTHORIZATION_INIT) );
+			
 			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
 			
 			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
@@ -214,17 +248,19 @@ package game.application.startup
 		{
 			this.facade.registerCommand( ApplicationCommands.STARTUP_SET_LOGIN, SetUserAuthorizationCommand);
 			
-			this.sendNotification( ApplicationEvents.REQUIRED_USER_AUTHORIZATION);
+			this.sendNotification( ApplicationEvents.REQUIRED_USER_AUTHORIZATION );
+			
+			_startupInfo.dispatchEvent( new Event(ApplicationEvents.REQUIRED_USER_AUTHORIZATION) );
 		}
 		
 		
-		public function setUserAuthorizationData(data:Array):void
+		public function setUserAuthorizationData(data:UserManualAuthorizationData):void
 		{
 			this.facade.removeCommand( ApplicationCommands.STARTUP_SET_LOGIN );
 			
 			
 			this.facade.registerCommand( ApplicationEvents.USER_DATA_USER_CREATED, NewUserCreatedCommand);
-			_userDataProxy.createNewUser( data );
+			//_userDataProxy.createNewUser( data );
 		}
 		
 		

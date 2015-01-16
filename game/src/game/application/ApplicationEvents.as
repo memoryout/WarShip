@@ -3,13 +3,25 @@ package game.application
 	public class ApplicationEvents
 	{
 		public static const START_UP_INIT:					String = "event.start_up.init";
+		public static const START_UP_SOURCE_LOAD_START:		String = "event.start_up.source.load.start";
 		public static const START_UP_SOURCE_LOAD_COMPLETE:	String = "event.start_up.source.load.complete";
 		public static const START_UP_SOURCE_LOAD_ERROR:		String = "event.start_up.source.load.error";
 		
-		public static const GAME_CONTEXT_CREATE_COMPLETE:	String = "event.game.context.create.complete";
+		public static const START_UP_REQUEST_DEVICE_INFO:	String = "event.start_up.device_info.request";
+		public static const START_UP_DEVICE_INFO_RECEIVED:	String = "event.start_up.device_info.received";
+		
+		public static const START_UP_DB_OPEN_CONNECTION:	String = "event.start_up.db.connection.open";
+		public static const START_UP_DB_CONNECTED:			String = "event.start_up.db.connected";
+		
+		public static const START_UP_AUTHORIZATION_INIT:	String = "event.start_up.auth.init";
 		
 		public static const REQUIRED_USER_AUTHORIZATION:	String = "event.start_up.required.user_authorization";
 		public static const REQUIRED_SELECT_ACTIVE_USER:	String = "event.start_up.required.user_select";
+		
+		
+		public static const GAME_CONTEXT_CREATE_COMPLETE:	String = "event.game.context.create.complete";
+		
+		
 	
 		public static const START_UP_COMPLETE:				String = "event.start_up.complete";
 		
