@@ -34,6 +34,8 @@ package game.activity.view
 			
 			layoutManager.createActivitiLayout( ApplicationMediator );
 			
+			this.facade.retrieveProxy(ProxyList.STARTUP_PROXY);
+			
 			//this.facade.registerMediator( new ApplicationMediator(ApplicationMediator.NAME, _appScreen.getAppViewLayer() ) );
 			
 			
