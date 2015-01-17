@@ -7,6 +7,7 @@ package game.activity.view.application.windows.authorization_users
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
+	import game.application.data.UserManualAuthorizationData;
 	import game.application.startup.StartupProxy;
 	
 	public class SelectCurrentUserWindowMediator extends BaseMediator
@@ -57,7 +58,13 @@ package game.activity.view.application.windows.authorization_users
 		
 		private function handlerCreateNewUser(e:Event):void
 		{
-			this.sendNotification(ApplicationCommands.STARTUP_SET_LOGIN, _view.userName );
+			var userManualAuthorizationData:UserManualAuthorizationData = new UserManualAuthorizationData();
+			
+			userManualAuthorizationData.name = _view.userName;
+			userManualAuthorizationData.pass = _view.userPass;
+			userManualAuthorizationData.email = _view.userEmail;
+			
+			this.sendNotification(ApplicationCommands.STARTUP_SET_LOGIN, userManualAuthorizationData );
 			hide();
 		}
 		

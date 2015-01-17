@@ -41,7 +41,10 @@ package game.activity.view.application.windows.authorization_users
 		private var _buttonsCache:	Dictionary;
 		
 		public var selectedID:		uint;
+		
 		public var userName:		String;
+		public var userPass:		String;
+		public var userEmail:		String;
 		
 		private var webView:StageWebView;
 		
@@ -271,7 +274,10 @@ package game.activity.view.application.windows.authorization_users
 		
 		private function handlerClickOk(e:MouseEvent):void
 		{
-			userName = _txt.text;
+			userName  = _txt.text;
+			userPass  = _txt.text;
+			userEmail = _txt.text;
+			
 			this.dispatchEvent( new Event(CREATE_NEW_USER) );
 		}
 		

@@ -8,6 +8,7 @@ package game.activity.view
 	import game.activity.view.preloader.PreloaderMediator;
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
+	import game.application.ProxyList;
 	
 	import org.puremvc.as3.interfaces.INotification;
 	import org.puremvc.as3.patterns.mediator.Mediator;

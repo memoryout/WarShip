@@ -45,15 +45,17 @@ package game.activity.view.application.windows
 			{
 				case ApplicationEvents.REQUIRED_USER_AUTHORIZATION:
 				{
-					showAuthorizationWindow();
-					break;
-				}
+//					showAuthorizationWindow();
 					
-				case ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER:
-				{
 					showSelectUserWindow();
 					break;
 				}
+					
+				/*case ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER:
+				{
+					showSelectUserWindow();
+					break;
+				}*/
 			}
 		}
 		
