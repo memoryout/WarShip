@@ -36,7 +36,10 @@ package game.activity.view.application.windows.authorization_users
 		private var _skin:			MovieClip;
 		
 		private var _btOk:				SimpleButton;
-		private var _txt:				TextField;
+		
+		private var _txtName:				TextField;
+		private var _txtPass:				TextField;
+		private var _txtMail:				TextField;
 		
 		private var _buttonsCache:	Dictionary;
 		
@@ -269,14 +272,16 @@ package game.activity.view.application.windows.authorization_users
 			_btOk = _skin.getChildByName("ok_btn") as SimpleButton;
 			if(_btOk) _btOk.addEventListener(MouseEvent.CLICK, handlerClickOk);
 			
-			_txt = _skin.getChildByName("nameTxt") as TextField;
+			_txtName = _skin.getChildByName("nameTxt") as TextField;
+			_txtPass = _skin.getChildByName("passTxt") as TextField;
+			_txtMail = _skin.getChildByName("mailTxt") as TextField;
 		}
 		
 		private function handlerClickOk(e:MouseEvent):void
 		{
-			userName  = _txt.text;
-			userPass  = _txt.text;
-			userEmail = _txt.text;
+			userName  = _txtName.text;
+			userPass  = _txtPass.text;
+			userEmail = _txtMail.text;
 			
 			this.dispatchEvent( new Event(CREATE_NEW_USER) );
 		}
