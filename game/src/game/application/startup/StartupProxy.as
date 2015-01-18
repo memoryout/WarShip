@@ -60,6 +60,8 @@ package game.application.startup
 		private var _userList:					Vector.<UserData>;
 		
 		private var _startupInfo:				StartupInfo;
+		
+		private var _manualAuthorizationData:	UserManualAuthorizationData;
 
 		public function StartupProxy(proxyName:String)
 		{
@@ -238,10 +240,15 @@ package game.application.startup
 		
 		private function requiredSelectCurrentActiveUser():void
 		{
-			this.facade.registerCommand( ApplicationCommands.STARTUP_SET_LOGIN, SetUserAuthorizationCommand);
-			this.facade.registerCommand( ApplicationCommands.STARTUP_SELECT_USER, SetUserAuthorizationCommand);
+			//this.facade.registerCommand( ApplicationCommands.STARTUP_SET_LOGIN, SetUserAuthorizationCommand);
+			//this.facade.registerCommand( ApplicationCommands.STARTUP_SELECT_USER, SetUserAuthorizationCommand);
 			
-			this.sendNotification( ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER, _userList);
+			//this.sendNotification( ApplicationEvents.REQUIRED_SELECT_ACTIVE_USER, _userList);
+			
+			//trace(_userList[0]);
+			
+			_userDataProxy.selectCurrentUser(_userList[0].id);
+			authorizationSeccussesComplete();
 		}
 		
 		private function reqiuredUserAuthorizationData():void
@@ -261,6 +268,14 @@ package game.application.startup
 			
 			this.facade.registerCommand( ApplicationEvents.USER_DATA_USER_CREATED, NewUserCreatedCommand);
 			//_userDataProxy.createNewUser( data );
+			
+			//handlerSignInComplete();
+			
+			
+			_manualAuthorizationData = data;
+			
+			_userDataProxy.createNewUser( _manualAuthorizationData.name, _manualAuthorizationData.email, _manualAuthorizationData.pass);
+			
 		}
 		
 		
