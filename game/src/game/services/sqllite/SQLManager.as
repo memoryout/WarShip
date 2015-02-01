@@ -71,7 +71,7 @@ package game.services.sqllite
 			
 			tryExecuteRequest();
 		}
-		
+				
 		
 		public function closeConnection():void
 		{
@@ -88,17 +88,33 @@ package game.services.sqllite
 				_currentRequest = _quaryList.shift();
 				
 				_currentStatement = new SQLStatement();
-				_currentStatement.text = _currentRequest.request;
 				
-				if(_currentRequest.requestParams)
+				var par:String;
+				
+				if(_currentRequest.getRawRequest() != null) 
 				{
-					var par:String;
-					for(par in _currentRequest.requestParams) _currentStatement.parameters[par] = _currentRequest.requestParams[par];
+					_currentStatement.text = _currentRequest.getRawRequest();
+					
+					if(_currentRequest.requestParams)
+					{
+						
+						for(par in _currentRequest.requestParams) _currentStatement.parameters[par] = _currentRequest.requestParams[par];
+					}
 				}
+				else
+				{
+					_currentStatement.text = _currentRequest.request;
+					
+					if(_currentRequest.requestParams)
+					{
+						for(par in _currentRequest.requestParams) _currentStatement.parameters[par] = _currentRequest.requestParams[par];
+					}
+				}
+				
 				
 				_currentStatement.sqlConnection = _connection;
 				
-				trace(_currentStatement.text);
+				trace( _currentStatement.text );
 				
 				_currentStatement.addEventListener(SQLEvent.RESULT, handlerRequestResult);
 				_currentStatement.addEventListener(SQLErrorEvent.ERROR, handlerErrorRequest);
@@ -147,12 +163,13 @@ package game.services.sqllite
 		
 		private function handlerRequestResult(e:SQLEvent):void
 		{
-			_currentStatement.addEventListener(SQLEvent.RESULT, handlerRequestResult);
-			_currentStatement.addEventListener(SQLErrorEvent.ERROR, handlerErrorRequest);
+			_currentStatement.removeEventListener(SQLEvent.RESULT, handlerRequestResult);
+			_currentStatement.removeEventListener(SQLErrorEvent.ERROR, handlerErrorRequest);
 			
 			var sqlResult:SQLResult = (e.currentTarget as SQLStatement).getResult();
 			
-			_currentRequest.onResult( sqlResult.data );
+			//_currentRequest.onResult( sqlResult.data );
+			_currentRequest.setRequestResult(sqlResult);
 			
 			_isProcessed = false;
 			tryExecuteRequest();
@@ -161,10 +178,12 @@ package game.services.sqllite
 		
 		private function handlerErrorRequest(e:SQLErrorEvent):void
 		{
-			_currentStatement.addEventListener(SQLEvent.RESULT, handlerRequestResult);
-			_currentStatement.addEventListener(SQLErrorEvent.ERROR, handlerErrorRequest);
+			_currentStatement.removeEventListener(SQLEvent.RESULT, handlerRequestResult);
+			_currentStatement.removeEventListener(SQLErrorEvent.ERROR, handlerErrorRequest);
 			trace(e.toString())
-			_currentRequest.onErrorResult(e.toString());
+			//_currentRequest.onErrorResult(e.toString());
+			
+			_currentRequest.setRequstError(e);
 			
 			_isProcessed = false;
 			tryExecuteRequest();

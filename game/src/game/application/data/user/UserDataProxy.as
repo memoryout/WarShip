@@ -43,7 +43,8 @@ package game.application.data.user
 		public function connect():void
 		{
 			var sql:ISQLManager = ServicesList.getSearvice( ServicesList.SQL_MANAGER ) as ISQLManager;
-			sql.connect(AppGlobalVariables.SQL_FILE_URL, onConnect, onErrorConnect);
+			//sql.connect(AppGlobalVariables.SQL_FILE_URL, onConnect, onErrorConnect);
+			onConnect();
 		}
 		
 		

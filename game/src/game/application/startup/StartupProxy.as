@@ -1,5 +1,10 @@
 package game.application.startup
 {	
+	//import com.milkmangames.nativeextensions.GoogleGames;
+	
+	import com.milkmangames.nativeextensions.GoogleGames;
+	import com.milkmangames.nativeextensions.events.GoogleGamesEvent;
+	
 	import flash.display.LoaderInfo;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -19,11 +24,14 @@ package game.application.startup
 	import game.application.connection.ServerDataChannelEvent;
 	import game.application.connection.ServerDataChannelLocalEvent;
 	import game.application.connection.data.AuthorizationData;
+	import game.application.data.DataProvider;
+	import game.application.data.DataRequest;
 	import game.application.data.StartupInfo;
 	import game.application.data.UserManualAuthorizationData;
 	import game.application.data.user.UserData;
 	import game.application.data.user.UserDataProxy;
 	import game.application.data.user.UserDataProxyEvent;
+	import game.application.data.user.UserInfoRequest;
 	import game.application.interfaces.channel.IServerDataChannel;
 	import game.application.interfaces.data.IUserDataProxy;
 	import game.application.interfaces.net.IServerConnectionProxy;
@@ -131,12 +139,40 @@ package game.application.startup
 			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE) );
 			_startupInfo.setLoaderInfo(null);
 			
+			
+			//DataProvider.getInstance().addEventListener(Event.INIT, handlerDataProviderInitComplete);
+			//DataProvider.getInstance().init();
+			
+			GoogleGames.create();
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			//getDeviceInfo();
+		}
+		
+		
+		
+		private function handlerDataProviderInitComplete(e:Event):void
+		{
 			getDeviceInfo();
 		}
 		
 		
 		private function getDeviceInfo():void
 		{
+			
+			/*if( GoogleGames.isSupported() )
+			{
+				trace("goooggle");
+			}*/
+			
+			
 			var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
 			
 			_startupInfo.setDeviceManager(device);
@@ -165,19 +201,43 @@ package game.application.startup
 			
 			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_DEVICE_INFO_RECEIVED) );
 			
-			checkAuthorization();
+			startAuthorization();
 		}
 		
 
-		private function checkAuthorization():void
+		private function startAuthorization():void
 		{
+			
+			
+			//userInfoRequest.addEventListener(Event.COMPLETE, handlerUserDataRetrieve);
+			
 			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_AUTHORIZATION_INIT) );
 			
-			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			var userInfoRequest:UserInfoRequest = DataProvider.getInstance().getUserDataProvider().retrieveUserInfo();
+			userInfoRequest.addEventListener(Event.COMPLETE, handlerUserDataRetrieve);
 			
-			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
-			_userDataProxy.connect();
+			//_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			
+			//this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
+			//_userDataProxy.connect();
 				
+		}
+		
+		
+		private function handlerUserDataRetrieve(e:Event):void
+		{
+			var userInfoRequest:UserInfoRequest = e.currentTarget as UserInfoRequest;
+			userInfoRequest.removeEventListener(Event.COMPLETE, handlerUserDataRetrieve);
+			
+			
+			if( DataProvider.getInstance().getUserDataProvider().getUserInfo() == null )
+			{
+				reqiuredUserAuthorizationData();
+			}
+			else
+			{
+				authorizationSeccussesComplete();
+			}
 		}
 				
 		public function userDataConnected():void
@@ -187,6 +247,9 @@ package game.application.startup
 			_userDataProxy.retrieveUsersList();
 			
 		}
+		
+		
+		
 		
 		public function usersListReceive():void
 		{
@@ -210,7 +273,7 @@ package game.application.startup
 		
 		public function getUserList():Vector.<UserData>
 		{
-			return _userList;
+			return DataProvider.getInstance().getUserDataProvider().getUserLists();
 		}
 		
 		private function verifyUserList():void
@@ -274,8 +337,18 @@ package game.application.startup
 			
 			_manualAuthorizationData = data;
 			
-			_userDataProxy.createNewUser( _manualAuthorizationData.name, _manualAuthorizationData.email, _manualAuthorizationData.pass);
+			var request:DataRequest = DataProvider.getInstance().getUserDataProvider().createNewUser();
+			request.addEventListener(Event.COMPLETE, handleNewUserCreated);
 			
+			
+			//_userDataProxy.createNewUser( _manualAuthorizationData.name, _manualAuthorizationData.email, _manualAuthorizationData.pass);
+			
+		}
+		
+		private function handleNewUserCreated(e:Event):void
+		{
+			var request:DataRequest = e.currentTarget as DataRequest;
+			request.removeEventListener(Event.COMPLETE, handleNewUserCreated);
 		}
 		
 		

@@ -6,10 +6,15 @@ package game.application.data.user
 		
 		private var _dataObject:		Object;
 		
-		public function UserData(obj:Object):void
+		public function UserData(obj:Object = null):void
 		{
 			_dataObject = obj;
 			_changed = false;
+		}
+		
+		public function setData(data:Object):void
+		{
+			
 		}
 		
 		public function get id():int
