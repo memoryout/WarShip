@@ -10,6 +10,9 @@ package game.application.server.messages
 		public var finishX:			int;
 		public var finishY:			int;
 		
+		public var currentX:		int;
+		public var currentY:		int;
+		
 		public function MessageDestroyShip(type:uint, player:String)
 		{
 			super(type, player);

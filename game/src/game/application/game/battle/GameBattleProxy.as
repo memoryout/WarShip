@@ -3,7 +3,6 @@ package game.application.game.battle
 	import flash.events.Event;
 	
 	import game.application.ApplicationEvents;
-	import game.library.BaseProxy;
 	import game.application.ProxyList;
 	import game.application.connection.data.GameInfoData;
 	import game.application.connection.data.OpponentInfoData;
@@ -13,6 +12,7 @@ package game.application.game.battle
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
 	import game.application.interfaces.game.battle.IGameBattleProxy;
+	import game.library.BaseProxy;
 	
 	public class GameBattleProxy extends BaseProxy implements IGameBattleProxy
 	{
@@ -141,24 +141,27 @@ package game.application.game.battle
 		}
 		
 		
-		public function userSankOpponentsShip(ship:ShipData):void
+		public function userSankOpponentsShip(ship:ShipData, currentX:uint, currentY:uint):void
 		{
 			_opponentShips.push( ship );
 			
 			var v:Vector.<ShipPositionPoint> = _opponentField.pushShip( ship );
 			
 			var action:GameBattleAction = new GameBattleAction(GameBattleAction.USER_SANK_OPPONENTS_SHIP);
-			action.setData( {ship:ship, fieldPoint:v} );
+			var selectedCell:Object =  {x:currentX, y:currentY};
+			action.setData( {ship:ship, fieldPoint:v, cell:selectedCell} );
 			_actionList.push( action );
 		}
 		
 		
-		public function opponentSankUserShip(ship:ShipData):void
+		public function opponentSankUserShip(ship:ShipData, currentX:uint, currentY:uint):void
 		{
 			var v:Vector.<ShipPositionPoint> = _userField.pushShip( ship );
 			
 			var action:GameBattleAction = new GameBattleAction(GameBattleAction.OPPONENT_SANK_USER_SHIP);
-			action.setData( {ship:ship, fieldPoint:v} );
+			var selectedCell:Object =  {x:currentX, y:currentY};
+			
+			action.setData( {ship:ship, fieldPoint:v, cell:selectedCell} );
 			_actionList.push( action );
 		}
 		

@@ -273,6 +273,9 @@ package game.application.game.p_vs_computer
 			opponentHitInfo.finishX = action.finishX = msg.finishX;
 			opponentHitInfo.finishY = action.finishY = msg.finishY;
 			
+			opponentHitInfo.currentX = action.currentX = msg.currentX;
+			opponentHitInfo.currentY = action.currentY = msg.currentY;
+			
 			if( msg.player == ComputerAI.PLAYER_ID )
 			{
 				_userChannel.pushData( opponentHitInfo );

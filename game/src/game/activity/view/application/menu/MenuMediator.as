@@ -58,8 +58,11 @@ package game.activity.view.application.menu
 					
 				case ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE:
 				{
-					if(_currentPage) _currentPage.hide();
+					if(_currentPage) 
+						_currentPage.hide();
+					
 					_currentPage = null;
+					
 					break;
 				}
 					

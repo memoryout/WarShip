@@ -13,6 +13,9 @@ package game.application.connection.data
 		public var finishX:			int;
 		public var finishY:			int;
 		
+		public var currentX:		int;
+		public var currentY:		int;
+		
 		public function DestroyShipData(type:uint)
 		{
 			super(type);

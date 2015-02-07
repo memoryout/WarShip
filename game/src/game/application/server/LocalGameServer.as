@@ -103,12 +103,13 @@ package game.application.server
 				
 				if( shipData )
 				{
-					playerHitShip(x, y);
+//					playerHitShip(x, y);
 					
 					if( shipData.isSank() ) 
-					{
-						playerDestroyShip(shipData);
-					}
+						playerDestroyShip(shipData, x, y);					
+					
+					else
+						playerHitShip(x, y);
 					
 					setActivePlayer(_currentPlayerIndex);
 				}
@@ -158,7 +159,7 @@ package game.application.server
 		}
 		
 		
-		private function playerDestroyShip( shipData:LocalServerShip ):void
+		private function playerDestroyShip( shipData:LocalServerShip, x:uint, y:uint ):void
 		{
 			var msg:MessageDestroyShip = new MessageDestroyShip(MessageType.PLAYER_SANK_SHIP, _currentPlayer.id);
 			msg.deck = shipData.deck;
@@ -167,6 +168,9 @@ package game.application.server
 			
 			msg.finishX = shipData.getX(shipData.deck - 1);
 			msg.finishY = shipData.getY(shipData.deck - 1);
+			
+			msg.currentX = x;
+			msg.currentY = y;
 			
 			addMessage( msg );
 		}

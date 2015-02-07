@@ -294,7 +294,7 @@ package game.application.game.p_vs_computer
 		{
 			var shipData:ShipData = ShipPositionSupport.getInstance().getShipByStartPosition(action.startX, action.startY, shipsList);
 			
-			_battleProxy.opponentSankUserShip(shipData);
+			_battleProxy.opponentSankUserShip(shipData, action.currentX, action.currentY);
 		}
 		
 		
@@ -315,7 +315,7 @@ package game.application.game.p_vs_computer
 			if(action.startX != action.finishX) shipData.dirrection = ShipDirrection.HORIZONTAL;
 			else shipData.dirrection = ShipDirrection.VERTICAL;
 			
-			_battleProxy.userSankOpponentsShip(shipData);
+			_battleProxy.userSankOpponentsShip(shipData, action.currentX, action.currentY);
 		}
 		
 		
