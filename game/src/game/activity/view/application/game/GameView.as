@@ -8,10 +8,34 @@ package game.activity.view.application.game
 	
 	import game.activity.BaseMediator;
 	import game.application.data.game.ShipData;
+	import game.application.data.game.ShipPositionPoint;
 	
 	public class GameView extends Sprite
 	{
-		public static const SELECT_OPPONENT_CEIL:		String = "selectOpponentCeil";
+		public static const FINISH_HIT_EVENT:		String = "finish_hit";
+		
+		public static const SELECT_OPPONENT_CEIL:	String = "selectOpponentCeil";
+		
+		public static const VIEW_GAME_LINK:		String = "viewGame";
+		public static const OPONENT_FIELD:		String = "oponent_field";
+		public static const PLAYER_FIELD:		String = "player_field";
+		
+		public static const COLUMN_RED:			String = "column";
+		public static const LINE_RED:			String = "line";
+		
+		public static const SELECTED_CELL_VIEW:	String = "cellTable";
+			
+		public static const SHIPS_CONTAINER:	String = "ships_container";
+		
+		public static const HIT_FIRE_ANI:		String = "hitFire";
+		public static const HIT_WATER_ANI:		String = "hitWater";
+		
+		public static const BROKEN_SHIP_INDEX_NAME:		String = "broken_";
+		public static const DROWNED_SHIPS:		String = "drownedShips";
+					
+		public static const SELECTED_EMPTY:		int = 0;
+		public static const HIT_SHIP:			int = 1;
+		public static const SUNK_SHIP:			int = 2;
 		
 		private var _skin:			MovieClip;
 		
@@ -25,371 +49,42 @@ package game.activity.view.application.game
 		private var selectedCell:	MovieClip;		
 		
 		private var cellSize:		Number;
+		private var cellScale:		Number;
 		
 		private var selectedUserCell:		Array = new Array();
 		private var selectedOponentCell:	Array = new Array();
 		
 		private var brokenCellCounter:int = 1;
 		
-		private var shipsDescriptionContainer:Array;
+		private var shipsDescriptionContainer:Vector.<ShipViewDescription>;
 		
-		private var popUp:			MovieClip;
+		private var popUp:MovieClip;
+		
+		private var topBar:TopBar;
+		
+		private var column:MovieClip;
+		private var line:MovieClip;
+		
+		private var shipsContainer:MovieClip;
+		private var selectedCellsViewContainer:MovieClip;
+		private var cellAnimation:CellAnimation;
 		
 		public function GameView()
 		{
-			createViewComponents();
+			setViewComponents();			
 		}
 		
-		
-		public function get ceilX():uint
+		private function setViewComponents():void
 		{
-			return _ceilX;
-		}
-		
-		public function get ceilY():uint
-		{
-			return _ceilY;
-		}
-		
-		
-		public function lockGame():void
-		{
-			_opponentField.removeEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);
-			
-			_opponentField.removeEventListener(MouseEvent.MOUSE_DOWN,  handlerSelectCellDown);
-			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
-		}
-		
-		
-		public function unlockGame():void
-		{
-			_opponentField.addEventListener(MouseEvent.MOUSE_UP, 	handlerSelectCell);
-			_opponentField.addEventListener(MouseEvent.MOUSE_DOWN,  handlerSelectCellDown);			
-		}
-		
-		
-		
-		public function waiting():void
-		{
-//			this.alpha = 0.5;
-//			_txt.text = "WAITING";
-		}
-		
-		
-		public function opponentStep():void
-		{
-			this.alpha = 1;
-//			_txt.text = "OPPONENT STEP";
-			popUp.visible = true;
-		}
-		
-		public function userStep():void
-		{
-			this.alpha = 1;
-//			_txt.text = "USER STEP";
-			popUp.visible = false;
-		}
-		
-		public function waitingGame():void
-		{
-//			this.alpha = 0.5;
-//			_txt.text = "WAITNIG GAME ANSWER";
-		}
-		
-		public function sunkUserShip(val:Object):void
-		{
-			var i:int;
-			
-			for (i = 0; i < val.fieldPoint.length; i++) 
-			{
-				if(val.fieldPoint[i].x > -1 && val.fieldPoint[i].y > -1 && !checkIfCellWasSelected(val.fieldPoint[i], selectedUserCell))
-				{
-					userMakeHit(val.fieldPoint[i].x, val.fieldPoint[i].y, 0);
-					selectedUserCell.push([val.fieldPoint[i].x, val.fieldPoint[i].y]);
-				}
-			}
-			
-			for (i = 0; i < val.ship.coopdinates.length; i++) 
-			{
-				cleanBrokenCellsOnFeild(val.ship.coopdinates[i].x, val.ship.coopdinates[i].y, _opponentField);
-			}
-			
-			addBrokenShipOnField(val.ship.x, val.ship.y, val.ship.deck, val.ship.dirrection, _opponentField);			
-		}
-		
-		public function sunkOponentShip(val:Object):void
-		{			
-			var i:int;
-			
-			for (i = 0; i < val.fieldPoint.length; i++) 
-			{
-				if(val.fieldPoint[i].x > -1 && val.fieldPoint[i].y > -1 && !checkIfCellWasSelected(val.fieldPoint[i], selectedOponentCell))
-				{
-					opponentMakeHit(val.fieldPoint[i].x, val.fieldPoint[i].y, 0);
-					selectedOponentCell.push([val.fieldPoint[i].x, val.fieldPoint[i].y]);
-				}
-			}
-			
-			for (i = 0; i < val.ship.coopdinates.length; i++) 
-			{
-				cleanBrokenCellsOnFeild(val.ship.coopdinates[i].x, val.ship.coopdinates[i].y, _userField);
-			}
-			
-			for (i = 0; i < shipsDescriptionContainer.length; i++) 
-			{				
-				if(shipsDescriptionContainer[i].x == val.ship.x && shipsDescriptionContainer[i].y == val.ship.y)
-				{
-					_skin.removeChild(_skin.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
-					shipsDescriptionContainer[i].sunk = true;
-					break;
-				}								
-			}	
-			
-			addBrokenShipOnField(val.ship.x, val.ship.y, val.ship.deck, val.ship.dirrection, _userField);	
-		}
-		
-		private function checkIfCellWasSelected(val:Object, container:Array):Boolean
-		{			
-			for (var i:int = 0; i < container.length; i++) 
-			{
-				if(container[i][0] == val.x && container[i][1] == val.y)
-				{
-					return true;
-					break;
-				}
-			}
-			
-			return false;
-		}
-		
-		private function cleanBrokenCellsOnFeild(x:uint, y:uint, field:MovieClip):void
-		{
-			for (var i:int = 0; i < field.numChildren; i++) 
-			{
-				var currentElement:MovieClip = field.getChildAt(i) as MovieClip;
-				if(currentElement)
-				{
-					var nameName:Array = currentElement.name.split("_");	
-					
-					if(uint(nameName[1]) == x && uint(nameName[2]) == y)
-						field.removeChildAt(i);
-				}				
-			}			
-		}
-		
-		private function addBrokenShipOnField(x:int, y:int, deck:int, dirrection:int, field:MovieClip):void
-		{			
-			var classInstance:Class = BaseMediator.getSourceClass("drownedShips");
-			var drownedShip:MovieClip;
-			
-			if(classInstance)
-			{
-				drownedShip = new classInstance();				
-				classInstance = null;				
-			}	
-			
-			field.addChild(drownedShip);			
-			
-			drownedShip.x = cellSize*x;
-			drownedShip.y = cellSize*y;
-			
-			drownedShip.gotoAndStop(deck);
-			
-			if(dirrection == 0)  drownedShip.table.gotoAndStop(1);		
-			else  				 drownedShip.table.gotoAndStop(2);		
-		}
-		
-		
-		/**
-		 * Игрок сделал выстрел, значит рисуем на поле оппонента.
-		 * */
-		public function userMakeHit(x:uint, y:uint, result:uint):void
-		{
-			var hitElement:MovieClip, classInstance:Class, className:String, cellTable:MovieClip;
-			
-			if(result == 0) 
-				className = "hitWater";
-			else if(result == 1 || result == 2) 				
-				className = "hitFire";
-			
-			classInstance = BaseMediator.getSourceClass(className);
-			
-			if(classInstance)
-			{
-				hitElement = new classInstance();				
-				classInstance = null;				
-			}
-			
-			classInstance = BaseMediator.getSourceClass("cellTable");
-			
-			if(classInstance)
-			{
-				cellTable = new classInstance();				
-				classInstance = null;	
-				cellTable.name = "broken_" + x.toString() + "_" + y.toString();				
-			}	
-					
-			_skin.addChildAt(cellTable,  _skin.numChildren - 1);
-			_skin.addChildAt(hitElement, _skin.numChildren - 1);	
-			
-			setShotAnimation();
-			
-			hitElement.x = cellTable.x = cellSize*x + _opponentField.x;
-			hitElement.y = cellTable.y = cellSize*y + _opponentField.y;
-			
-			if(result > 0)
-			{
-				brokenCellCounter++;
-				cellTable.gotoAndStop(brokenCellCounter);
-			}
-				
-			else 
-				cellTable.gotoAndStop(1);
-			
-			var scale:Number = cellSize/cellTable.width;
-			
-			cellTable.scaleX  = cellTable.scaleY  = scale;			
-			hitElement.scaleX = hitElement.scaleY = scale;		
-							
-			hitElement.addEventListener("finish_hit", removeAnimation);	
-			hitElement.gotoAndPlay(2);					
-			
-			lockGame();
-		}
-		
-		
-		/**
-		 * Противник сделал выстрел, значит отмечаем его на своём поле.
-		 * Для вычислений используеться _opponentField хотя рисуеться на _userField - это временно
-		 * */
-		public function opponentMakeHit(x:uint, y:uint, result:uint):void
-		{
-			var hitElement:MovieClip, classInstance:Class, className:String, cellTable:MovieClip;
-			
-			if(result == 0) 
-				className = "hitWater";
-			else if(result == 1 || result == 2) 				
-				className = "hitFire";
-			
-			classInstance = BaseMediator.getSourceClass(className);
-			
-			if(classInstance)
-			{
-				hitElement = new classInstance();				
-				classInstance = null;				
-			}
-			
-			classInstance = BaseMediator.getSourceClass("cellTable");
-			
-			if(classInstance)
-			{
-				cellTable = new classInstance();				
-				classInstance = null;		
-				cellTable.name = "broken_" + x.toString() + "_" + y.toString();		
-			}			
-						
-			_skin.addChildAt(cellTable,  _skin.numChildren-1);
-			_skin.addChildAt(hitElement, _skin.numChildren-1);
-			
-			hitElement.x = cellTable.x = cellSize*x + _userField.x;
-			hitElement.y = cellTable.y = cellSize*y + _userField.y;
-			
-			if(result > 0)
-				cellTable.gotoAndStop(22);
-			else 
-				cellTable.gotoAndStop(1);
-			
-			var scale:Number = cellSize/cellTable.width;
-			
-			cellTable.scaleX  = cellTable.scaleY  = scale;			
-			hitElement.scaleX = hitElement.scaleY = scale;	
-						
-			hitElement.gotoAndPlay(2);				
-			hitElement.addEventListener("finish_hit", removeAnimation);		
-			
-			selectedOponentCell.push([x, y]);
-			
-			trace("x: ", x, "y: ", y);
-		}
-		
-		private function setShotAnimation():void
-		{		
-			var i:int, shipLink:MovieClip, highRange:int;
-						
-			var randomShipShot:int = Math.random()*shipsDescriptionContainer.length;
-			
-			while(shipsDescriptionContainer[randomShipShot].sunk)
-			{
-				randomShipShot = Math.random()*shipsDescriptionContainer.length;
-			}
-						
-			if(shipsDescriptionContainer[randomShipShot].deck == 4)
-			{
-				if(shipsDescriptionContainer[randomShipShot].dirrection == 0)
-					highRange = 1;
-				else
-					highRange = 3;
-				
-				for (i = 0; i < highRange; i++) 
-				{
-					shipLink = shipsDescriptionContainer[randomShipShot].shipLink;					
-					addShotAnimation(shipLink, i);
-				}				
-				
-			}else if(shipsDescriptionContainer[randomShipShot].deck == 3)
-			{
-				if(shipsDescriptionContainer[randomShipShot].dirrection == 0)
-					highRange = 1;
-				else
-					highRange = 2;
-				
-				for (i = 0; i < highRange; i++) 
-				{
-					shipLink = shipsDescriptionContainer[randomShipShot].shipLink;					
-					addShotAnimation(shipLink, i);
-				}				
-				
-			}else if(shipsDescriptionContainer[randomShipShot].deck == 2)
-			{				
-				shipLink = shipsDescriptionContainer[randomShipShot].shipLink;								
-				addShotAnimation(shipLink, 0);
-				
-			}else if(shipsDescriptionContainer[randomShipShot].deck == 1)
-			{
-				shipLink = shipsDescriptionContainer[randomShipShot].shipLink;				
-				addShotAnimation(shipLink, 0);
-			}			
-		}
-		
-		private function addShotAnimation(shipLink:MovieClip, pointIndex:int):void
-		{
-			var classInstance:Class = BaseMediator.getSourceClass("shotAni"), shotAni:MovieClip;			
-			
-			if(classInstance)
-			{
-				shotAni = new classInstance();				
-				classInstance = null;	
-			}	
-			
-			_skin.addChildAt(shotAni,  _skin.numChildren - 1);
-			shotAni.x = (shipLink.getChildByName("point_" + pointIndex) as MovieClip).x + shipLink.x;
-			shotAni.y = (shipLink.getChildByName("point_" + pointIndex) as MovieClip).y + shipLink.y;
-			
-			shotAni.addEventListener("finish_shot", removeAnimation);	
-			shotAni.gotoAndPlay(2);		
-		}
-		
-		private function createViewComponents():void
-		{
-			var classInstance:Class = BaseMediator.getSourceClass("viewGame");
+			var classInstance:Class = BaseMediator.getSourceClass(VIEW_GAME_LINK);
 			
 			if(classInstance)
 			{
 				_skin = new classInstance();
 				this.addChild( _skin );
 				
-				_opponentField = _skin.getChildByName("oponent_field") as MovieClip;
-				_userField = _skin.getChildByName("player_field") as MovieClip;
+				_opponentField 	= _skin.getChildByName(OPONENT_FIELD) as MovieClip;
+				_userField 		= _skin.getChildByName(PLAYER_FIELD) as MovieClip;
 				
 				cellSize = (_userField.getChildByName("field") as MovieClip).width/10; // calculate cell size
 				
@@ -399,23 +94,266 @@ package game.activity.view.application.game
 			classInstance = BaseMediator.getSourceClass("viewPopUp");
 			
 			popUp = new classInstance();
-			this.addChild( popUp );			
+			this.addChild( popUp );	
+			
+			column	= _opponentField.getChildByName(COLUMN_RED) as MovieClip;
+			line	= _opponentField.getChildByName(LINE_RED)   as MovieClip;
+			
+			selectedCellsViewContainer = new MovieClip();
+			_skin.addChild(selectedCellsViewContainer);			
+			selectedCellsViewContainer.mouseEnabled = false;
+			
+			cellAnimation = new CellAnimation();
+			_skin.addChild(cellAnimation);	
+			
+			cellAnimation.mouseEnabled = false;
+			
+			shipsContainer = _skin.getChildByName(SHIPS_CONTAINER) as MovieClip;
+			
+			shipsContainer.mouseEnabled = false;
+						
+			_skin.setChildIndex(shipsContainer, _skin.numChildren - 1);
+			_skin.setChildIndex(cellAnimation, _skin.numChildren - 1);
+			
+			topBar = new TopBar();
+			addChild(topBar);
+		}
+				
+		public function lockGame():void
+		{
+			_opponentField.removeEventListener(MouseEvent.MOUSE_UP, 	handlerSelectCell);			
+			_opponentField.removeEventListener(MouseEvent.MOUSE_DOWN,  	handlerSelectCellDown);
+			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  	handlerSelectCellMove);
 		}
 		
+		public function unlockGame():void
+		{
+			_opponentField.addEventListener(MouseEvent.MOUSE_UP, 		handlerSelectCell);
+			_opponentField.addEventListener(MouseEvent.MOUSE_DOWN,  	handlerSelectCellDown);			
+		}	
 		
+		/**
+		 * Locate ships on user field.
+		 * @param val - ship list
+		 * 
+		 */		
+		public function setShipsLocation(val:Vector.<ShipData>):void
+		{		
+			shipsDescriptionContainer = new Vector.<ShipViewDescription>();
+			
+			for (var i:int = 0; i < val.length; i++) 
+			{				
+				var ship:MovieClip = shipsContainer.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
+				
+				ship.x = val[i].x*cellSize + _userField.x;
+				ship.y = val[i].y*cellSize + _userField.y;
+				
+				if(val[i].dirrection == 0) 
+					ship.gotoAndStop(1);		
+				else					   
+					ship.gotoAndStop(2);
+				
+				var shipViewDescription:ShipViewDescription = new ShipViewDescription();
+				
+				shipViewDescription.shipName = ship.name;
+				shipViewDescription.x = val[i].x;
+				shipViewDescription.y = val[i].y;
+				shipViewDescription.sunk = false;
+				shipViewDescription.deck = val[i].deck;
+				shipViewDescription.link = ship;
+				shipViewDescription.dirrection = val[i].dirrection;
+				
+				shipsDescriptionContainer.push(shipViewDescription);
+			}			
+		}
+		
+		/**
+		 * Игрок сделал выстрел, значит рисуем на поле оппонента.
+		 * */
+		public function userMakeHit(fieldPoint:Object, selectType:uint):void
+		{
+			var xPosition:Number = cellSize*fieldPoint.x + _opponentField.x,
+				yPosition:Number = cellSize*fieldPoint.y + _opponentField.y,
+				gotoTableFrame:Number = 1;		
+			
+			if(selectType != SELECTED_EMPTY)
+			{
+				brokenCellCounter++;
+				gotoTableFrame = brokenCellCounter;
+			}
+			
+			cellAnimation.setShipShootAnimation(shipsDescriptionContainer);			
+									
+			cellAnimation.setAnimation(xPosition, yPosition, selectType, cellScale, fieldPoint, gotoTableFrame,  addTable, 0);
+			
+			lockGame();
+		}	
+			
+		/**
+		 * Противник сделал выстрел, значит отмечаем его на своём поле.
+		 * Для вычислений используеться _opponentField хотя рисуеться на _userField - это временно
+		 * */
+		public function opponentMakeHit(fieldPoint:Object, selectType:int):void
+		{		
+			var xPosition:Number = cellSize*fieldPoint.x + _userField.x,
+				yPosition:Number = cellSize*fieldPoint.y + _userField.y,		
+				gotoTableFrame:Number = 1,
+				shootedAni:int;
+									
+			if(selectType == SELECTED_EMPTY)
+				gotoTableFrame = 1;		
+									
+			selectedOponentCell.push([xPosition, yPosition]);			
+			
+			if(selectType == HIT_SHIP)
+				shootedAni = 1;
+			
+			cellAnimation.setAnimation(xPosition, yPosition, selectType, cellScale, fieldPoint, gotoTableFrame,  addTable, shootedAni);
+			
+		}
+				
+		public function sunkUserShip(val:Object):void
+		{
+			var xPosition:Number = cellSize*val.ship.x + _opponentField.x,
+				yPosition:Number = cellSize*val.ship.y + _opponentField.y;
+			
+			addWaterAroundSunkShip(userMakeHit, val.fieldPoint, selectedOponentCell);			
+			cellAnimation.setSunkAnimation(xPosition, yPosition, val.ship, addBrokenShipOnField);
+			
+			cleanBrokenCellsOnFeild(val.ship.coopdinates);		
+		}
+		
+		public function sunkOponentShip(val:Object):void
+		{
+			var xPosition:Number = cellSize*val.ship.x + _userField.x,
+				yPosition:Number = cellSize*val.ship.y + _userField.y;
+			
+			addWaterAroundSunkShip(opponentMakeHit, val.fieldPoint, selectedOponentCell);
+			cellAnimation.setSunkAnimation(xPosition, yPosition, val.ship, addBrokenShipOnField);
+			
+			removeOponentShipFromView(val);		
+			cellAnimation.removeShotedAnimation();
+		}
+		
+		private function addTable(fieldPoint:Object, xPosition:Number, yPosition:Number, gotoTableFrame:int):void
+		{
+			var classInstance:Class, cellTable:MovieClip;
+			
+			classInstance = BaseMediator.getSourceClass(SELECTED_CELL_VIEW);
+			
+			if(classInstance)
+			{
+				cellTable = new classInstance();				
+				classInstance = null;	
+				cellTable.name = BROKEN_SHIP_INDEX_NAME + fieldPoint.x.toString() + "_" + fieldPoint.y.toString();				
+			}	
+			
+			selectedCellsViewContainer.addChild(cellTable);	
+			
+			cellTable.x = xPosition;
+			cellTable.y = yPosition;
+			
+			cellScale = cellSize/cellTable.width;
+			
+			cellTable.scaleX = cellTable.scaleY = cellScale;
+			
+			cellTable.gotoAndStop(gotoTableFrame);
+		}
+		
+		private function addWaterAroundSunkShip(callForMakeHit:Function, val:Vector.<ShipPositionPoint>, selectedCellsContainer:Array):void
+		{
+			for (var i:int = 0; i < val.length; i++) 
+			{
+				var selectedCell:Boolean = checkIfCellWasSelected(val[i], selectedOponentCell);				
+				
+				if(!selectedCell)
+				{						
+					callForMakeHit(val[i], SELECTED_EMPTY);			
+					
+					selectedCellsContainer.push([val[i].x, val[i].y]);
+				}				
+			}
+		}
+		
+		private function removeOponentShipFromView(val:Object):void
+		{
+			for (var i:int = 0; i < shipsDescriptionContainer.length; i++) 
+			{				
+				if(shipsDescriptionContainer[i].x == val.ship.x && shipsDescriptionContainer[i].y == val.ship.y)
+				{
+					shipsContainer.removeChild(shipsContainer.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
+					shipsDescriptionContainer[i].sunk = true;
+					break;
+				}								
+			}
+		}
+		
+		private function checkIfCellWasSelected(val:Object, container:Array):Boolean
+		{			
+			for (var i:int = 0; i < container.length; i++) 
+			{
+				if(container[i][0] == val.x && container[i][1] == val.y)				
+					return true;				
+			}
+			
+			return false;
+		}
+		
+		private function cleanBrokenCellsOnFeild(coopdinates:Object):void
+		{
+			for (var j:int = 0; j < coopdinates.length; j++) 
+			{
+				for (var i:int = 0; i < selectedCellsViewContainer.numChildren; i++) 
+				{				
+					if(selectedCellsViewContainer.getChildAt(i))
+					{
+						var nameName:Array = selectedCellsViewContainer.getChildAt(i).name.split("_");	
+						
+						if(uint(nameName[1]) == coopdinates[j].x && uint(nameName[2]) == coopdinates[j].y)
+							selectedCellsViewContainer.removeChildAt(i);
+					}				
+				}	
+			}				
+		}
+		
+		private function addBrokenShipOnField(xPosition:Number, yPosition:Number, deck:int, dirrection:int):void
+		{			
+			var classInstance:Class = BaseMediator.getSourceClass(DROWNED_SHIPS);
+			var drownedShip:MovieClip;
+			
+			if(classInstance)
+			{
+				drownedShip = new classInstance();				
+				classInstance = null;				
+			}	
+			
+			shipsContainer.addChild(drownedShip);					
+			
+			drownedShip.x = xPosition;
+			drownedShip.y = yPosition;
+			
+			drownedShip.gotoAndStop(deck);
+			
+			if(dirrection == 0)  
+				drownedShip.table.gotoAndStop(1);		
+			else  					 
+				drownedShip.table.gotoAndStop(2);		
+		}	
+			
 		private function handlerSelectCell(e:MouseEvent):void
 		{
 			_ceilX = uint(_opponentField.mouseX/cellSize);
 			_ceilY = uint(_opponentField.mouseY/cellSize);
+			
 			this.dispatchEvent( new Event(SELECT_OPPONENT_CEIL));
 			
 			selectedUserCell.push([_ceilX, _ceilY]);
 			
-			if(_opponentField.getChildByName("column"))
-				(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			if(column)
+				column.alpha = 0;
 			
-			if(_opponentField.getChildByName("line"))
-				(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
+			if(line)
+				line.alpha = 0;
 			
 			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
 		}
@@ -425,16 +363,14 @@ package game.activity.view.application.game
 			_ceilX = uint(_opponentField.mouseX/cellSize);
 			_ceilY = uint(_opponentField.mouseY/cellSize);
 			
-			if( _opponentField.getChildByName("column"))
+			if( column)
 			{
-				var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
 				column.alpha = 1;			
 				column.x	 = _ceilX*cellSize;		
 			}
 			
-			if( _opponentField.getChildByName("line"))
+			if(line)
 			{
-				var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;
 				line.alpha  = 1;
 				line.y  	= (_ceilY + 1)*cellSize;
 			}
@@ -450,16 +386,14 @@ package game.activity.view.application.game
 			
 			if(_ceilX <= 9 && _ceilY <= 9)
 			{
-				if(_opponentField.getChildByName("column"))
+				if(column)
 				{
-					var column:MovieClip = _opponentField.getChildByName("column") as MovieClip;
 					column.alpha = 1;		
 					column.x	= _ceilX*cellSize;		
 				}
 				
-				if(_opponentField.getChildByName("line"))
-				{
-					var line:MovieClip   = _opponentField.getChildByName("line")   as MovieClip;				
+				if(line)
+				{									
 					line.alpha   = 1;
 					line.y  	= (_ceilY + 1)*cellSize;
 				}			
@@ -468,69 +402,38 @@ package game.activity.view.application.game
 		
 		private function handlerSelectCellOut(e:MouseEvent):void
 		{
-			if(_opponentField.getChildByName("column"))
-				(_opponentField.getChildByName("column") as MovieClip).alpha = 0;
+			if(column)
+				column.alpha = 0;
 			
-			if(_opponentField.getChildByName("line"))
-			(_opponentField.getChildByName("line")   as MovieClip).alpha = 0;
+			if(line)
+				line.alpha = 0;
 			
 			_opponentField.removeEventListener(MouseEvent.MOUSE_MOVE,  handlerSelectCellMove);
 		}
-		
-		/**
-		 * Locate ships on user field.
-		 * @param val - ship list
-		 * 
-		 */		
-		public function setShipsLocation(val:Vector.<ShipData>):void
-		{		
-			shipsDescriptionContainer = new Array();
-			
-			for (var i:int = 0; i < val.length; i++) 
-			{				
-				var ship:MovieClip = _skin.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
-				ship.x = val[i].x*cellSize + _userField.x;
-				ship.y = val[i].y*cellSize + _userField.y;
-				
-				if(val[i].dirrection == 0) ship.gotoAndStop(1);		
-				else					   ship.gotoAndStop(2);			
-				
-				shipsDescriptionContainer.push({"shipName":ship.name, "x":val[i].x, "y":val[i].y, "sunk":false, "deck":val[i].deck, "shipLink":ship, "dirrection":val[i].dirrection });
-				
-//				trace("x:", val[i].x, "y:", val[i].y, "direction: ", val[i].dirrection,  "deck: ", val[i].deck);
-			}			
-		}
-		
+						
 		public function setUsersData(val:Object):void
 		{
 			trace(val);
 		}
 		
-			
-		private function removeAnimation(e:Event):void
+		public function updateProgressLine(type:String, val:Object):void
 		{
-			if(_skin.contains(e.currentTarget as MovieClip)) 
-				_skin.removeChild(e.currentTarget as MovieClip);
-			
-			unlockGame();
+			topBar.setProgress(type, val);			
+		}
+				
+		public function get skin():MovieClip
+		{
+			return _skin;
 		}
 		
-		public function updateProgressLine(str:String, val:Object):void
+		public function get ceilX():uint
 		{
-			var progressLine:MovieClip;
-			
-			trace("val: ", val);
-			
-			if(str == "user")
-			{
-				progressLine = (_skin.getChildByName("topBar") as MovieClip).getChildByName("oponent_progress_line") as MovieClip;
-				
-			}else if(str == "opponent")
-			{
-				progressLine = (_skin.getChildByName("topBar") as MovieClip).getChildByName("user_progress_line") as MovieClip;
-			}
-			
-			progressLine.gotoAndStop(val+1);			
+			return _ceilX;
+		}
+		
+		public function get ceilY():uint
+		{
+			return _ceilY;
 		}
 	}
 }
