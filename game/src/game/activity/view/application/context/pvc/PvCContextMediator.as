@@ -72,7 +72,8 @@ package game.activity.view.application.context.pvc
 		
 		private function createUserShipPositionFragment():void
 		{
-			this.facade.registerMediator( new ShipsPositionsMediator( _layout) );
+//			this.facade.registerMediator( new ShipsPositionsMediator( _layout) );
+			this.facade.registerMediator( new GameViewMediator( _layout) );
 		}
 		
 		
