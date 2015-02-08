@@ -15,6 +15,7 @@ package game.application.startup
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
+	import game.application.authorization.UserAuthorizationProxy;
 	import game.application.commands.authorization.SetUserAuthorizationCommand;
 	import game.application.commands.startup.NewUserCreatedCommand;
 	import game.application.commands.startup.ServerConectionResult;
@@ -54,7 +55,6 @@ package game.application.startup
 		public static const STARTUP_COMPLETE:		String = "startup.complete";
 		public static const STARTUP:				String = "startup.start";
 		
-		private var _deviceInfo:				DeviceInfo;
 		private var _userDataProxy:				IUserDataProxy;
 		private var _userData:					UserData;
 		private var _server:					IServerConnectionProxy;
@@ -70,7 +70,9 @@ package game.application.startup
 		private var _startupInfo:				StartupInfo;
 		
 		private var _manualAuthorizationData:	UserManualAuthorizationData;
-
+	
+		private var _authorizationProxy:		UserAuthorizationProxy;
+		
 		public function StartupProxy(proxyName:String)
 		{
 			super(proxyName);
@@ -139,28 +141,20 @@ package game.application.startup
 			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE) );
 			_startupInfo.setLoaderInfo(null);
 			
-			
-			//DataProvider.getInstance().addEventListener(Event.INIT, handlerDataProviderInitComplete);
+			// connect to local data base
 			//DataProvider.getInstance().init();
+			//DataProvider.getInstance().addEventListener(Event.INIT, handlerInitDataProviderCompleted);
+					
+			//GoogleGames.create();
 			
-			GoogleGames.create();
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			//getDeviceInfo();
+			startAuthorization();
 		}
 		
 		
 		
-		private function handlerDataProviderInitComplete(e:Event):void
+		private function handlerInitDataProviderCompleted(e:Event):void
 		{
-			getDeviceInfo();
+			startAuthorization();
 		}
 		
 		
@@ -173,53 +167,44 @@ package game.application.startup
 			}*/
 			
 			
-			var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
+			//var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
 			
-			_startupInfo.setDeviceManager(device);
+			//_startupInfo.setDeviceManager(device);
 			
-			if(device.deviceInfo)
-			{
-				handlerDeviceInfo(null);
-			}
-			else
-			{
-				device.addEventListener(DeviceManagerEvents.DEVICE_ID_RECEIVE, handlerDeviceInfo);
+			//if(device.deviceInfo)
+			//{
+				//handlerDeviceInfo(null);
+			//}
+			//else
+			//{
+			//	device.addEventListener(DeviceManagerEvents.DEVICE_ID_RECEIVE, handlerDeviceInfo);
 				
-				_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_REQUEST_DEVICE_INFO) ); 
+				//_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_REQUEST_DEVICE_INFO) ); 
 				
-				device.retrieveDeviceInfo();
-			}
-		}
-		
-		
-		private function handlerDeviceInfo(e:Event = null):void
-		{
-			if(e.currentTarget) e.currentTarget.removeEventListener(DeviceManagerEvents.DEVICE_ID_RECEIVE, handlerDeviceInfo);
-			
-			var device:IDeviceManager = ServicesList.getSearvice( ServicesList.DEVICE_MANAGER) as IDeviceManager;
-			_deviceInfo = device.deviceInfo;
-			
-			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_DEVICE_INFO_RECEIVED) );
-			
-			startAuthorization();
+			//	device.retrieveDeviceInfo();
+			//}
 		}
 		
 
 		private function startAuthorization():void
 		{
 			
+			_authorizationProxy = new UserAuthorizationProxy();
+			this.facade.registerProxy( _authorizationProxy );
 			
+			//_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_AUTHORIZATION_INIT) );
+			
+			//var userInfoRequest:UserInfoRequest = DataProvider.getInstance().getUserDataProvider().retrieveUserInfo();
 			//userInfoRequest.addEventListener(Event.COMPLETE, handlerUserDataRetrieve);
 			
-			_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_AUTHORIZATION_INIT) );
 			
-			var userInfoRequest:UserInfoRequest = DataProvider.getInstance().getUserDataProvider().retrieveUserInfo();
-			userInfoRequest.addEventListener(Event.COMPLETE, handlerUserDataRetrieve);
 			
-			//_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
 			
-			//this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
-			//_userDataProxy.connect();
+			
+			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+						
+			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
+			_userDataProxy.connect();
 				
 		}
 		
@@ -242,10 +227,14 @@ package game.application.startup
 				
 		public function userDataConnected():void
 		{
+			trace("userDataConnected");
 			this.facade.removeCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED);
-			this.facade.registerCommand(ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST, UserDataProxyReceiveUsersList);
-			_userDataProxy.retrieveUsersList();
+			//this.facade.registerCommand(ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST, UserDataProxyReceiveUsersList);
+			//_userDataProxy.retrieveUsersList();
 			
+			
+			this.facade.registerCommand( ApplicationEvents.USER_DATA_USER_CREATED, NewUserCreatedCommand);
+			_userDataProxy.createNewUser("name","login","pass");
 		}
 		
 		
@@ -361,6 +350,7 @@ package game.application.startup
 		
 		public function newUserCreated():void
 		{
+			trace("newUserCreated")
 			authorizationSeccussesComplete();
 		}
 		
@@ -375,33 +365,33 @@ package game.application.startup
 		{
 			_userData = _userDataProxy.getUserData();
 			
-			if(!_deviceInfo.deviceId || _deviceInfo.deviceId == "emulator")
+			//if(!_deviceInfo.deviceId || _deviceInfo.deviceId == "emulator")
 			{
 				if( _userData.deviceID )
 				{
-					_deviceInfo.deviceId = _userData.deviceID;
+					//_deviceInfo.deviceId = _userData.deviceID;
 				}
 				else
 				{
-					_deviceInfo.deviceId = Math.random().toString();
-					_userData.deviceID = _deviceInfo.deviceId;
+					//_deviceInfo.deviceId = Math.random().toString();
+					//_userData.deviceID = _deviceInfo.deviceId;
 					_userDataProxy.commitChanges();
 				}
 			}
-			else
+			//else
 			{
 				if( !_userData.deviceID )
 				{
-					_userData.deviceID =  _deviceInfo.deviceId;
+					//_userData.deviceID =  _deviceInfo.deviceId;
 					_userDataProxy.commitChanges();
 				}
 			}
 			
 			
 			
-			connectToServer();
+			//connectToServer();
 			
-			//this.sendNotification(STARTUP_COMPLETE);
+			this.sendNotification(STARTUP_COMPLETE);
 		}
 		
 		

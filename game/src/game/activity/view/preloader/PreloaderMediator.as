@@ -45,6 +45,9 @@ package game.activity.view.preloader
 		
 		private function handlerClickSignIn(e:MouseEvent):void
 		{
+			//GoogleGames.games.signOut();
+			
+			
 			if (GoogleGames.games.isSignedIn())
 			{
 				trace("Is signed in already")
@@ -56,6 +59,7 @@ package game.activity.view.preloader
 				GoogleGames.games.addEventListener(GoogleGamesEvent.SIGN_IN_FAILED, onGamesError);
 				GoogleGames.games.signIn();
 			}
+			
 		}
 		
 		private function onSignedIn(e:GoogleGamesEvent):void

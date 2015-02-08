@@ -43,13 +43,14 @@ package game.application.data.user
 		public function connect():void
 		{
 			var sql:ISQLManager = ServicesList.getSearvice( ServicesList.SQL_MANAGER ) as ISQLManager;
-			//sql.connect(AppGlobalVariables.SQL_FILE_URL, onConnect, onErrorConnect);
-			onConnect();
+			sql.connect(AppGlobalVariables.SQL_FILE_URL, onConnect, onErrorConnect);
+			//onConnect();
 		}
 		
 		
 		private function onConnect():void
 		{
+			trace("onConnect");
 			this.sendNotification( ApplicationEvents.USER_DATA_PROXY_CONNECTED);
 		}
 		
@@ -73,6 +74,7 @@ package game.application.data.user
 		
 		private function onRetrieveUsersList(request:UserDataProxyRequest):void
 		{
+			trace("onRetrieveUsersList")
 			if(request)
 			{
 				if(request.result && request.result.length) createUsersList(request.result);
@@ -90,6 +92,7 @@ package game.application.data.user
 		
 		private function onErrorRetrieveUsersList():void
 		{
+			trace("onErrorRetrieveUsersList")
 			this.sendNotification( ApplicationEvents.USER_DATA_RECEIVE_USERS_LIST );
 		}
 		//--------- ------------------------- ----------
@@ -100,13 +103,28 @@ package game.application.data.user
 		{
 			var requestMessage:String = 'INSERT INTO "main"."user" ("name","deviceID","login","pass","exp") VALUES ("' + name + '", null, "' + login + '", "' + pass + '", null)';
 			
-			var request:UserDataProxyRequest = new UserDataProxyRequest();
-			request.setData(_sqlManager, requestMessage, handlerUserCreated, handlerErrorCreateUser);
+			var data:Object = new Object();
+			data.login = login;
+			data.pass = pass;
+			data.id = "1";
+			data.name = name;
+			data.deviceID = "asdasd";
+			
+			_currentUser = new UserData(data);
+
+			
+			_userData = _currentUser;
+			
+			//var request:UserDataProxyRequest = new UserDataProxyRequest();
+			//request.setData(_sqlManager, requestMessage, handlerUserCreated, handlerErrorCreateUser);
+			
+			this.sendNotification( ApplicationEvents.USER_DATA_USER_CREATED);
 		}
 		
 		
 		private function handlerUserCreated(request:UserDataProxyRequest):void
 		{
+			trace("handlerUserCreated")
 			var requestMessage:String = 'SELECT * FROM "main"."user"';
 			
 			var request:UserDataProxyRequest = new UserDataProxyRequest();
@@ -129,7 +147,7 @@ package game.application.data.user
 		
 		private function handlerErrorCreateUser(request:UserDataProxyRequest):void
 		{
-			
+			trace("handlerErrorCreateUser")
 		}
 		//--------- ----------------- ----------
 		
