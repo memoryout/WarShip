@@ -7,7 +7,7 @@ package game.application.data
 
 	public class StartupInfo extends EventDispatcher
 	{
-		private var _loaderInfo:		LoaderInfo;
+		private var _loaderInfo:		EventDispatcher;
 		private var _device:			IDeviceManager;
 		
 		public function StartupInfo()
@@ -15,12 +15,12 @@ package game.application.data
 			
 		}
 		
-		public function setLoaderInfo(loaderInfo:LoaderInfo):void
+		public function setLoaderInfo(loader:EventDispatcher):void
 		{
-			_loaderInfo = loaderInfo;
+			_loaderInfo = loader;
 		}
 		
-		public function getLoaderInfo():LoaderInfo
+		public function getLoaderInfo():EventDispatcher
 		{
 			return _loaderInfo;
 		}

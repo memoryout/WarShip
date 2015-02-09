@@ -41,9 +41,7 @@ package game.services.asset
 		
 		public function loadSource(url:String):LoaderInfo
 		{
-			if(_assetDomain) return null;
-			
-			_assetDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
+			if(!_assetDomain) _assetDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
 			
 			var loader:Loader = new Loader();
 			loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, handlerErrorLoadFile);
@@ -52,6 +50,7 @@ package game.services.asset
 			
 			return loader.contentLoaderInfo;
 		}
+		
 		
 		public function isAssetExist():Boolean
 		{
@@ -64,7 +63,13 @@ package game.services.asset
 			return null;
 		}
 		
-		
+		public function getMultiloader():MultiLoader
+		{
+			if(!_assetDomain) _assetDomain = new ApplicationDomain(ApplicationDomain.currentDomain);
+			
+			var loader:MultiLoader = new MultiLoader(_assetDomain);
+			return loader;
+		}
 		
 		
 		

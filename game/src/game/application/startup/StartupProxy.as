@@ -40,6 +40,7 @@ package game.application.startup
 	import game.library.BaseProxy;
 	import game.library.LocalEvent;
 	import game.services.ServicesList;
+	import game.services.asset.MultiLoader;
 	import game.services.device.DeviceInfo;
 	import game.services.device.DeviceManagerEvents;
 	import game.services.interfaces.IAssetManager;
@@ -106,12 +107,16 @@ package game.application.startup
 			}
 			else
 			{
-				var loaderInfo:LoaderInfo = asset.loadSource(AppGlobalVariables.SOURCE_URL);
-				loaderInfo.addEventListener(Event.INIT, handlerAssetInit);
-				loaderInfo.addEventListener(IOErrorEvent.IO_ERROR, handlerAssetError);
+				var loader:MultiLoader = asset.getMultiloader();
+				
+				// сначала наполняем очередь загрузки, затем вызываем load();
+				loader.pushFile( AppGlobalVariables.SOURCE_URL );
+				
+				loader.addEventListener(Event.COMPLETE, handlerAssetInit);
+				loader.load();
 				
 				_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_START) );
-				_startupInfo.setLoaderInfo(loaderInfo);
+				_startupInfo.setLoaderInfo(loader);
 			}
 		}
 		
@@ -133,7 +138,7 @@ package game.application.startup
 			if(e) 
 			{
 				e.currentTarget.removeEventListener(Event.INIT, handlerAssetInit);
-				e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, handlerAssetError);
+				//e.currentTarget.removeEventListener(IOErrorEvent.IO_ERROR, handlerAssetError);
 			}
 			
 			this.sendNotification(ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE);
@@ -201,10 +206,10 @@ package game.application.startup
 			
 			
 			
-			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			//_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
 						
-			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
-			_userDataProxy.connect();
+			//this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
+			//_userDataProxy.connect();
 				
 		}
 		
