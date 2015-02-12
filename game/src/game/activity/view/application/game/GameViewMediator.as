@@ -193,7 +193,7 @@ package game.activity.view.application.game
 						// data.fieldPoint = Vector.<ShipPositionPoint> - точки на поле вокруг горабля.
 						
 //						
-						
+//						userMakeHit({result:2, x:action.getData().cell.x, y:action.getData().cell.y});
 						_gameView.sunkUserShip(action.getData());
 						
 						executeBattleProxyAction();
@@ -202,6 +202,7 @@ package game.activity.view.application.game
 						
 					case GameBattleAction.OPPONENT_SANK_USER_SHIP:
 					{
+//						opponentMakeHit({result:2, x:action.getData().cell.x, y:action.getData().cell.y});
 						_gameView.sunkOponentShip(action.getData());
 						executeBattleProxyAction();						
 						break;

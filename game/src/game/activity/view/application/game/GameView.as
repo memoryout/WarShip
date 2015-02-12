@@ -12,6 +12,9 @@ package game.activity.view.application.game
 	
 	public class GameView extends Sprite
 	{
+		public static const USERT_TYPE:		String = "user";
+		public static const OPPONENT_TYPE:	String = "oponent";
+		
 		public static const FINISH_HIT_EVENT:		String = "finish_hit";
 		
 		public static const SELECT_OPPONENT_CEIL:	String = "selectOpponentCeil";
@@ -26,6 +29,7 @@ package game.activity.view.application.game
 		public static const SELECTED_CELL_VIEW:	String = "cellTable";
 			
 		public static const SHIPS_CONTAINER:	String = "ships_container";
+		public static const LINES_CONTAINER:	String = "lines_container";
 		
 		public static const HIT_FIRE_ANI:		String = "hitFire";
 		public static const HIT_WATER_ANI:		String = "hitWater";
@@ -48,8 +52,8 @@ package game.activity.view.application.game
 		private var _txt:			TextField;
 		private var selectedCell:	MovieClip;		
 		
-		private var cellSize:		Number;
-		private var cellScale:		Number;
+		private var cellSize:		Number = 1;
+//		private var cellScale:		Number = 1;
 		
 		private var selectedUserCell:		Array = new Array();
 		private var selectedOponentCell:	Array = new Array();
@@ -66,6 +70,7 @@ package game.activity.view.application.game
 		private var line:MovieClip;
 		
 		private var shipsContainer:MovieClip;
+		private var linesContainer:MovieClip;
 		private var selectedCellsViewContainer:MovieClip;
 		private var cellAnimation:CellAnimation;
 		
@@ -86,18 +91,30 @@ package game.activity.view.application.game
 				_opponentField 	= _skin.getChildByName(OPONENT_FIELD) as MovieClip;
 				_userField 		= _skin.getChildByName(PLAYER_FIELD) as MovieClip;
 				
-				cellSize = (_userField.getChildByName("field") as MovieClip).width/10; // calculate cell size
+				cellSize = (_userField.getChildByName("field") as MovieClip).width/10; // calculate cell size							
 				
 				_opponentField.addEventListener(MouseEvent.MOUSE_UP, handlerSelectCell);					
 			}
+			
+			classInstance = BaseMediator.getSourceClass(SELECTED_CELL_VIEW);
+			
+			if(classInstance)
+			{
+				var cellTable:MovieClip = new classInstance();				
+				classInstance = null;	
+			}	
+			
+//			cellScale = cellSize/cellTable.width;
 			
 			classInstance = BaseMediator.getSourceClass("viewPopUp");
 			
 			popUp = new classInstance();
 			this.addChild( popUp );	
 			
-			column	= _opponentField.getChildByName(COLUMN_RED) as MovieClip;
-			line	= _opponentField.getChildByName(LINE_RED)   as MovieClip;
+			linesContainer = _skin.getChildByName(LINES_CONTAINER) as MovieClip;
+			
+			column	= linesContainer.getChildByName(COLUMN_RED) as MovieClip;
+			line	= linesContainer.getChildByName(LINE_RED)   as MovieClip;
 			
 			selectedCellsViewContainer = new MovieClip();
 			_skin.addChild(selectedCellsViewContainer);			
@@ -106,14 +123,14 @@ package game.activity.view.application.game
 			cellAnimation = new CellAnimation();
 			_skin.addChild(cellAnimation);	
 			
-			cellAnimation.mouseEnabled = false;
-			
 			shipsContainer = _skin.getChildByName(SHIPS_CONTAINER) as MovieClip;
 			
-			shipsContainer.mouseEnabled = false;
+			shipsContainer.mouseEnabled = false;			
 						
 			_skin.setChildIndex(shipsContainer, _skin.numChildren - 1);
 			_skin.setChildIndex(cellAnimation, _skin.numChildren - 1);
+						
+			_skin.setChildIndex(linesContainer, _skin.numChildren - 1);
 			
 			topBar = new TopBar();
 			addChild(topBar);
@@ -172,19 +189,24 @@ package game.activity.view.application.game
 		 * */
 		public function userMakeHit(fieldPoint:Object, selectType:uint):void
 		{
-			var xPosition:Number = cellSize*fieldPoint.x + _opponentField.x,
-				yPosition:Number = cellSize*fieldPoint.y + _opponentField.y,
-				gotoTableFrame:Number = 1;		
+			var animationParameters:Object = new Object();
+			
+			animationParameters.xPosition = cellSize*fieldPoint.x + _opponentField.x;
+			animationParameters.yPosition = cellSize*fieldPoint.y + _opponentField.y;
+			
+			animationParameters.gotoTableFrame = 1;
 			
 			if(selectType != SELECTED_EMPTY)
 			{
 				brokenCellCounter++;
-				gotoTableFrame = brokenCellCounter;
+				animationParameters.gotoTableFrame = brokenCellCounter;
 			}
+					
+			cellAnimation.setShipShootAnimation(shipsDescriptionContainer);		
 			
-			cellAnimation.setShipShootAnimation(shipsDescriptionContainer);			
+			selectedUserCell.push([fieldPoint.x, fieldPoint.y]);			
 									
-			cellAnimation.setAnimation(xPosition, yPosition, selectType, cellScale, fieldPoint, gotoTableFrame,  addTable, 0);
+			cellAnimation.setAnimation(animationParameters, selectType, fieldPoint, addTable, USERT_TYPE);
 			
 			lockGame();
 		}	
@@ -195,20 +217,18 @@ package game.activity.view.application.game
 		 * */
 		public function opponentMakeHit(fieldPoint:Object, selectType:int):void
 		{		
-			var xPosition:Number = cellSize*fieldPoint.x + _userField.x,
-				yPosition:Number = cellSize*fieldPoint.y + _userField.y,		
-				gotoTableFrame:Number = 1,
-				shootedAni:int;
+			var animationParameters:Object = new Object();
+			
+			animationParameters.xPosition = cellSize*fieldPoint.x + _userField.x;
+			animationParameters.yPosition = cellSize*fieldPoint.y + _userField.y;		
+			animationParameters.gotoTableFrame = 1;
 									
 			if(selectType == SELECTED_EMPTY)
-				gotoTableFrame = 1;		
+				animationParameters.gotoTableFrame = 1;		
 									
-			selectedOponentCell.push([xPosition, yPosition]);			
-			
-			if(selectType == HIT_SHIP)
-				shootedAni = 1;
-			
-			cellAnimation.setAnimation(xPosition, yPosition, selectType, cellScale, fieldPoint, gotoTableFrame,  addTable, shootedAni);
+			selectedOponentCell.push([fieldPoint.x, fieldPoint.y]);			
+						
+			cellAnimation.setAnimation(animationParameters, selectType, fieldPoint,addTable, OPPONENT_TYPE);
 			
 		}
 				
@@ -217,10 +237,20 @@ package game.activity.view.application.game
 			var xPosition:Number = cellSize*val.ship.x + _opponentField.x,
 				yPosition:Number = cellSize*val.ship.y + _opponentField.y;
 			
-			addWaterAroundSunkShip(userMakeHit, val.fieldPoint, selectedOponentCell);			
-			cellAnimation.setSunkAnimation(xPosition, yPosition, val.ship, addBrokenShipOnField);
+			addWaterAroundSunkShip(val.fieldPoint, selectedUserCell, _opponentField);			
+			cellAnimation.setSunkAnimation(xPosition, yPosition, val.ship, addBrokenShipOnField, USERT_TYPE);
 			
-			cleanBrokenCellsOnFeild(val.ship.coopdinates);		
+			///for showing shooted
+			xPosition = cellSize*val.cell.x + _opponentField.x,
+			yPosition = cellSize*val.cell.y + _opponentField.y,
+			
+			cellAnimation.setShootedAnimation(xPosition, yPosition, val.cell.x, val.cell.y, OPPONENT_TYPE);
+			cellAnimation.setShipShootAnimation(shipsDescriptionContainer);	
+			
+			///
+			
+			cleanBrokenCellsOnFeild(val.ship.coopdinates);	
+//			cellAnimation.removeShotedAnimation(USERT_TYPE, val.ship.coopdinates);
 		}
 		
 		public function sunkOponentShip(val:Object):void
@@ -228,11 +258,19 @@ package game.activity.view.application.game
 			var xPosition:Number = cellSize*val.ship.x + _userField.x,
 				yPosition:Number = cellSize*val.ship.y + _userField.y;
 			
-			addWaterAroundSunkShip(opponentMakeHit, val.fieldPoint, selectedOponentCell);
-			cellAnimation.setSunkAnimation(xPosition, yPosition, val.ship, addBrokenShipOnField);
+			addWaterAroundSunkShip(val.fieldPoint, selectedOponentCell, _userField);
+		
+			cellAnimation.setSunkAnimation(xPosition, yPosition, val.ship, addBrokenShipOnField, OPPONENT_TYPE);
+			
+			///for showing shooted
+			xPosition = cellSize*val.cell.x + _userField.x,
+			yPosition = cellSize*val.cell.y + _userField.y,
+			
+			cellAnimation.setShootedAnimation(xPosition, yPosition, val.cell.x, val.cell.y, USERT_TYPE);
+			////
 			
 			removeOponentShipFromView(val);		
-			cellAnimation.removeShotedAnimation();
+//			cellAnimation.removeShotedAnimation(OPPONENT_TYPE);
 		}
 		
 		private function addTable(fieldPoint:Object, xPosition:Number, yPosition:Number, gotoTableFrame:int):void
@@ -253,24 +291,28 @@ package game.activity.view.application.game
 			cellTable.x = xPosition;
 			cellTable.y = yPosition;
 			
-			cellScale = cellSize/cellTable.width;
+			cellTable.mouseEnabled = false;
 			
-			cellTable.scaleX = cellTable.scaleY = cellScale;
+//			cellTable.scaleX = cellTable.scaleY = cellScale;
 			
 			cellTable.gotoAndStop(gotoTableFrame);
 		}
 		
-		private function addWaterAroundSunkShip(callForMakeHit:Function, val:Vector.<ShipPositionPoint>, selectedCellsContainer:Array):void
+		private function addWaterAroundSunkShip(val:Vector.<ShipPositionPoint>, selectedCellsContainer:Array, field:MovieClip):void
 		{
 			for (var i:int = 0; i < val.length; i++) 
 			{
-				var selectedCell:Boolean = checkIfCellWasSelected(val[i], selectedOponentCell);				
+				var selectedCell:Boolean = checkIfCellWasSelected(val[i], selectedCellsContainer);				
 				
 				if(!selectedCell)
 				{						
-					callForMakeHit(val[i], SELECTED_EMPTY);			
+					var xPosition:Number = cellSize*val[i].x + field.x,
+						yPosition:Number = cellSize*val[i].y + field.y;
+	
+					addTable(val[i], xPosition, yPosition, SELECTED_EMPTY);
 					
 					selectedCellsContainer.push([val[i].x, val[i].y]);
+					trace(val[i]);
 				}				
 			}
 		}
@@ -332,6 +374,8 @@ package game.activity.view.application.game
 			drownedShip.x = xPosition;
 			drownedShip.y = yPosition;
 			
+			drownedShip.mouseEnabled = false;
+			
 			drownedShip.gotoAndStop(deck);
 			
 			if(dirrection == 0)  
@@ -347,7 +391,7 @@ package game.activity.view.application.game
 			
 			this.dispatchEvent( new Event(SELECT_OPPONENT_CEIL));
 			
-			selectedUserCell.push([_ceilX, _ceilY]);
+//			selectedUserCell.push([_ceilX, _ceilY]);
 			
 			if(column)
 				column.alpha = 0;

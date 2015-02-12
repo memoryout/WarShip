@@ -3,12 +3,16 @@ package game.activity.view.application.game
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.utils.setTimeout;
 	
 	import game.activity.BaseMediator;
 	import game.application.data.game.ShipData;
 
 	public class CellAnimation extends Sprite
 	{
+		public static const USERT_TYPE:		String = "user";
+		public static const OPPONENT_TYPE:	String = "oponent";
+		
 		public static const ADD_SHOOT_EVENT:	String = "add_shoot";
 		public static const FINISH_HIT_EVENT:	String = "finish_hit";
 		public static const FINISH_SUNK_EVENT:	String = "finish_sunk";
@@ -35,13 +39,17 @@ package game.activity.view.application.game
 		private var _addBrokenShipCall:			Function;
 		private var _addTableCall:				Function;
 		
-		private var shootedAnimationContainer:	Array = new Array();
+		private var shootedAnimationUserContainer:		Array = new Array();
+		private var shootedAnimationOpponentContainer:	Array = new Array();
+		
+		private var timeOutId:uint;
 		
 		public function CellAnimation()
 		{
+			mouseEnabled = false;
 		}
 		
-		public function setSunkAnimation(xPosition:Number, yPosition:Number, ship:ShipData, addBrokenShipCall:Function):void
+		public function setSunkAnimation(xPosition:Number, yPosition:Number, ship:ShipData, addBrokenShipCall:Function, playerType:String):void
 		{
 			_addBrokenShipCall = addBrokenShipCall;
 			
@@ -62,6 +70,8 @@ package game.activity.view.application.game
 			animation.x = xPosition;
 			animation.y = yPosition;
 			
+			animation.mouseEnabled = false;
+			
 			if(ship.dirrection == 0)  
 			{
 				animation.rotation = 90;	
@@ -72,6 +82,8 @@ package game.activity.view.application.game
 			animation.addEventListener(ADD_BROKEN_EVENT, addBrokenShip);	
 			
 			animation.gotoAndPlay(2);		
+			
+//			setShootedAnimation(xPosition, yPosition, ship.x, ship.y, playerType);
 		}
 		
 		private function addBrokenShip(e:Event):void
@@ -97,7 +109,7 @@ package game.activity.view.application.game
 			return "";
 		}
 		
-		public function setAnimation(xPosition:Number, yPosition:Number,  selectType:int, cellScale:Number, fieldPoint:Object, frameTable:int, addTableCall:Function, addShooted:int):void
+		public function setAnimation(animationParameters:Object, selectType:int, fieldPoint:Object, addTableCall:Function, playerType:String):void
 		{	
 			_addTableCall = addTableCall;
 			
@@ -113,17 +125,19 @@ package game.activity.view.application.game
 			
 			this.addChild(animation);	
 			
-			animation.name = "pointX_" + fieldPoint.x + "_pointY_" + fieldPoint.y + "_x_" + xPosition + "_y_" + yPosition + "_frame_" + frameTable + "_addShooted_" + addShooted;
+			animation.name = "pointX_" + fieldPoint.x + "_pointY_" + fieldPoint.y 
+				+ "_x_" + animationParameters.xPosition + "_y_" + animationParameters.yPosition + "_frame_" + animationParameters.gotoTableFrame + "_userType_" + playerType;
 			
-			animation.x = xPosition;
-			animation.y = yPosition;
+			animation.x = animationParameters.xPosition;
+			animation.y = animationParameters.yPosition;
 			
-			animation.scaleX = animation.scaleY = cellScale;		
+			animation.mouseEnabled = false;
+			
+//			animation.scaleX = animation.scaleY = cellScale;		
 			
 			animation.addEventListener(FINISH_HIT_EVENT, removeAnimation);	
-			
-			if(addShooted != 0 )
-				animation.addEventListener(ADD_SHOOT_EVENT, addShootAni);	
+						
+			animation.addEventListener(ADD_SHOOT_EVENT, addShootAni);	
 			
 			animation.addEventListener(ADD_HITED_EVENT, addHitedCell);	
 			
@@ -136,10 +150,10 @@ package game.activity.view.application.game
 			
 			var nameSplited:Array = e.currentTarget.name.split("_");
 			
-			setShootedAnimation(nameSplited[5], nameSplited[7]);
+			setShootedAnimation(nameSplited[5], nameSplited[7], nameSplited[1], nameSplited[3], nameSplited[11]);
 		}
 		
-		public function setShootedAnimation(xPosition:Number, yPosition:Number, cellScale:Number = 1):void
+		public function setShootedAnimation(xPosition:Number, yPosition:Number, x:int, y:int, playerType:String, cellScale:Number = 1):void
 		{
 			var classInstance:Class,	animation:MovieClip;
 			
@@ -151,27 +165,58 @@ package game.activity.view.application.game
 				classInstance = null;				
 			}
 			
-			this.addChild(animation);	
+			this.addChildAt(animation, 0);	
 			
 			animation.x = xPosition;
 			animation.y = yPosition;
 			
-//			animation.scaleX = animation.scaleY = cellScale;		
+			animation.mouseEnabled = false;
 			
-			shootedAnimationContainer.push(animation);
+			animation.name = x + "_" + y;
+			
+//			animation.scaleX = animation.scaleY = cellScale;	
+			
+			if(playerType == USERT_TYPE)
+				shootedAnimationUserContainer.push(animation);
+			else if(playerType == OPPONENT_TYPE)
+				shootedAnimationOpponentContainer.push(animation);
 			
 			animation.gotoAndPlay(2);		
 		}
 		
-		public function removeShotedAnimation():void
-		{
-			for (var i:int = 0; i < shootedAnimationContainer.length; i++) 
-			{
-				if(shootedAnimationContainer[i] && this.contains(shootedAnimationContainer[i]))
-					removeChild(shootedAnimationContainer[i]);
-			}
+		public function removeShotedAnimation(playerType:String, coopdinates:Object = null):void
+		{		
+			var i:int;
 			
-			shootedAnimationContainer = new Array();
+			if(playerType == USERT_TYPE)
+			{
+				for (var j:int = 0; j < coopdinates.length; j++) 
+				{
+					for (i = 0; i < shootedAnimationUserContainer.length; i++) 
+					{				
+						var nameName:Array = shootedAnimationUserContainer[i].name.split("_");	
+							
+						if(uint(nameName[0]) == coopdinates[j].x && uint(nameName[1]) == coopdinates[j].y)
+						{
+							if(shootedAnimationUserContainer[i] && this.contains(shootedAnimationUserContainer[i]))
+								removeChild(shootedAnimationUserContainer[i]);
+						}
+										
+					}	
+				}
+				
+			}
+			else if(playerType == OPPONENT_TYPE)
+			{
+				
+				for (i = 0; i < shootedAnimationOpponentContainer.length; i++) 
+				{
+					if(shootedAnimationOpponentContainer[i] && this.contains(shootedAnimationOpponentContainer[i]))
+						removeChild(shootedAnimationOpponentContainer[i]);
+				}
+				
+				shootedAnimationOpponentContainer = new Array();				
+			}
 		}
 		
 		private function addHitedCell(e:Event):void
@@ -206,10 +251,10 @@ package game.activity.view.application.game
 			
 			var randomShipShot:int = Math.random()*shipsDescriptionContainer.length;
 			
-			/*while(shipsDescriptionContainer[randomShipShot].sunk)
+			while(shipsDescriptionContainer[randomShipShot].sunk)
 			{
 				randomShipShot = Math.random()*shipsDescriptionContainer.length;
-			}*/
+			}
 			
 			if(shipsDescriptionContainer[randomShipShot].deck == 4)
 			{
@@ -221,7 +266,9 @@ package game.activity.view.application.game
 				for (i = 0; i < highRange; i++) 
 				{
 					shipLink = shipsDescriptionContainer[randomShipShot].link;					
-					addShotAnimation(shipLink, i);
+					
+					timeOutId = setTimeout(addShotAnimation, 300*i, shipLink, i);
+//					addShotAnimation(shipLink, i);
 				}				
 				
 			}else if(shipsDescriptionContainer[randomShipShot].deck == 3)
@@ -234,7 +281,8 @@ package game.activity.view.application.game
 				for (i = 0; i < highRange; i++) 
 				{
 					shipLink = shipsDescriptionContainer[randomShipShot].link;					
-					addShotAnimation(shipLink, i);
+					timeOutId = setTimeout(addShotAnimation, 300*i, shipLink, i);
+//					addShotAnimation(shipLink, i);
 				}				
 				
 			}else if(shipsDescriptionContainer[randomShipShot].deck == 2)
@@ -262,6 +310,8 @@ package game.activity.view.application.game
 			this.addChild(shotAni);
 			shotAni.x = (shipLink.getChildByName("point_" + pointIndex) as MovieClip).x + shipLink.x;
 			shotAni.y = (shipLink.getChildByName("point_" + pointIndex) as MovieClip).y + shipLink.y;
+			
+			shotAni.mouseEnabled = false;
 			
 			shotAni.addEventListener("finish_shot", removeAnimation);	
 			shotAni.gotoAndPlay(2);		
