@@ -111,6 +111,7 @@ package game.application.startup
 				
 				// сначала наполняем очередь загрузки, затем вызываем load();
 				loader.pushFile( AppGlobalVariables.SOURCE_URL );
+				loader.pushFile( AppGlobalVariables.ANIMATIONS_URL );
 				
 				loader.addEventListener(Event.COMPLETE, handlerAssetInit);
 				loader.load();
@@ -206,10 +207,10 @@ package game.application.startup
 			
 			
 			
-			//_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
 						
-			//this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
-			//_userDataProxy.connect();
+			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
+			_userDataProxy.connect();
 				
 		}
 		
