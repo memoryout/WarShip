@@ -94,12 +94,13 @@ package game.services.sqllite
 				if(_currentRequest.getRawRequest() != null) 
 				{
 					_currentStatement.text = _currentRequest.getRawRequest();
+					trace(_currentStatement.text);
 					
-					if(_currentRequest.requestParams)
+					/*if(_currentRequest.requestParams)
 					{
 						
 						for(par in _currentRequest.requestParams) _currentStatement.parameters[par] = _currentRequest.requestParams[par];
-					}
+					}*/
 				}
 				else
 				{

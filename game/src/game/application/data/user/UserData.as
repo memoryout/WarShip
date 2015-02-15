@@ -2,6 +2,13 @@ package game.application.data.user
 {
 	public class UserData
 	{
+		public var targetPlatform:		uint;
+		
+		public var name:				String = "";
+		public var exp:					Number = 0;
+		
+		
+		
 		private var _changed:			Boolean;
 		
 		private var _dataObject:		Object;
@@ -23,10 +30,6 @@ package game.application.data.user
 		}
 		
 		
-		public function get name():String
-		{
-			return _dataObject.name;
-		}
 		
 		public function get deviceID():String
 		{
@@ -45,11 +48,6 @@ package game.application.data.user
 		
 		
 		
-		public function set name(value:String):void
-		{
-			if(_dataObject.name != value) _changed = true;
-			_dataObject.name = value;
-		}
 		
 		public function set deviceID(value:String):void
 		{

@@ -63,5 +63,15 @@ package game
 		
 		public static var accessToken:String = "";
 		
+		
+		public static const SIMULATOR:				uint = 0;
+		public static const GOOGLE:					uint = 1;
+		
+		public static const TARGET_PLATFORM:			uint = SIMULATOR;
+		
+		public static const SIMULATOR_EMAIL:		String = "kirga@ukr.net";
+		public static const SIMULATOR_PASS:			String = "1234567890";
+		public static const SIMULATOR_NAME:			String = "kirga";
+		
 	}
 }

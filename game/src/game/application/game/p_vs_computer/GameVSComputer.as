@@ -19,6 +19,7 @@ package game.application.game.p_vs_computer
 	import game.application.connection.data.HitInfoData;
 	import game.application.connection.data.OpponentInfoData;
 	import game.application.connection.data.UserInfoData;
+	import game.application.data.DataProvider;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipDirrection;
 	import game.application.data.game.ShipPositionPoint;
@@ -81,8 +82,9 @@ package game.application.game.p_vs_computer
 			
 			
 			
-			var userDataProxy:IUserDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
-			_userId = userDataProxy.getUserData().deviceID;
+			//var userDataProxy:IUserDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			
+			_userId = DataProvider.getInstance().getUserDataProvider().getUserInfo().id.toString();
 			
 			_serverConnectionSupport.registerUser( _userId );
 		}

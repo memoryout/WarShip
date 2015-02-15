@@ -15,7 +15,7 @@ package game.application.startup
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
-	import game.application.authorization.UserAuthorizationProxy;
+	import game.application.authorization.AuthorizationProxy;
 	import game.application.commands.authorization.SetUserAuthorizationCommand;
 	import game.application.commands.startup.NewUserCreatedCommand;
 	import game.application.commands.startup.ServerConectionResult;
@@ -72,7 +72,7 @@ package game.application.startup
 		
 		private var _manualAuthorizationData:	UserManualAuthorizationData;
 	
-		private var _authorizationProxy:		UserAuthorizationProxy;
+		private var _authorizationProxy:		AuthorizationProxy;
 		
 		public function StartupProxy(proxyName:String)
 		{
@@ -148,12 +148,12 @@ package game.application.startup
 			_startupInfo.setLoaderInfo(null);
 			
 			// connect to local data base
-			//DataProvider.getInstance().init();
-			//DataProvider.getInstance().addEventListener(Event.INIT, handlerInitDataProviderCompleted);
+			DataProvider.getInstance().init();
+			DataProvider.getInstance().addEventListener(Event.INIT, handlerInitDataProviderCompleted);
 					
 			//GoogleGames.create();
 			
-			startAuthorization();
+			//startAuthorization();
 		}
 		
 		
@@ -195,8 +195,9 @@ package game.application.startup
 		private function startAuthorization():void
 		{
 			
-			_authorizationProxy = new UserAuthorizationProxy();
+			_authorizationProxy = new AuthorizationProxy();
 			this.facade.registerProxy( _authorizationProxy );
+			_authorizationProxy.dispacther.addEventListener(Event.COMPLETE, handlerAuthorizationComplete);
 			
 			//_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_AUTHORIZATION_INIT) );
 			
@@ -207,11 +208,16 @@ package game.application.startup
 			
 			
 			
-			_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
+			//_userDataProxy = this.facade.retrieveProxy(ProxyList.USER_DATA_PROXY) as IUserDataProxy;
 						
-			this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
-			_userDataProxy.connect();
+			//this.facade.registerCommand(ApplicationEvents.USER_DATA_PROXY_CONNECTED, UserDataProxyConnectedProxy);
+			//_userDataProxy.connect();
 				
+		}
+		
+		private function handlerAuthorizationComplete(e:Event):void
+		{
+			this.sendNotification(STARTUP_COMPLETE);
 		}
 		
 		
@@ -332,8 +338,8 @@ package game.application.startup
 			
 			_manualAuthorizationData = data;
 			
-			var request:DataRequest = DataProvider.getInstance().getUserDataProvider().createNewUser();
-			request.addEventListener(Event.COMPLETE, handleNewUserCreated);
+			//var request:DataRequest = DataProvider.getInstance().getUserDataProvider().createNewUser();
+			//request.addEventListener(Event.COMPLETE, handleNewUserCreated);
 			
 			
 			//_userDataProxy.createNewUser( _manualAuthorizationData.name, _manualAuthorizationData.email, _manualAuthorizationData.pass);
@@ -471,8 +477,8 @@ package game.application.startup
 			{
 				if(_userDataProxy)
 				{
-					if(data.login && _userData.getValue("login") != data.login) _userData.setValue("login", data.login);
-					if(data.pass && _userData.getValue("pass") != data.pass) _userData.setValue("pass", data.pass);
+					//if(data.login && _userData.getValue("login") != data.login) _userData.setValue("login", data.login);
+					//if(data.pass && _userData.getValue("pass") != data.pass) _userData.setValue("pass", data.pass);
 					
 					_userDataProxy.commitChanges();
 				}

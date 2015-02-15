@@ -21,7 +21,28 @@ package game.services.sqllite
 		
 		override public function getRawRequest():String
 		{
-			return 'INSERT INTO ' + _into;
+			var params:String, values:String;
+			params = values = "";
+			
+			
+			var reqParams:Object = this.requestParams;
+			
+			var par:String;
+			for(par in reqParams)
+			{
+				if(params != "")
+				{
+					params += ",";
+					values += ",";
+				}
+				
+				params += '"' + par + '"';
+				values += '"' + reqParams[par] + '"';
+				
+				//delete reqParams[par];
+			}
+			
+			return 'INSERT INTO ' + _into + ' (' + params + ') VALUES (' + values + ')';
 		}
 	}
 }

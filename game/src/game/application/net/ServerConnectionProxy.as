@@ -47,6 +47,14 @@ package game.application.net
 		{
 			_serverConnection.addEventListener(ServerConnectionEvent.CONNECTION_INIT, handlerConnectionInitComplete);
 			_serverConnection.initConnection(AppGlobalVariables.CONNECTION_TYPE, AppGlobalVariables.SERVER_URL, AppGlobalVariables.SERVER_PORT);
+			
+			_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
+			_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
+		}
+		
+		public function setSessionKey(session:String):void
+		{
+			_serverConnection.setSessionKey(session);
 		}
 		
 		
@@ -59,8 +67,7 @@ package game.application.net
 				
 				if(userData)
 				{
-					_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
-					_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
+					
 					
 					/*if( userData.getValue("login") && userData.getValue("pass") )
 					{
@@ -68,10 +75,23 @@ package game.application.net
 					}
 					else */if( userData.getValue("deviceID") && userData.getValue("name") )
 					{
-						_serverConnection.createUser( userData.getValue("deviceID"), userData.getValue("name") );
+						//_serverConnection.createUser( userData.getValue("deviceID"), userData.getValue("name") );
 					}
 				}
 			}
+		}
+		
+		public function debugLogin(login:String, pass:String):void
+		{
+			//_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_COMPLETE, handlerSignInComplete);
+			//_serverConnection.addEventListener(ServerConnectionEvent.REQUEST_ERROR, handlerSignInError);
+			
+			_serverConnection.signIn(login, pass);
+		}
+		
+		public function debugCreateNewUser(name:String, login:String, pass:String):void
+		{
+			_serverConnection.createUser(name, login, pass);
 		}
 		
 		

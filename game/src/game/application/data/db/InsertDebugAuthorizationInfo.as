@@ -1,4 +1,4 @@
-package game.application.data.user
+package game.application.data.db
 {
 	import flash.events.IEventDispatcher;
 	
@@ -7,22 +7,26 @@ package game.application.data.user
 	import game.services.sqllite.SQLInsertRequest;
 	import game.services.sqllite.SQLRequest;
 	
-	public class CreateUserRequest extends DataRequest
+	public class InsertDebugAuthorizationInfo extends DataRequest
 	{
 		private var _sqlConnection:			ISQLManager;
 		
-		private var _user:					UserData;
+		private var _userId:				uint;
+		private var _login:					String;
+		private var _pass:					String;
 		
-		public function CreateUserRequest(sqlConnection:ISQLManager)
+		public function InsertDebugAuthorizationInfo(sqlConnection:ISQLManager)
 		{
 			super();
 			
 			_sqlConnection = sqlConnection;
 		}
 		
-		public function setUserData(data:UserData):void
+		public function setData(userId:uint, login:String, pass:String):void
 		{
-			_user = data;
+			_userId = userId;
+			_login = login;
+			_pass = pass;
 		}
 		
 		override public function start():void
@@ -30,17 +34,17 @@ package game.application.data.user
 			var request:SQLInsertRequest = new SQLInsertRequest();
 			request.setOnResult( handleOnResultRequest);
 			
-			request.into = '"main"."user"';
-			request.putParameter("name", _user.name);
-			request.putParameter("auth_system", _user.targetPlatform);
-			request.putParameter("exp", _user.exp);
+			request.into = '"main"."simulator"';
+			request.putParameter("user_id", _userId);
+			request.putParameter("email", _login);
+			request.putParameter("pass", _pass);
 			
 			_sqlConnection.executeRequest(request);
 		}
 		
 		private function handleOnResultRequest(request:SQLRequest):void
 		{
-			dispatchComplete();
+			this.dispatchComplete();
 		}
 	}
 }

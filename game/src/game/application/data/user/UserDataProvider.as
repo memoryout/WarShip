@@ -6,6 +6,7 @@ package game.application.data.user
 	
 	import game.services.interfaces.ISQLManager;
 	
+	[Event(name="init", type="flash.events.Event")]
 	public class UserDataProvider extends EventDispatcher
 	{
 		private var _sqlManager:			ISQLManager;
@@ -24,6 +25,8 @@ package game.application.data.user
 		public function setSQLConnection(sqlManager:ISQLManager):void
 		{
 			_sqlManager = sqlManager;
+			
+			retrieveUserInfo();
 		}
 		
 		
@@ -35,9 +38,9 @@ package game.application.data.user
 			return userDataRequest;
 		}
 		
-		public function getUserInfo():void
+		public function getUserInfo():UserData
 		{
-			
+			return _currentUser;
 		}
 		
 		public function getUserLists():Vector.<UserData>
@@ -47,12 +50,18 @@ package game.application.data.user
 		}
 		
 		
-		public function createNewUser():CreateUserRequest
+		public function createNewUser():UserData
+		{
+			_currentUser = new UserData();
+			
+			return _currentUser;
+		}
+		
+		public function commitNewUser():CreateUserRequest
 		{
 			var newUserRequest:CreateUserRequest = new CreateUserRequest( _sqlManager );
-			newUserRequest.addEventListener(Event.COMPLETE, handlerUserCreated);
+			newUserRequest.setUserData( _currentUser );
 			newUserRequest.start();
-			//_currentUser = new UserData();
 			
 			return newUserRequest;
 		}
@@ -73,6 +82,8 @@ package game.application.data.user
 			if(_users != null && _users.length > 0) {
 				_currentUser = _users[0];
 			}
+			
+			this.dispatchEvent( new Event(Event.INIT) );
 		}
 	}
 }

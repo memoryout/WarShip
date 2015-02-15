@@ -63,7 +63,7 @@ package game.services.net
 			}
 		}
 		
-		public function createUser(userId:String, name:String):void
+		public function createUser(name:String, login:String, pass:String):void
 		{
 //			obj.id = serId												!!!!!!!!!!was
 			
@@ -72,8 +72,8 @@ package game.services.net
 			var obj:Object = new Object();
 			obj.cmd = ServerCommandList.CREATE_USER;
 			obj.id = 1;
-			obj.login = "va2@gmail.com";
-			obj.pass = "asdcxz111";	
+			obj.login = login;
+			obj.pass = pass;	
 			obj.name = name;					
 			obj.lang = 0;
 			obj.platform = 0;

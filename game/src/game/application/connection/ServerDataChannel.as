@@ -7,9 +7,11 @@ package game.application.connection
 	import game.application.connection.data.AuthorizationData;
 	import game.application.connection.data.DestroyShipData;
 	import game.application.connection.data.ErrorData;
+	import game.application.connection.data.ExperienceInfo;
 	import game.application.connection.data.GameInfoData;
 	import game.application.connection.data.HitInfoData;
 	import game.application.connection.data.OpponentInfoData;
+	import game.application.connection.data.UserInfo;
 	import game.application.connection.data.UserInfoData;
 	import game.application.interfaces.channel.IServerDataChannel;
 	import game.library.BaseProxy;
@@ -39,6 +41,12 @@ package game.application.connection
 			{
 				switch(data.cmd)
 				{
+					case "login":
+					{
+						parseLoginData(data);
+						break;
+					}
+					
 					case "authorize":
 					{
 						parseAuthorizationData(data);
@@ -94,6 +102,57 @@ package game.application.connection
 		}
 		
 		
+		private function parseLoginData(data:Object):void
+		{
+			var auth:AuthorizationData;
+			auth = new AuthorizationData();
+			
+			if(data.error)
+			{
+				auth.error = true;
+				auth.errorCode = data.error.code;
+				auth.errorMessage = data.error.description;
+				
+				_queue.push( auth );
+			}
+			else
+			{
+				var userInfo:Object = data.userInfo;
+				
+				if(userInfo)
+				{
+					auth.userInfo = new UserInfo();
+					auth.userInfo.uid = userInfo.uid;
+					auth.userInfo.name = userInfo.name;
+					auth.userInfo.status = userInfo.status;
+					auth.userInfo.flag = userInfo.flag;
+					auth.userInfo.userpic = userInfo.userpic;
+					auth.userInfo.a_ships_skins = userInfo.a_ships_skins;
+					auth.userInfo.a_userpics = userInfo.a_userpics;
+					auth.userInfo.a_flags = userInfo.a_flags;
+					
+					if(userInfo.experienceInfo)
+					{
+						auth.userInfo.expInfo = new ExperienceInfo();
+						auth.userInfo.expInfo.experience = userInfo.experienceInfo.experience;
+						auth.userInfo.expInfo.rank = userInfo.experienceInfo.rank;
+						auth.userInfo.expInfo.ships_destroyed = userInfo.experienceInfo.ships_destroyed;
+						auth.userInfo.expInfo.games_won = userInfo.experienceInfo.games_won;
+						auth.userInfo.expInfo.games_lose = userInfo.experienceInfo.games_lose;
+						auth.userInfo.expInfo.achievements = userInfo.experienceInfo.achievements;
+					}
+				}
+				
+				if(data.loginInfo)
+				{
+					auth.session = data.loginInfo.session;
+				}
+				
+				_queue.push( auth );
+			}
+		}
+		
+		
 		private function parseAuthorizationData(data:Object):void
 		{
 			var loginInfo:Object = data.loginInfo;
@@ -103,9 +162,9 @@ package game.application.connection
 			
 			if(loginInfo)
 			{
-				auth.login = loginInfo.login;
-				auth.name = loginInfo.name;
-				auth.pass = loginInfo.pass;
+				//auth.login = loginInfo.login;
+				//auth.name = loginInfo.name;
+				//auth.pass = loginInfo.pass;
 				auth.session = loginInfo.session;
 				
 				_queue.push( auth );

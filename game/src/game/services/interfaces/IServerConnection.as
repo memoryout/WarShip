@@ -7,7 +7,7 @@ package game.services.interfaces
 		function initConnection(type:String, url:String, port:String = ""):void;
 		
 		function setSessionKey(session:String):void
-		function createUser(userId:String, name:String):void;
+		function createUser(name:String, login:String, pass:String):void;
 		function signIn(login:String, pass:String):void;
 		function sendShipLocation(ships:Array):void;
 		function getGameUpdate():void;
