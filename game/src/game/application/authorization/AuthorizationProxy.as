@@ -1,11 +1,14 @@
 package game.application.authorization
 {
+	import com.milkmangames.nativeextensions.GoogleGames;
+	
 	import flash.events.Event;
 	import flash.system.Capabilities;
 	
 	import game.AppGlobalVariables;
 	import game.application.ProxyList;
 	import game.application.authorization.service.DebugAuthorizationSystem;
+	import game.application.authorization.service.GoogleAuthorizationSystem;
 	import game.application.authorization.service.IAuthorizationService;
 	import game.application.connection.data.UserInfo;
 	import game.application.data.DataProvider;
@@ -44,20 +47,36 @@ package game.application.authorization
 		
 		private function defineTargetPlatform():void
 		{
-			switch(AppGlobalVariables.TARGET_PLATFORM)
+			if(GoogleGames.isSupported())
+			{
+				trace("GOOGLE");
+				_service = new GoogleAuthorizationSystem();
+				
+			}else if(AppGlobalVariables.TARGET_PLATFORM == AppGlobalVariables.SIMULATOR)
+			{
+				trace("SIMULATOR");
+				_service = new DebugAuthorizationSystem();
+			}
+			
+			/*switch(AppGlobalVariables.TARGET_PLATFORM)
 			{
 				case AppGlobalVariables.SIMULATOR:
 				{
 					_service = new DebugAuthorizationSystem();
+					
+					trace("SIMULATOR");
 					break;
 				}
 					
 				case AppGlobalVariables.GOOGLE:
 				{
+					trace("GOOGLE");
 					
+					GoogleGames.create();
+					GoogleGames.games.signIn();
 					break;
 				}
-			}
+			}*/
 			
 			if(_service) 
 			{

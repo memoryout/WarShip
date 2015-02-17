@@ -4,6 +4,7 @@ package game.application.interfaces.net
 	{
 		function connectToServer():void
 		function signIn():void
+		function signInGoogle(authToken:String):void;		
 		function getNetStatus():uint;
 		function sendHitPointPosition(x:uint, y:uint):void;
 		

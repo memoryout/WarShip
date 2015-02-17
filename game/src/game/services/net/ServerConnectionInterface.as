@@ -98,6 +98,18 @@ package game.services.net
 			_connection.sendRequest( req );
 		}
 		
+		public function signInGoogle(authToken:String):void
+		{
+			var req:Request = new Request();
+			
+			var obj:Object = new Object();
+			obj.cmd = ServerCommandList.LOGIN;
+			obj.auth_token = authToken;
+			
+			req.pushData( obj );
+			_connection.sendRequest( req );
+		}
+		
 		
 		public function sendShipLocation(arr:Array):void
 		{

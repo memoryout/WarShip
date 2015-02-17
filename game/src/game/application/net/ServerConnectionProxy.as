@@ -89,6 +89,11 @@ package game.application.net
 			_serverConnection.signIn(login, pass);
 		}
 		
+		public function signInGoogle(authToken:String):void
+		{			
+			_serverConnection.signInGoogle(authToken);
+		}
+		
 		public function debugCreateNewUser(name:String, login:String, pass:String):void
 		{
 			_serverConnection.createUser(name, login, pass);
