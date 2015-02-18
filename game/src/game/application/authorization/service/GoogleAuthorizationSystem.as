@@ -73,6 +73,7 @@ package game.application.authorization.service
 		
 		private function onAuthLoaded(e:GoogleGamesEvent):void
 		{
+			trace("onAuthLoaded", e.token);
 			_serverProxy.signInGoogle(e.token);
 		}
 		
