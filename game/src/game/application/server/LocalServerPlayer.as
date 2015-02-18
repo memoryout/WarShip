@@ -68,6 +68,36 @@ package game.application.server
 			return res;
 		}
 		
+		public function isPlayerDefeat():Boolean
+		{
+			var res:Boolean = true;
+			
+			var i:int;
+			for(i = 0; i < _ships.length; i++)
+			{
+				if( !_ships[i].isSank() )
+				{
+					res = false;
+					break;
+				}
+			}
+			
+			return res;
+		}
+		
+		public function getPoints():uint
+		{
+			var res:uint = 0;
+			
+			var i:int;
+			for(i = 0; i < _ships.length; i++)
+			{
+				res += _ships[i].getDestroyedDeckNumber();
+			}
+			
+			return res;
+		}
+		
 		
 		public function isReadyToStart():Boolean
 		{

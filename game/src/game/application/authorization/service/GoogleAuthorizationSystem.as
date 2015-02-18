@@ -76,7 +76,7 @@ package game.application.authorization.service
 			
 			_dataChannel.addLocalListener( ServerDataChannelLocalEvent.CHANNEL_DATA, handlerQueueData);
 			
-			_serverProxy.signInGoogle(e.token);		
+			_serverProxy.signInGoogle(e.token);
 		}
 		
 		/** On Games Error */

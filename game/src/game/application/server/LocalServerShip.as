@@ -88,6 +88,19 @@ package game.application.server
 			return res;
 		}
 		
+		
+		public function getDestroyedDeckNumber():uint
+		{
+			var i:uint;
+			var count:uint = 0;
+			for(i = 0; i < _state.length; i++)
+			{
+				if(_state[i] == 1) count ++;
+			}
+			
+			return count;
+		}
+		
 		public function isSank():Boolean
 		{
 			return _isSank;

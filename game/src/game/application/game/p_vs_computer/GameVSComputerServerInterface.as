@@ -7,6 +7,8 @@ package game.application.game.p_vs_computer
 	import game.application.connection.data.DestroyShipData;
 	import game.application.connection.data.GameInfoData;
 	import game.application.connection.data.HitInfoData;
+	import game.application.connection.data.OpponentInfoData;
+	import game.application.connection.data.UserInfoData;
 	import game.application.game.battle.GameBattleStatus;
 	import game.application.interfaces.channel.IServerDataChannel;
 	import game.application.interfaces.data.IUserDataProxy;
@@ -15,6 +17,7 @@ package game.application.game.p_vs_computer
 	import game.application.server.LocalServerEvents;
 	import game.application.server.messages.MessageData;
 	import game.application.server.messages.MessageDestroyShip;
+	import game.application.server.messages.MessageGameInfo;
 	import game.application.server.messages.MessageHit;
 	import game.application.server.messages.MessageType;
 	import game.library.LocalDispactherProxy;
@@ -103,6 +106,12 @@ package game.application.game.p_vs_computer
 				
 				switch(message.type)
 				{
+					case MessageType.START_GAME:
+					{
+						startGame();
+						break;
+					}
+					
 					case MessageType.WAITING_FOR_PLAYER_SHIPS_LOCATION:
 					{
 						waitingForPlayer();
@@ -111,7 +120,7 @@ package game.application.game.p_vs_computer
 					
 					case MessageType.SET_ACTIVE_PLAYER:
 					{
-						setActivePlayer( message.player );
+						setActivePlayer( message as MessageGameInfo );
 						break;
 					}
 						
@@ -132,6 +141,12 @@ package game.application.game.p_vs_computer
 						playerSankShip(message as MessageDestroyShip);
 						break;
 					}
+						
+					case MessageType.FINISH_GAME:
+					{
+						finishGame(message.player);
+						break;
+					}
 				}
 			}
 			else if( event.event == LocalServerEvents.FINISH_MESSAGE_QUEUE )
@@ -139,6 +154,22 @@ package game.application.game.p_vs_computer
 				_userChannel.sendData();
 				_computerChannel.sendData();
 			}
+		}
+		
+		
+		private function startGame():void
+		{
+			var action:UserInfoData = new UserInfoData();
+			
+			
+			var opponentInfo:OpponentInfoData = new OpponentInfoData();
+			
+			
+			_userChannel.pushData( action );
+			_computerChannel.pushData( opponentInfo );
+			
+			_userChannel.pushData( opponentInfo );
+			_computerChannel.pushData( action );
 		}
 		
 		
@@ -158,9 +189,11 @@ package game.application.game.p_vs_computer
 		}
 		
 		
-		private function setActivePlayer(player:String):void
+		private function setActivePlayer(msg:MessageGameInfo):void
 		{
 			var action:GameInfoData;
+			
+			var player:String = msg.player;
 			
 			if( player == ComputerAI.PLAYER_ID )
 			{	
@@ -169,7 +202,8 @@ package game.application.game.p_vs_computer
 				action.gameTime = 0;
 				action.status = GameBattleStatus.STEP_OF_OPPONENT;
 				action.timeOut = 0;
-				action.userPoints = 0;
+				action.userPoints = msg.userPoints;
+				action.opponentPoints = msg.opponentsPoint;
 				
 				_userChannel.pushData( action );
 				
@@ -178,7 +212,8 @@ package game.application.game.p_vs_computer
 				action.gameTime = 0;
 				action.status = GameBattleStatus.STEP_OF_INCOMING_USER;
 				action.timeOut = 0;
-				action.userPoints = 0;
+				action.userPoints = msg.userPoints;
+				action.opponentPoints = msg.opponentsPoint;
 				
 				
 				_computerChannel.pushData( action );
@@ -190,7 +225,8 @@ package game.application.game.p_vs_computer
 				action.gameTime = 0;
 				action.status = GameBattleStatus.STEP_OF_OPPONENT;
 				action.timeOut = 0;
-				action.userPoints = 0;
+				action.userPoints = msg.userPoints;
+				action.opponentPoints = msg.opponentsPoint;
 				
 				_computerChannel.pushData( action );
 				
@@ -199,7 +235,8 @@ package game.application.game.p_vs_computer
 				action.gameTime = 0;
 				action.status = GameBattleStatus.STEP_OF_INCOMING_USER;
 				action.timeOut = 0;
-				action.userPoints = 0;
+				action.userPoints = msg.userPoints;
+				action.opponentPoints = msg.opponentsPoint;
 				
 				
 				_userChannel.pushData( action );
@@ -289,6 +326,29 @@ package game.application.game.p_vs_computer
 			
 			
 			//_queue.push( action );
+		}
+		
+		private function finishGame(defeatPlayerId:String):void
+		{
+			var action:GameInfoData;
+			var opponentHitInfo:GameInfoData;
+			
+			action = new GameInfoData();
+			opponentHitInfo = new GameInfoData();
+			
+			action.status = GameBattleStatus.INCOMING_USER_WON;
+			opponentHitInfo.status = GameBattleStatus.OPPONENT_WON;
+			
+			if( defeatPlayerId == ComputerAI.PLAYER_ID )
+			{
+				_userChannel.pushData( action );
+				_computerChannel.pushData( opponentHitInfo );
+			}
+			else
+			{
+				_userChannel.pushData( opponentHitInfo );
+				_computerChannel.pushData( action );
+			}
 		}
 	}
 }

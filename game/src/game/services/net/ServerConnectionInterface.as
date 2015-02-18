@@ -105,6 +105,8 @@ package game.services.net
 			var obj:Object = new Object();
 			obj.cmd = ServerCommandList.LOGIN_GG;
 			obj.auth_token = authToken;
+			obj.lang = 0;
+			obj.platform = 0;
 			
 			req.pushData( obj );
 			_connection.sendRequest( req );

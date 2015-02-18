@@ -4,6 +4,7 @@ package game.application.server
 	import game.application.interfaces.server.ILocalGameServer;
 	import game.application.server.messages.MessageData;
 	import game.application.server.messages.MessageDestroyShip;
+	import game.application.server.messages.MessageGameInfo;
 	import game.application.server.messages.MessageHit;
 	import game.application.server.messages.MessageType;
 	import game.library.BaseProxy;
@@ -83,6 +84,7 @@ package game.application.server
 			
 			if( allPlayersAreReady && _players.length > 1)
 			{
+				addMessage( new MessageData(MessageType.START_GAME, "0") );
 				setActivePlayer(0);
 			}
 			
@@ -105,9 +107,15 @@ package game.application.server
 				{
 //					playerHitShip(x, y);
 					
-					if( shipData.isSank() ) 
-						playerDestroyShip(shipData, x, y);					
-					
+					if( shipData.isSank() )
+					{
+						playerDestroyShip(shipData, x, y);
+						
+						if( targetPlayer.isPlayerDefeat() )
+						{
+							finishGame(targetPlayer.id);
+						}
+					}
 					else
 						playerHitShip(x, y);
 					
@@ -128,7 +136,15 @@ package game.application.server
 		{
 			_currentPlayerIndex = id;
 			_currentPlayer = _players[id];
-			addMessage( new MessageData(MessageType.SET_ACTIVE_PLAYER, _currentPlayer.id) );
+			
+			var msg:MessageGameInfo = new MessageGameInfo(MessageType.SET_ACTIVE_PLAYER, _currentPlayer.id);
+			
+			var targetPlayer:LocalServerPlayer = getOtherPlayer();
+			
+			msg.userPoints = targetPlayer.getPoints();
+			msg.opponentsPoint = _currentPlayer.getPoints();
+			
+			addMessage( msg );
 		}
 		
 		private function setNextActivePlayer():void
@@ -145,6 +161,13 @@ package game.application.server
 			var msg:MessageHit = new MessageHit(MessageType.PLAYER_HIT_SHIP, _currentPlayer.id);
 			msg.x = x;
 			msg.y = y;
+			
+			addMessage( msg );
+		}
+		
+		private function finishGame(id:String):void
+		{
+			var msg:MessageHit = new MessageHit(MessageType.FINISH_GAME, id);
 			
 			addMessage( msg );
 		}
