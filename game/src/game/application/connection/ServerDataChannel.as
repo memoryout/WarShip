@@ -41,6 +41,7 @@ package game.application.connection
 			{
 				switch(data.cmd)
 				{
+					case "login_gg":
 					case "login":
 					{
 						parseLoginData(data);

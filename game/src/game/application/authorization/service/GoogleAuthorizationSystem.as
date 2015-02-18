@@ -3,6 +3,8 @@ package game.application.authorization.service
 	import com.milkmangames.nativeextensions.GoogleGames;
 	import com.milkmangames.nativeextensions.events.GoogleGamesEvent;
 	
+	import flash.events.Event;
+	
 	import game.application.ProxyList;
 	import game.application.authorization.AuthorizationInfo;
 	import game.application.connection.ChannelData;
@@ -21,6 +23,7 @@ package game.application.authorization.service
 		private var _authorizationStatus:AuthorizationInfo;
 		private var _dataChannel:		IServerDataChannel;
 		
+		private var _authServerData:	AuthorizationData;		
 		
 		public function GoogleAuthorizationSystem(proxyName:String=null, data:Object=null)
 		{
@@ -55,11 +58,7 @@ package game.application.authorization.service
 		private function onSignedIn(e:GoogleGamesEvent):void
 		{
 			trace("Player signed in! : "+GoogleGames.games.getCurrentPlayerId()+"["+GoogleGames.games.getCurrentPlayerName()+"]");
-			
-			_dataChannel = this.facade.retrieveProxy(ProxyList.CLIENT_DATA_CHANNEL) as IServerDataChannel;
-			
-			_dataChannel.addLocalListener( ServerDataChannelLocalEvent.CHANNEL_DATA, handlerQueueData);
-			
+						
 			GoogleGames.games.loadAuthToken();
 			
 			GoogleGames.games.addEventListener(GoogleGamesEvent.LOAD_AUTH_TOKEN_SUCCEEDED, 	onAuthLoaded);
@@ -73,7 +72,11 @@ package game.application.authorization.service
 		
 		private function onAuthLoaded(e:GoogleGamesEvent):void
 		{
-			_serverProxy.signInGoogle(e.token);
+			_dataChannel = this.facade.retrieveProxy(ProxyList.CLIENT_DATA_CHANNEL) as IServerDataChannel;
+			
+			_dataChannel.addLocalListener( ServerDataChannelLocalEvent.CHANNEL_DATA, handlerQueueData);
+			
+			_serverProxy.signInGoogle(e.token);		
 		}
 		
 		/** On Games Error */
@@ -100,11 +103,13 @@ package game.application.authorization.service
 					
 					if(auth.error)
 					{
-						
+						trace("a");
 					}
 					else
 					{
-						
+						_authServerData = auth;
+						_authorizationStatus.setServerAuthorizationData(auth);
+						_authorizationStatus.dispatchEvent( new Event(Event.COMPLETE) );
 					}
 				}
 			}

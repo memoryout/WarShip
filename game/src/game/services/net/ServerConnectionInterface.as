@@ -103,7 +103,7 @@ package game.services.net
 			var req:Request = new Request();
 			
 			var obj:Object = new Object();
-			obj.cmd = ServerCommandList.LOGIN;
+			obj.cmd = ServerCommandList.LOGIN_GG;
 			obj.auth_token = authToken;
 			
 			req.pushData( obj );
