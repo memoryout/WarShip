@@ -36,10 +36,10 @@ package game.activity.view.application.game
 			var progressLine:MovieClip;
 		
 			if(type == USER_TYPE)			
-				progressLine = linkToTopBar.getChildByName(OPONENT_PROGRESS_LINE) as MovieClip;
+				progressLine = (linkToTopBar.getChildByName("topBar") as MovieClip).getChildByName(OPONENT_PROGRESS_LINE) as MovieClip;
 				
 			else if(type == OPONENT_TYPE)			
-				progressLine = linkToTopBar.getChildByName(USER_PROGRESS_LINE) as MovieClip;
+				progressLine = (linkToTopBar.getChildByName("topBar") as MovieClip).getChildByName(USER_PROGRESS_LINE) as MovieClip;
 			
 			
 			progressLine.gotoAndStop(val+1);			
