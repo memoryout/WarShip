@@ -479,5 +479,17 @@ package game.activity.view.application.game
 		{
 			return _ceilY;
 		}
+		
+		public function destroy():void
+		{
+			cellAnimation.destroy();
+			topBar.destroy();
+			
+			cellAnimation = null;
+			topBar = null;
+			
+			while(numChildren > 0)
+				removeChildAt(0);
+		}
 	}
 }

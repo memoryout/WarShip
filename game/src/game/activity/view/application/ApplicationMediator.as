@@ -8,6 +8,7 @@ package game.activity.view.application
 	import game.activity.view.application.context.pvc.PvCContextMediator;
 	import game.activity.view.application.context.pvpnet.PvPNetGameContextMediator;
 	import game.activity.view.application.game.GameViewMediator;
+	import game.activity.view.application.game.result.ResultMediator;
 	import game.activity.view.application.lobby.GameLobby;
 	import game.activity.view.application.menu.MenuMediator;
 	import game.activity.view.application.menu.pages.profiler.ProfilerMediator;
@@ -53,7 +54,8 @@ package game.activity.view.application
 						ApplicationEvents.START_UP_COMPLETE,
 						ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE,
 						ApplicationEvents.GAME_CONTEXT_CREATE_COMPLETE,
-						ApplicationEvents.SHOW_USER_PROFILER
+						ApplicationEvents.SHOW_USER_PROFILER,
+						ApplicationEvents.SHOW_RESULT_WINDOW
 					];
 		}
 		
@@ -87,6 +89,12 @@ package game.activity.view.application
 					showUserProfilerPage();
 					break;
 				}
+					
+				case ApplicationEvents.SHOW_RESULT_WINDOW:
+				{
+					createGameResult();
+					break;
+				}
 			}
 		}
 		
@@ -97,18 +105,24 @@ package game.activity.view.application
 				
 		private function createMenuMediator():void
 		{
-			this.facade.registerMediator( new MenuMediator( _appView.getMenuLayer() ) );
+			this.facade.registerMediator( new MenuMediator( _appView.getMenuLayer()));
 		}
 		
 		private function createWindowsMediator():void
 		{
-			this.facade.registerMediator( new WindowsMediator( _appView.getWindowsLayer() ) );
+			this.facade.registerMediator( new WindowsMediator( _appView.getWindowsLayer()));
 		}
 		
 		
 		private function createGameMediator():void
 		{
-			this.facade.registerMediator( new GameViewMediator( _appView.getGameLayer() ) );
+			this.facade.registerMediator( new GameViewMediator( _appView.getGameLayer()));
+		}
+		
+		private function createGameResult():void
+		{
+			this.facade.removeMediator( GameViewMediator.NAME);
+			this.facade.registerMediator( new ResultMediator(_appView.getWindowsLayer()));
 		}
 		
 		
@@ -168,9 +182,7 @@ package game.activity.view.application
 				}
 			}
 		}
-		
-		
-		
+			
 		override public function onPause():void
 		{
 			var canvas:DisplayObjectContainer = this.viewComponent as DisplayObjectContainer;
@@ -180,6 +192,11 @@ package game.activity.view.application
 			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
 			_gameLobby = null;
 		}
+		
+		/*override override function onResume():void
+		{
+			
+		}*/
 		
 		override public function onStop():void
 		{

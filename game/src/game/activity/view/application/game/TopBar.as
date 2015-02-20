@@ -44,5 +44,13 @@ package game.activity.view.application.game
 			
 			progressLine.gotoAndStop(val+1);			
 		}
+		
+		public function destroy():void
+		{
+			while(numChildren > 0)
+				removeChildAt(0);
+			
+			linkToTopBar = null;
+		}
 	}
 }

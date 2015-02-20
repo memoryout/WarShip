@@ -3,6 +3,7 @@ package game.activity.view.application.game
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import flash.utils.clearTimeout;
 	import flash.utils.setTimeout;
 	
 	import game.activity.BaseMediator;
@@ -243,6 +244,8 @@ package game.activity.view.application.game
 		{
 			if(this.contains(e.currentTarget as MovieClip)) 
 				this.removeChild(e.currentTarget as MovieClip);
+			
+			trace(numChildren);
 		}
 		
 		public function setShipShootAnimation(shipsDescriptionContainer:Vector.<ShipViewDescription>):void
@@ -316,5 +319,29 @@ package game.activity.view.application.game
 			shotAni.addEventListener("finish_shot", removeAnimation);	
 			shotAni.gotoAndPlay(2);		
 		}	
+		
+		public function destroy():void
+		{
+			for (var i:int = 0; i < numChildren; i++) 
+			{
+				getChildAt(i).removeEventListener(FINISH_SUNK_EVENT, removeAnimation);	
+				getChildAt(i).removeEventListener(ADD_BROKEN_EVENT, addBrokenShip);	
+				getChildAt(i).removeEventListener(FINISH_HIT_EVENT, removeAnimation);				
+				getChildAt(i).removeEventListener(ADD_SHOOT_EVENT, addShootAni);				
+				getChildAt(i).removeEventListener(ADD_HITED_EVENT, addHitedCell);	
+				getChildAt(i).removeEventListener("finish_shot", removeAnimation);								
+			}
+			
+			_addBrokenShipCall = null;
+			_addTableCall 	   = null;
+			
+			if(timeOutId)
+			{
+				clearTimeout(timeOutId);				
+			}
+			
+			while(numChildren > 0)
+				removeChildAt(0);
+		}
 	}
 }

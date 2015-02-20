@@ -43,6 +43,7 @@ package game.application
 		
 		public static const USER_PRESS_BACK:				String = "event.user.press.back_button";
 		
+		public static const SHOW_RESULT_WINDOW:				String = "event.user.press.show_result_window";		
 		
 	}
 }

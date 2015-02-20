@@ -62,7 +62,7 @@ package game.activity.view.application
 		
 		public function pauseActivity():void
 		{
-			this.facade.removeMediator( getMediatorName() );
+//			this.facade.removeMediator( getMediatorName() );
 			this.onPause();
 		}
 		

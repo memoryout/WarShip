@@ -11,7 +11,7 @@ package
 	
 	import game.ApplicationFacade;
 	
-	[SWF(frameRate="60")]
+	[SWF(frameRate="30")]
 	public class WarShip extends Sprite
 	{
 		public function WarShip()
