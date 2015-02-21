@@ -96,11 +96,11 @@ package game.activity.view
 //			_canvas.x = (screeWidth - ViewGlobalVariables.SOURCE_WIDTH * scaleKoef) >> 1;
 //			_canvas.y = (screenHeight - ViewGlobalVariables.SOURCE_HEIGHT * scaleKoef) >> 1;
 			
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
+//			stage.scaleMode = StageScaleMode.NO_SCALE;
+//			stage.align = StageAlign.TOP_LEFT;
 			
-			var serverString:String = unescape(Capabilities.serverString); 
-			var reportedDpi:Number = Number(serverString.split("&DP=", 2)[1]);		
+//			var serverString:String = unescape(Capabilities.serverString); 
+//			var reportedDpi:Number = Number(serverString.split("&DP=", 2)[1]);		
 			
 			
 			var guiSize:Rectangle = new Rectangle(0, 0, 1280, 720); 

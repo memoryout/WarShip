@@ -48,7 +48,8 @@ package game.activity.view
 			return [ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE,
 					ApplicationEvents.START_UP_SOURCE_LOAD_ERROR,
 					ApplicationEvents.REQUIRED_USER_AUTHORIZATION,
-					ApplicationEvents.START_UP_COMPLETE
+					ApplicationEvents.START_UP_COMPLETE,
+					ApplicationEvents.START_UP_PRELOADER_LOAD_COMPLETE
 				];
 		}
 		
@@ -66,12 +67,18 @@ package game.activity.view
 				
 				case ApplicationEvents.START_UP_SOURCE_LOAD_COMPLETE:
 				{
-					createPreloader();
+//					createPreloader();
 					break;
 				}
 					
 				case ApplicationEvents.START_UP_SOURCE_LOAD_ERROR:
 				{
+					break;
+				}
+				
+				case ApplicationEvents.START_UP_PRELOADER_LOAD_COMPLETE:
+				{
+					createPreloader();
 					break;
 				}
 			}

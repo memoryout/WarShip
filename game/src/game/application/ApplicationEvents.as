@@ -2,10 +2,11 @@ package game.application
 {
 	public class ApplicationEvents
 	{
-		public static const START_UP_INIT:					String = "event.start_up.init";
-		public static const START_UP_SOURCE_LOAD_START:		String = "event.start_up.source.load.start";
-		public static const START_UP_SOURCE_LOAD_COMPLETE:	String = "event.start_up.source.load.complete";
-		public static const START_UP_SOURCE_LOAD_ERROR:		String = "event.start_up.source.load.error";
+		public static const START_UP_INIT:						String = "event.start_up.init";
+		public static const START_UP_SOURCE_LOAD_START:			String = "event.start_up.source.load.start";
+		public static const START_UP_SOURCE_LOAD_COMPLETE:		String = "event.start_up.source.load.complete";
+		public static const START_UP_PRELOADER_LOAD_COMPLETE:	String = "event.start_up.source.load.preloader_load_complete";
+		public static const START_UP_SOURCE_LOAD_ERROR:			String = "event.start_up.source.load.error";
 		
 		public static const START_UP_REQUEST_DEVICE_INFO:	String = "event.start_up.device_info.request";
 		public static const START_UP_DEVICE_INFO_RECEIVED:	String = "event.start_up.device_info.received";

@@ -110,10 +110,12 @@ package game.application.startup
 				var loader:MultiLoader = asset.getMultiloader();
 				
 				// сначала наполняем очередь загрузки, затем вызываем load();
+				loader.pushFile( AppGlobalVariables.PRELOADER_URL );
 				loader.pushFile( AppGlobalVariables.SOURCE_URL );
 				loader.pushFile( AppGlobalVariables.ANIMATIONS_URL );
 				
-				loader.addEventListener(Event.COMPLETE, handlerAssetInit);
+				loader.addEventListener(Event.COMPLETE, 			handlerAssetInit);
+				loader.addEventListener(MultiLoader.FILE_LOADED, 	fileLoaded);
 				loader.load();
 				
 				_startupInfo.dispatchEvent( new Event(ApplicationEvents.START_UP_SOURCE_LOAD_START) );
@@ -156,7 +158,11 @@ package game.application.startup
 			//startAuthorization();
 		}
 		
-		
+		private function fileLoaded(e:Event):void
+		{
+			trace("a");
+			this.sendNotification(ApplicationEvents.START_UP_PRELOADER_LOAD_COMPLETE);
+		}
 		
 		private function handlerInitDataProviderCompleted(e:Event):void
 		{

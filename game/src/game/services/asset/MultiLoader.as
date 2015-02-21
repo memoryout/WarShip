@@ -11,10 +11,13 @@ package game.services.asset
 	import flash.system.ApplicationDomain;
 	import flash.system.LoaderContext;
 	
-	[Event(name="complete", type="flash.events.Event")]
-	[Event(name="progress ", type="flash.events.ProgressEvent")]
+	[Event(name="complete", 		type="flash.events.Event")]
+	[Event(name="progress ", 		type="flash.events.ProgressEvent")]
+	
 	public class MultiLoader extends EventDispatcher
 	{
+		public static const FILE_LOADED:	String = "file_loaded";
+		
 		private var _filesQueue:		Vector.<String>;
 		private var _domain:			ApplicationDomain;
 		
@@ -57,6 +60,7 @@ package game.services.asset
 				loader.contentLoaderInfo.addEventListener(Event.INIT, handlerFileLoadComplete);
 				loader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR, handlerErrorLoadFile);
 				loader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS, handlerProgressLoadFile);
+				loader.contentLoaderInfo.addEventListener(Event.COMPLETE, handlerCompleteLoadFile);
 				loader.load(new URLRequest(url), new LoaderContext(false, _domain));
 			}
 			else
@@ -71,7 +75,7 @@ package game.services.asset
 			var loaderInfo:LoaderInfo = e.currentTarget as LoaderInfo;
 			loaderInfo.removeEventListener(Event.INIT, handlerFileLoadComplete);
 			loaderInfo.removeEventListener(IOErrorEvent.IO_ERROR, handlerErrorLoadFile);
-			
+								
 			_filesLoaded ++;
 			
 			loadNextFile();
@@ -92,6 +96,13 @@ package game.services.asset
 			
 			_percent = _filesLoaded * _fileProgressRange + value * _fileProgressRange;
 			this.dispatchEvent( new ProgressEvent(ProgressEvent.PROGRESS, false, true, _percent, 1 ) );
+		}
+		
+		private function handlerCompleteLoadFile(e:Event):void
+		{
+			trace("a");
+			if(e.currentTarget.url == "app:/data/preloader.swf")
+				this.dispatchEvent( new Event(FILE_LOADED) );
 		}
 	}
 }
