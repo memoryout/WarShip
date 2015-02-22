@@ -130,40 +130,28 @@ package game.activity.view.application
 		{
 			_gameLobby = new GameLobby();
 			(viewComponent as DisplayObjectContainer).addChild( _gameLobby );
-			_gameLobby.addEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
-			_gameLobby.addEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
-			_gameLobby.addEventListener( GameLobby.PROFILER, handlerSelectProfiler);
+			
+			_gameLobby.addEventListener( GameLobby.COMPUTER,	 handlerCreateUserVsComputerContext);
+			_gameLobby.addEventListener( GameLobby.PLAYER,		 handlerCreateUserVsUserNetContext);
+			_gameLobby.addEventListener( GameLobby.PROFILER,	 handlerSelectProfiler);
 			
 		}
 		
 		
 		private function handlerCreateUserVsComputerContext(e:Event):void
-		{
-			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
-			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
-			
+		{			
 			this.sendNotification(ApplicationCommands.CREATE_NEW_GAME, GameType.P_VS_C);
 		}
 		
 		private function handlerCreateUserVsUserNetContext(e:Event):void
-		{
-			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
-			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
-			
+		{			
 			this.sendNotification(ApplicationCommands.CREATE_NEW_GAME, GameType.P_VS_P_NET);
 		}
 		
 		private function handlerSelectProfiler(e:Event):void
-		{			
-			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
-			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
-			
-			_gameLobby.removeEventListener( GameLobby.PROFILER, handlerSelectProfiler);
-			
+		{	
 			this.sendNotification(ApplicationCommands.CREATE_PROFILER, null);
 		}
-		
-		
 		
 		private function createGameContextActivity(type:uint):void
 		{
@@ -190,6 +178,8 @@ package game.activity.view.application
 			
 			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
 			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			_gameLobby.removeEventListener( GameLobby.PROFILER, 	handlerSelectProfiler);
+			
 			_gameLobby = null;
 		}
 		

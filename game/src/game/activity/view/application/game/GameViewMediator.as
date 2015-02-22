@@ -1,16 +1,12 @@
 package game.activity.view.application.game
 {
 	import com.freshplanet.ane.AirDeviceId;
-	import com.milkmangames.nativeextensions.AdMob;
-	import com.milkmangames.nativeextensions.AdMobAdType;
-	import com.milkmangames.nativeextensions.AdMobAlignment;
-	import com.milkmangames.nativeextensions.events.AdMobErrorEvent;
-	import com.milkmangames.nativeextensions.events.AdMobEvent;
-	
+
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	
 	import game.activity.BaseMediator;
+	import game.activity.view.application.game.exit.ExitView;
 	import game.activity.view.application.game.result.ResultMediator;
 	import game.activity.view.application.game.ships_positions.ShipsPositionsView;
 	import game.application.ApplicationCommands;
@@ -26,6 +22,8 @@ package game.activity.view.application.game
 	import game.utils.GamePoint;
 	import game.utils.ShipPositionSupport;
 	
+	import org.puremvc.as3.interfaces.INotification;
+	
 	public class GameViewMediator extends BaseMediator
 	{
 		private static const DEVICE_ID_SALT:		String = "123456789";
@@ -38,6 +36,8 @@ package game.activity.view.application.game
 		
 		private var _proxy:					IGameProxy;
 		private var _shipsList:				Vector.<ShipData>;
+		
+		private var exitView				:ExitView;
 				
 		public function GameViewMediator(viewComponent:Object)
 		{
@@ -58,65 +58,9 @@ package game.activity.view.application.game
 			_shipsList = _proxy.getShipsList();
 			_positionView.setShipsData( _shipsList );
 			addListenersForSetPositions();
-			
-			addAdMob();
-		}
-		
-		private function addAdMob():void
-		{
-			if(AdMob.isSupported){
-				AdMob.init("ca-app-pub-8376756760215386/4607981759");
-			}
-			else
-			{
-				trace("AdMob won't work on this platform!");
-				return;
-			}
-			
-//			AdMob.showAd(AdMobAdType.SMART_BANNER,AdMobAlignment.CENTER,AdMobAlignment.TOP);
-			AdMob.loadInterstitial("ca-app-pub-8376756760215386/4607981759", true);
-
-			
-			AdMob.enableTestDeviceIDs(AdMob.getCurrentTestDeviceIDs());
-			AdMob.addEventListener(AdMobErrorEvent.FAILED_TO_RECEIVE_AD,	onFailedReceiveAd);
-			AdMob.addEventListener(AdMobEvent.RECEIVED_AD,					onReceiveAd);
-			AdMob.addEventListener(AdMobEvent.SCREEN_PRESENTED,				onScreenPresented);
-			AdMob.addEventListener(AdMobEvent.SCREEN_DISMISSED,				onScreenDismissed);
-			AdMob.addEventListener(AdMobEvent.LEAVE_APPLICATION,			onLeaveApplication);
-
 		}
 		
 		
-		/** On Failed Receive Ad */
-		private function onFailedReceiveAd(e:AdMobErrorEvent):void
-		{
-			trace("ERROR receiving ad, reason: '"+e.text+"'");
-		}
-		
-		/** On Receive Ad */
-		private function onReceiveAd(e:AdMobEvent):void
-		{
-			trace("Received ad:"+e.isInterstitial+":"+e.dimensions);
-		}
-		
-		/** On Screen Presented */
-		private function onScreenPresented(e:AdMobEvent):void
-		{
-			trace("Screen Presented.");
-		}
-		
-		
-		/** On Screen Dismissed */
-		private function onScreenDismissed(e:AdMobEvent):void
-		{
-			trace("Screen Dismissed.");
-		}
-		
-		/** On Leave Application */
-		private function onLeaveApplication(e:AdMobEvent):void
-		{
-			trace("Leave Application.");
-		}
 		
 		private function hideTableForSetPosition():void
 		{			
@@ -394,6 +338,47 @@ package game.activity.view.application.game
 		private function handlerGameStarted(e:Event):void
 		{
 			
+		}
+		
+		override public function listNotificationInterests():Array
+		{
+			return [
+				ApplicationCommands.USER_PRESS_BACK
+			];
+		}
+		
+		override public function handleNotification(notification:INotification):void
+		{
+			var name:String = notification.getName();
+			
+			switch(name)
+			{
+				case ApplicationCommands.USER_PRESS_BACK:
+				{
+					if(!exitView)
+					{
+						exitView = new ExitView(viewComponent);
+						exitView.addEventListener(ExitView.MENU, gotoMenu);
+						exitView.shopPopUp();
+					}
+					else
+					{
+						if(exitView.isShowed)
+							exitView.hidePopUp();
+						else
+							exitView.shopPopUp();
+					}
+					
+					break;
+				}
+			}
+		}
+		
+		private function gotoMenu(e:Event):void
+		{
+			exitView.removeEventListener(ExitView.MENU, gotoMenu);
+			this.sendNotification(ApplicationEvents.START_UP_COMPLETE);
+			this.facade.removeMediator(NAME);
 		}
 		
 		override public function onRemove():void

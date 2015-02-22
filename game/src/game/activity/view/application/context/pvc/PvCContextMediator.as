@@ -74,6 +74,8 @@ package game.activity.view.application.context.pvc
 		{
 //			this.facade.registerMediator( new ShipsPositionsMediator( _layout) );
 			this.facade.registerMediator( new GameViewMediator( _layout) );
+			
+			this.facade.removeMediator(NAME);
 		}
 		
 		
