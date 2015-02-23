@@ -11,10 +11,10 @@ package game.activity.view.application.game.exit
 
 	public class ExitView extends Sprite
 	{
-		public static const MENU:		String = "menu";
-		private var mainContainer:DisplayObjectContainer;
-		public var isShowed:Boolean;
-		private var viewLink:MovieClip;
+		public static const MENU		:String = "menu";
+		private var mainContainer		:DisplayObjectContainer;
+		public  var isShowed			:Boolean;
+		private var viewLink			:MovieClip;
 		
 		public function ExitView(viewComponent:Object)
 		{			

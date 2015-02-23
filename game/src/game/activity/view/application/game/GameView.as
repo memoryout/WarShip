@@ -15,7 +15,9 @@ package game.activity.view.application.game
 		public static const USERT_TYPE:		String = "user";
 		public static const OPPONENT_TYPE:	String = "oponent";
 		
-		public static const FINISH_HIT_EVENT:		String = "finish_hit";
+//		public static const FINISH_HIT_EVENT:		String = "finish_hit";
+		
+		public static const SHOW_PLAYER_STATE_EVENT:String = "finish_hit";
 		
 		public static const SELECT_OPPONENT_CEIL:	String = "selectOpponentCeil";
 		
@@ -60,7 +62,8 @@ package game.activity.view.application.game
 		
 		private var brokenCellCounter:int = 1;
 		
-		private var shipsDescriptionContainer:Vector.<ShipViewDescription>;
+		private var userShipsDescriptionContainer:Vector.<ShipViewDescription> = new Vector.<ShipViewDescription>();
+		private var oponentShipsDescriptionContainer:Vector.<ShipViewDescription> = new Vector.<ShipViewDescription>();
 		
 		private var popUp:MovieClip;
 		
@@ -155,9 +158,7 @@ package game.activity.view.application.game
 		 * 
 		 */		
 		public function setShipsLocation(val:Vector.<ShipData>):void
-		{		
-			shipsDescriptionContainer = new Vector.<ShipViewDescription>();
-			
+		{					
 			for (var i:int = 0; i < val.length; i++) 
 			{				
 				var ship:MovieClip = shipsContainer.getChildByName("s" + val[i].deck + "_" + i) as MovieClip;	
@@ -180,7 +181,7 @@ package game.activity.view.application.game
 				shipViewDescription.link = ship;
 				shipViewDescription.dirrection = val[i].dirrection;
 				
-				shipsDescriptionContainer.push(shipViewDescription);
+				userShipsDescriptionContainer.push(shipViewDescription);
 			}			
 		}
 		
@@ -202,7 +203,7 @@ package game.activity.view.application.game
 				animationParameters.gotoTableFrame = brokenCellCounter;
 			}
 					
-			cellAnimation.setShipShootAnimation(shipsDescriptionContainer);		
+			cellAnimation.setShipShootAnimation(userShipsDescriptionContainer);		
 			
 			selectedUserCell.push([fieldPoint.x, fieldPoint.y]);			
 									
@@ -245,12 +246,25 @@ package game.activity.view.application.game
 			yPosition = cellSize*val.cell.y + _opponentField.y,
 			
 			cellAnimation.setShootedAnimation(xPosition, yPosition, val.cell.x, val.cell.y, OPPONENT_TYPE);
-			cellAnimation.setShipShootAnimation(shipsDescriptionContainer);	
+			cellAnimation.setShipShootAnimation(userShipsDescriptionContainer);	
 			
 			///
 			
 			cleanBrokenCellsOnFeild(val.ship.coopdinates);	
 //			cellAnimation.removeShotedAnimation(USERT_TYPE, val.ship.coopdinates);
+			
+			
+			var shipViewDescription:ShipViewDescription = new ShipViewDescription();
+			
+			//			shipViewDescription.shipName = ship.name;
+			shipViewDescription.x = val.cell.x;
+			shipViewDescription.y = val.cell.y;
+			shipViewDescription.sunk = true;
+			shipViewDescription.deck = val.ship.deck;
+			//			shipViewDescription.link = ship;
+			shipViewDescription.dirrection = val.ship.dirrection;
+			
+			oponentShipsDescriptionContainer.push(shipViewDescription);
 		}
 		
 		public function sunkOponentShip(val:Object):void
@@ -271,6 +285,7 @@ package game.activity.view.application.game
 			
 			removeOponentShipFromView(val);		
 //			cellAnimation.removeShotedAnimation(OPPONENT_TYPE);
+			
 		}
 		
 		private function addTable(fieldPoint:Object, xPosition:Number, yPosition:Number, gotoTableFrame:int):void
@@ -319,12 +334,12 @@ package game.activity.view.application.game
 		
 		private function removeOponentShipFromView(val:Object):void
 		{
-			for (var i:int = 0; i < shipsDescriptionContainer.length; i++) 
+			for (var i:int = 0; i < userShipsDescriptionContainer.length; i++) 
 			{				
-				if(shipsDescriptionContainer[i].x == val.ship.x && shipsDescriptionContainer[i].y == val.ship.y)
+				if(userShipsDescriptionContainer[i].x == val.ship.x && userShipsDescriptionContainer[i].y == val.ship.y)
 				{
-					shipsContainer.removeChild(shipsContainer.getChildByName(shipsDescriptionContainer[i].shipName) as MovieClip);
-					shipsDescriptionContainer[i].sunk = true;
+					shipsContainer.removeChild(shipsContainer.getChildByName(userShipsDescriptionContainer[i].shipName) as MovieClip);
+					userShipsDescriptionContainer[i].sunk = true;
 					break;
 				}								
 			}
@@ -490,6 +505,16 @@ package game.activity.view.application.game
 			
 			while(numChildren > 0)
 				removeChildAt(0);
+		}
+		
+		public function getUserShipsDescription():Vector.<ShipViewDescription>
+		{
+			return userShipsDescriptionContainer;
+		}
+		
+		public function getOponentShipsDescription():Vector.<ShipViewDescription>
+		{
+			return oponentShipsDescriptionContainer;
 		}
 	}
 }

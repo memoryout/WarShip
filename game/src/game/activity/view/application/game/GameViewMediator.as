@@ -1,12 +1,13 @@
 package game.activity.view.application.game
 {
 	import com.freshplanet.ane.AirDeviceId;
-
+	
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
 	
 	import game.activity.BaseMediator;
 	import game.activity.view.application.game.exit.ExitView;
+	import game.activity.view.application.game.player_info.ShipLiveView;
 	import game.activity.view.application.game.result.ResultMediator;
 	import game.activity.view.application.game.ships_positions.ShipsPositionsView;
 	import game.application.ApplicationCommands;
@@ -26,18 +27,19 @@ package game.activity.view.application.game
 	
 	public class GameViewMediator extends BaseMediator
 	{
-		private static const DEVICE_ID_SALT:		String = "123456789";
-		public static const NAME:			String = "mediator.game.main_mediator";
+		private static const DEVICE_ID_SALT		:String = "123456789";
+		public static const NAME				:String = "mediator.game.main_mediator";
 		
 		private var _gameView:				GameView;
 		private var _positionView:			ShipsPositionsView;
 		
-		private var _gameBattleProxy:		IGameBattleProxy;
+		private var _gameBattleProxy		:IGameBattleProxy;
 		
-		private var _proxy:					IGameProxy;
-		private var _shipsList:				Vector.<ShipData>;
+		private var _proxy					:IGameProxy;
+		private var _shipsList				:Vector.<ShipData>;
 		
 		private var exitView				:ExitView;
+		private var shipLiveView			:ShipLiveView;
 				
 		public function GameViewMediator(viewComponent:Object)
 		{
@@ -145,8 +147,42 @@ package game.activity.view.application.game
 			executeBattleProxyAction();
 			setSipLocation();
 			setName();
+			
+			_gameView.addEventListener(TopBar.OPONENT_STATE, showPlayerState);			
+			_gameView.addEventListener(TopBar.USER_STATE, 	 showPlayerState);			
 		}
 		
+		private function showPlayerState(e:Event):void
+		{
+			if(!shipLiveView)			
+				shipLiveView = new ShipLiveView(viewComponent, _gameView);						
+			
+			if(e.type == TopBar.OPONENT_STATE)
+			{
+				if(shipLiveView.isShowedOponent)
+					shipLiveView.hideOponentPopUp();
+				else
+				{
+					if(shipLiveView.isShowedUser)
+						shipLiveView.hideUserPopUp();
+					
+					shipLiveView.showOponentPopUp(e.type);
+				}
+				
+			}
+			else if(e.type == TopBar.USER_STATE)
+			{
+				if(shipLiveView.isShowedUser)
+					shipLiveView.hideUserPopUp();
+				else
+				{
+					if(shipLiveView.isShowedOponent)
+						shipLiveView.hideOponentPopUp();
+				
+					shipLiveView.showUserPopUp(e.type);
+				}
+			}
+		}
 		
 		private function handlerChangeShipPosition(e:Event):void
 		{
