@@ -6,6 +6,7 @@ package game.application.data
 	import game.AppGlobalVariables;
 	import game.application.data.db.GetDebugAuthorizationInfo;
 	import game.application.data.db.InsertDebugAuthorizationInfo;
+	import game.application.data.game.GameDataProvider;
 	import game.application.data.user.UserDataProvider;
 	import game.services.ServicesList;
 	import game.services.interfaces.ISQLManager;
@@ -16,7 +17,7 @@ package game.application.data
 		
 		
 		private var _userDataProvider:	UserDataProvider;
-		
+		private var _gameDataProvider:	GameDataProvider;
 		
 		private var _sqlManager:		ISQLManager;
 		
@@ -41,6 +42,8 @@ package game.application.data
 		
 		private function onSQLConnected():void
 		{
+			_gameDataProvider = new GameDataProvider();
+			
 			_userDataProvider = new UserDataProvider();
 			_userDataProvider.addEventListener(Event.INIT, handleUserDataProviderInited);
 			_userDataProvider.setSQLConnection( _sqlManager );
@@ -62,6 +65,11 @@ package game.application.data
 		public function getUserDataProvider():UserDataProvider
 		{
 			return _userDataProvider;
+		}
+		
+		public function getGameDataProvider():GameDataProvider
+		{
+			return _gameDataProvider;
 		}
 		
 		

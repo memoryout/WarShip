@@ -7,7 +7,9 @@ package game.application.game.battle
 	import game.application.connection.data.GameInfoData;
 	import game.application.connection.data.OpponentInfoData;
 	import game.application.connection.data.UserInfoData;
+	import game.application.data.DataProvider;
 	import game.application.data.game.BattleField;
+	import game.application.data.game.GameDataProvider;
 	import game.application.data.game.GamePlayerData;
 	import game.application.data.game.ShipData;
 	import game.application.data.game.ShipPositionPoint;
@@ -38,32 +40,39 @@ package game.application.game.battle
 		
 		override public function onRegister():void
 		{
+			var gameDataProvider:GameDataProvider = DataProvider.getInstance().getGameDataProvider()
+			
+			_userField = gameDataProvider.userField;
+			_opponentField = gameDataProvider.opponentField;
+			
+			_user = gameDataProvider.user;
+			_opponent = gameDataProvider.opponent;
+			
+			_userShips = gameDataProvider.userShips;
+			_opponentShips = gameDataProvider.opponentShips;
+			
+			
 			this.sendNotification( ApplicationEvents.BUTTLE_PROXY_INIT_COMPLETE );
 		}
 		
 		
 		public function init(fieldWidth:uint, fieldHeight:uint):void
 		{
-			_userField = new BattleField();
-			_userField.init(fieldWidth, fieldHeight);
-			
-			_opponentField = new BattleField();
+			_userField.init(fieldWidth, fieldHeight);	
 			_opponentField.init(fieldWidth, fieldHeight);
-			
-			_opponentShips = new Vector.<ShipData>;
 		}
 		
 		public function initUserShips(v:Vector.<ShipData>):void
 		{
-			_userShips = v;
+			var i:int;
+			for(i = 0; i < v.length; i++) _userShips[i] = v[i];
 		}
 		
 		
 		public function updateOpponentData(data:OpponentInfoData):void
 		{
-			if(!_opponent) 
+			if( !_opponent.name ) 
 			{
-				_opponent = new GamePlayerData();
 				_opponent.name = data.name;
 				
 				checkIsGameCanStart();

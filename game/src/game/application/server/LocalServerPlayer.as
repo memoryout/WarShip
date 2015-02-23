@@ -10,9 +10,12 @@ package game.application.server
 		
 		private const _ships:		Vector.<LocalServerShip> = new Vector.<LocalServerShip>;
 		
+		public var points:			uint;
+		
 		public function LocalServerPlayer(id:String)
 		{
 			_id = id;
+			points = 0;
 		}
 		
 		

@@ -132,5 +132,11 @@ package game.application.data.game
 		{
 			
 		}
+		
+		public function clear():void
+		{
+			var par:String;
+			for(par in _fieldCeilCache) delete _fieldCeilCache[par];
+		}
 	}
 }

@@ -68,7 +68,7 @@ package game.application.game.p_vs_computer
 				this.facade.registerProxy( _computerChannel as IProxy );
 			}
 			
-			_computerAI.init();
+			
 		}
 		
 		public function setDifficultLevel(level:int):void
@@ -83,6 +83,11 @@ package game.application.game.p_vs_computer
 		public function registerUser(userId:String):void
 		{
 			_localServer.registerPlayer( userId );
+		}
+		
+		public function initializeComputer():void
+		{
+			_computerAI.init();
 		}
 		
 		
@@ -161,8 +166,8 @@ package game.application.game.p_vs_computer
 		{
 			var action:UserInfoData = new UserInfoData();
 			
-			
 			var opponentInfo:OpponentInfoData = new OpponentInfoData();
+			opponentInfo.name = "computer";
 			
 			
 			_userChannel.pushData( action );
@@ -202,8 +207,8 @@ package game.application.game.p_vs_computer
 				action.gameTime = 0;
 				action.status = GameBattleStatus.STEP_OF_OPPONENT;
 				action.timeOut = 0;
-				action.userPoints = msg.userPoints;
-				action.opponentPoints = msg.opponentsPoint;
+				action.userPoints = msg.opponentsPoint;
+				action.opponentPoints = msg.userPoints;
 				
 				_userChannel.pushData( action );
 				
@@ -225,8 +230,8 @@ package game.application.game.p_vs_computer
 				action.gameTime = 0;
 				action.status = GameBattleStatus.STEP_OF_OPPONENT;
 				action.timeOut = 0;
-				action.userPoints = msg.userPoints;
-				action.opponentPoints = msg.opponentsPoint;
+				action.userPoints = msg.opponentsPoint;
+				action.opponentPoints = msg.userPoints;
 				
 				_computerChannel.pushData( action );
 				

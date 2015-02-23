@@ -10,5 +10,12 @@ package game.application.data.game
 		{
 			
 		}
+		
+		public function clear():void
+		{
+			exp = 0;
+			points = 0;
+			name = null;
+		}
 	}
 }

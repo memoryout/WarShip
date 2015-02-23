@@ -105,6 +105,8 @@ package game.application.server
 				
 				if( shipData )
 				{
+					_currentPlayer.points ++;
+					
 //					playerHitShip(x, y);
 					
 					if( shipData.isSank() )
@@ -141,8 +143,8 @@ package game.application.server
 			
 			var targetPlayer:LocalServerPlayer = getOtherPlayer();
 			
-			msg.userPoints = targetPlayer.getPoints();
-			msg.opponentsPoint = _currentPlayer.getPoints();
+			msg.userPoints = _currentPlayer.points
+			msg.opponentsPoint = targetPlayer.points;
 			
 			addMessage( msg );
 		}

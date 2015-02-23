@@ -63,6 +63,8 @@ package game.application.game.p_vs_computer
 			this.facade.registerProxy( _serverConnectionSupport );
 			_serverConnectionSupport.init();
 			
+			DataProvider.getInstance().getGameDataProvider().createNewGameSession();
+			
 			_dataChannel = this.facade.retrieveProxy( ProxyList.CLIENT_DATA_CHANNEL ) as IServerDataChannel;
 			
 			
@@ -87,6 +89,7 @@ package game.application.game.p_vs_computer
 			_userId = DataProvider.getInstance().getUserDataProvider().getUserInfo().id.toString();
 			
 			_serverConnectionSupport.registerUser( _userId );
+			_serverConnectionSupport.initializeComputer();
 		}
 		
 		
