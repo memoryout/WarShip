@@ -4,6 +4,8 @@ package game.activity.view.application.game
 	
 	import flash.display.DisplayObjectContainer;
 	import flash.events.Event;
+	import flash.events.TimerEvent;
+	import flash.utils.Timer;
 	
 	import game.activity.BaseMediator;
 	import game.activity.view.application.game.exit.ExitView;
@@ -40,6 +42,8 @@ package game.activity.view.application.game
 		
 		private var exitView				:ExitView;
 		private var shipLiveView			:ShipLiveView;
+		
+		private var timer:Timer = new Timer(3000, 1);
 				
 		public function GameViewMediator(viewComponent:Object)
 		{
@@ -160,28 +164,69 @@ package game.activity.view.application.game
 			if(e.type == TopBar.OPONENT_STATE)
 			{
 				if(shipLiveView.isShowedOponent)
+				{
 					shipLiveView.hideOponentPopUp();
+					_gameView.unlockGame();
+				}
 				else
 				{
 					if(shipLiveView.isShowedUser)
 						shipLiveView.hideUserPopUp();
 					
 					shipLiveView.showOponentPopUp(e.type);
-				}
-				
+					_gameView.lockGame();
+					
+					stopTimer();
+					startTimer();
+				}				
 			}
 			else if(e.type == TopBar.USER_STATE)
 			{
 				if(shipLiveView.isShowedUser)
+				{
 					shipLiveView.hideUserPopUp();
+					_gameView.unlockGame();
+				}
 				else
 				{
 					if(shipLiveView.isShowedOponent)
 						shipLiveView.hideOponentPopUp();
 				
 					shipLiveView.showUserPopUp(e.type);
+					_gameView.lockGame();
+					
+					stopTimer();					
+					startTimer();
 				}
 			}
+		}
+		
+		private function startTimer():void
+		{
+			timer.addEventListener(TimerEvent.TIMER_COMPLETE, hidecurrentOpenHint);
+			timer.start();
+		}
+		
+		private function stopTimer():void
+		{
+			timer.stop();
+			timer.removeEventListener(TimerEvent.TIMER_COMPLETE, hidecurrentOpenHint);
+		}
+		
+		private function hidecurrentOpenHint(e:Event):void
+		{
+			stopTimer();
+			
+			if(shipLiveView.isShowedOponent)
+			{
+				shipLiveView.hideOponentPopUp();
+				_gameView.unlockGame();
+			}			
+			else if(shipLiveView.isShowedUser)
+			{
+				shipLiveView.hideUserPopUp();
+				_gameView.unlockGame();
+			}			
 		}
 		
 		private function handlerChangeShipPosition(e:Event):void
@@ -310,7 +355,7 @@ package game.activity.view.application.game
 		}		
 		
 		private function changeGameStatus():void
-		{				
+		{						
 			if(_gameBattleProxy.getStatus() == GameBattleStatus.WAITING_FOR_START)
 			{
 				_gameView.lockGame();
@@ -324,6 +369,7 @@ package game.activity.view.application.game
 			else if(_gameBattleProxy.getStatus() == GameBattleStatus.STEP_OF_INCOMING_USER)
 			{
 				_gameView.unlockGame();
+				
 //				_gameView.userStep();
 			}
 			else if(_gameBattleProxy.getStatus() == GameBattleStatus.WAITINIG_GAME_ANSWER)
@@ -419,6 +465,8 @@ package game.activity.view.application.game
 		
 		override public function onRemove():void
 		{
+			this.facade.removeProxy(ProxyList.GAME_BATTLE_PROXY);
+//			this.facade.removeProxy(ProxyList.MAIN_APPLICATION_PROXY);
 			(viewComponent as DisplayObjectContainer).addChild( _gameView );
 			_gameView.destroy();
 			_gameView = null;

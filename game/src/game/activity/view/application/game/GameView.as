@@ -12,6 +12,8 @@ package game.activity.view.application.game
 	
 	public class GameView extends Sprite
 	{
+		private static var _this:		GameView;
+		
 		public static const USERT_TYPE:		String = "user";
 		public static const OPPONENT_TYPE:	String = "oponent";
 		
@@ -515,6 +517,11 @@ package game.activity.view.application.game
 		public function getOponentShipsDescription():Vector.<ShipViewDescription>
 		{
 			return oponentShipsDescriptionContainer;
+		}
+		
+		public static function getInstance():GameView
+		{
+			return _this;
 		}
 	}
 }

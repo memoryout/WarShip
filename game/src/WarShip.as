@@ -10,6 +10,7 @@ package
 	import flash.events.KeyboardEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.Rectangle;
+	import flash.net.NetworkInfo;
 	import flash.ui.Keyboard;
 	import flash.utils.Timer;
 	
@@ -37,7 +38,7 @@ package
 			this.addEventListener(Event.ADDED_TO_STAGE, handlerAddedToStage);
 		
 			defineScale();
-			showSplashScreen();
+			showSplashScreen();			
 		}
 		
 		private function defineScale():void
@@ -71,6 +72,7 @@ package
 			addChild( splashScreen );
 			
 			splashScreen.scaleX = splashScreen.scaleY = appScale;
+			splashScreen.smoothing = true;
 			
 			splashScreen.x = stage.fullScreenWidth/2 - splashScreen.width/2;
 			splashScreen.y = stage.fullScreenHeight/2 - splashScreen.height/2;

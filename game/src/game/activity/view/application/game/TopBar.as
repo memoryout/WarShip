@@ -42,11 +42,9 @@ package game.activity.view.application.game
 		}
 		
 		private function setPlayers():void
-		{	
-			trace(DataProvider.getInstance());
-			
-			(linkToTopBar.topBar.getChildByName("userName") as TextField).text 		= DataProvider.getInstance().getGameDataProvider().user.name;
-			(linkToTopBar.topBar.getChildByName("oponentName") as TextField).text 	= DataProvider.getInstance().getGameDataProvider().opponent.name;
+		{				
+//			(linkToTopBar.topBar.getChildByName("userName") as TextField).text 		= DataProvider.getInstance().getGameDataProvider().user.name;
+//			(linkToTopBar.topBar.getChildByName("oponentName") as TextField).text 	= DataProvider.getInstance().getGameDataProvider().opponent.name;
 		}
 		
 		public function setProgress(type:String, val:Object):void

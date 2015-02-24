@@ -4,6 +4,7 @@ package game.activity.view.application.game.result
 	import flash.events.Event;
 	
 	import game.activity.BaseMediator;
+	import game.application.ApplicationEvents;
 
 	public class ResultMediator extends BaseMediator
 	{		
@@ -39,17 +40,26 @@ package game.activity.view.application.game.result
 		
 		private function handlerMenu(e:Event):void
 		{
-			
+			removeListener();
+			this.sendNotification(ApplicationEvents.START_UP_COMPLETE);
+			this.facade.removeMediator(NAME);
 		}
 		
 		private function hendlerRevange(e:Event):void
 		{
-			
+			removeListener();
 		}
 		
 		private function hendlerPlayAgain(e:Event):void
 		{
-			
+			removeListener();
+		}
+		
+		override public function onRemove():void
+		{
+			(viewComponent as DisplayObjectContainer).addChild( resultView );
+			resultView.destroy();
+			resultView = null;
 		}
 	}
 }

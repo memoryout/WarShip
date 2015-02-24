@@ -37,13 +37,13 @@ package game.activity.view.preloader
 			(viewComponent as DisplayObjectContainer).addChild( _view );
 			
 			
-			_view.addEventListener(MouseEvent.CLICK, handlerClickSignIn);
+//			_view.addEventListener(MouseEvent.CLICK, handlerClickSignIn);
 			
 			
 		}
 		
 		
-		private function handlerClickSignIn(e:MouseEvent):void
+		/*private function handlerClickSignIn(e:MouseEvent):void
 		{
 			//GoogleGames.games.signOut();
 			
@@ -68,10 +68,10 @@ package game.activity.view.preloader
 		}
 		
 		/** Signed Out */
-		private function onGamesError(e:GoogleGamesEvent):void
+		/*private function onGamesError(e:GoogleGamesEvent):void
 		{
 			trace("ERROR: "+e.type+": "+e.failureReason);
-		}
+		}*/
 		
 		override public function onRemove():void
 		{

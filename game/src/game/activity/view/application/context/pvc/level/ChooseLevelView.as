@@ -11,6 +11,7 @@ package game.activity.view.application.context.pvc.level
 	public class ChooseLevelView extends Sprite
 	{
 		public static const CHOOSE:		String = "choose";
+		public static const BACK:		String = "back";
 		
 		private var _skin:				MovieClip;
 		
@@ -33,6 +34,9 @@ package game.activity.view.application.context.pvc.level
 				(_skin.getChildByName("btlevel_1") as SimpleButton).addEventListener(MouseEvent.CLICK, handlerClickButton);
 				(_skin.getChildByName("btlevel_2") as SimpleButton).addEventListener(MouseEvent.CLICK, handlerClickButton);
 				(_skin.getChildByName("btlevel_3") as SimpleButton).addEventListener(MouseEvent.CLICK, handlerClickButton);
+				
+				(_skin.getChildByName("back_btn") as MovieClip).addEventListener(MouseEvent.CLICK, clickBack);				
+				
 			}
 		}
 		
@@ -51,6 +55,11 @@ package game.activity.view.application.context.pvc.level
 				selectedLevel = int( path[1] );
 				this.dispatchEvent( new Event(CHOOSE) );
 			}
+		}
+		
+		private function clickBack(e:MouseEvent):void
+		{
+			this.dispatchEvent(new Event(BACK));
 		}
 	}
 }

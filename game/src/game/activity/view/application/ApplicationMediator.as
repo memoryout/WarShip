@@ -174,15 +174,17 @@ package game.activity.view.application
 		override public function onPause():void
 		{
 			var canvas:DisplayObjectContainer = this.viewComponent as DisplayObjectContainer;
-			if(canvas.contains(_gameLobby)) canvas.removeChild( _gameLobby );
 			
-			_gameLobby.removeEventListener( GameLobby.COMPUTER, handlerCreateUserVsComputerContext);
-			_gameLobby.removeEventListener( GameLobby.PLAYER, handlerCreateUserVsUserNetContext);
+			if(canvas.contains(_gameLobby)) 
+				canvas.removeChild( _gameLobby );
+			
+			_gameLobby.removeEventListener( GameLobby.COMPUTER, 	handlerCreateUserVsComputerContext);
+			_gameLobby.removeEventListener( GameLobby.PLAYER,  		handlerCreateUserVsUserNetContext);
 			_gameLobby.removeEventListener( GameLobby.PROFILER, 	handlerSelectProfiler);
 			
 			_gameLobby = null;
 		}
-		
+				
 		/*override override function onResume():void
 		{
 			

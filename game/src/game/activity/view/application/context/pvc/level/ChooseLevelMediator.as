@@ -4,6 +4,7 @@ package game.activity.view.application.context.pvc.level
 	import flash.events.Event;
 	
 	import game.application.ApplicationCommands;
+	import game.application.ApplicationEvents;
 	
 	import org.puremvc.as3.patterns.mediator.Mediator;
 	
@@ -33,6 +34,7 @@ package game.activity.view.application.context.pvc.level
 			
 			_view.init();
 			_view.addEventListener(ChooseLevelView.CHOOSE, handlerChoose);
+			_view.addEventListener(ChooseLevelView.BACK,   handlerBack);
 		}
 		
 		private function handlerChoose(e:Event):void
@@ -43,6 +45,15 @@ package game.activity.view.application.context.pvc.level
 			
 			(viewComponent as DisplayObjectContainer).removeChild( _view );
 			this.facade.removeMediator(NAME);
+		}
+		
+		private function handlerBack(e:Event):void
+		{
+			_view.removeEventListener(ChooseLevelView.BACK, handlerBack);			
+			(viewComponent as DisplayObjectContainer).removeChild( _view );
+			this.facade.removeMediator(NAME);
+			
+			this.sendNotification(ApplicationEvents.START_UP_COMPLETE);
 		}
 	}
 }

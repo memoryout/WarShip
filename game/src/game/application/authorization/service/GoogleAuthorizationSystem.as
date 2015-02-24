@@ -4,6 +4,7 @@ package game.application.authorization.service
 	import com.milkmangames.nativeextensions.events.GoogleGamesEvent;
 	
 	import flash.events.Event;
+	import flash.net.NetworkInfo;
 	
 	import game.application.ProxyList;
 	import game.application.authorization.AuthorizationInfo;
@@ -36,26 +37,39 @@ package game.application.authorization.service
 			
 			_authorizationStatus = new AuthorizationInfo();
 			
-			initialize();
+//			if(NetworkInfo.networkInfo.isSupported)			
+				initialize();
+//			else
+				
 		}
 		
 		public function getAuthorizationState():AuthorizationInfo
 		{
-			return _authorizationStatus;
+			return _authorizationStatus;		
+		}
+		
+		private function trySignIn(e:Event):void
+		{
+			GoogleGames.games.signIn();
 		}
 		
 		public function initialize():void
 		{	
 			GoogleGames.create();
-			GoogleGames.games.signIn();
 			
-			GoogleGames.games.addEventListener(GoogleGamesEvent.SIGN_IN_SUCCEEDED, 	onSignedIn);
-			GoogleGames.games.addEventListener(GoogleGamesEvent.SIGN_IN_FAILED, 	onGamesError);
-			GoogleGames.games.addEventListener(GoogleGamesEvent.SIGNED_OUT, 		onSignedOut);
+			if(!GoogleGames.games.isSignedIn())
+			{
+				GoogleGames.games.signIn();
+				
+				GoogleGames.games.addEventListener(GoogleGamesEvent.SIGN_IN_SUCCEEDED, 	onSignedIn);
+				GoogleGames.games.addEventListener(GoogleGamesEvent.SIGN_IN_FAILED, 	onGamesError);
+				GoogleGames.games.addEventListener(GoogleGamesEvent.SIGNED_OUT, 		onSignedOut);
+			}	
+			
 		}
 		
 		/** Signed In */
-		private function onSignedIn(e:GoogleGamesEvent):void
+		private function onSignedIn(e:Event):void
 		{
 			trace("Player signed in! : "+GoogleGames.games.getCurrentPlayerId()+"["+GoogleGames.games.getCurrentPlayerName()+"]");
 						
@@ -83,6 +97,8 @@ package game.application.authorization.service
 		private function onGamesError(e:GoogleGamesEvent):void
 		{
 			trace("ERROR: "+e.type+": "+e.failureReason);
+
+			NetworkInfo.networkInfo.addEventListener(Event.NETWORK_CHANGE, 	trySignIn);
 		}
 		
 		/** Signed Out */
