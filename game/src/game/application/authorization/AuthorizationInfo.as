@@ -5,6 +5,7 @@ package game.application.authorization
 	
 	import game.application.connection.data.AuthorizationData;
 	
+	[Event(name="authFailed", type="game.application.authorization.AuthorizationEvent")]
 	public class AuthorizationInfo extends EventDispatcher
 	{
 		private var _authData:			AuthorizationData;

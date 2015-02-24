@@ -7,6 +7,7 @@ package game.application.authorization.service
 	import flash.net.NetworkInfo;
 	
 	import game.application.ProxyList;
+	import game.application.authorization.AuthorizationEvent;
 	import game.application.authorization.AuthorizationInfo;
 	import game.application.connection.ChannelData;
 	import game.application.connection.ChannelDataType;
@@ -82,6 +83,8 @@ package game.application.authorization.service
 		private function onAuthFailed(e:GoogleGamesEvent):void
 		{
 			trace("a");
+			
+			_authorizationStatus.dispatchEvent( new AuthorizationEvent(AuthorizationEvent.FAILED) );
 		}
 		
 		private function onAuthLoaded(e:GoogleGamesEvent):void
@@ -99,6 +102,8 @@ package game.application.authorization.service
 			trace("ERROR: "+e.type+": "+e.failureReason);
 
 			NetworkInfo.networkInfo.addEventListener(Event.NETWORK_CHANGE, 	trySignIn);
+			
+			_authorizationStatus.dispatchEvent( new AuthorizationEvent(AuthorizationEvent.FAILED) );
 		}
 		
 		/** Signed Out */
