@@ -20,13 +20,10 @@ package game.activity.view.application.context.pvc.level
 		}
 		
 		override public function onRegister():void
-		{
-			
-			createViewInstance();
-			
+		{			
+			createViewInstance();			
 		}
-		
-		
+				
 		private function createViewInstance():void
 		{
 			_view = new  ChooseLevelView();
@@ -53,7 +50,7 @@ package game.activity.view.application.context.pvc.level
 			(viewComponent as DisplayObjectContainer).removeChild( _view );
 			this.facade.removeMediator(NAME);
 			
-			this.sendNotification(ApplicationEvents.START_UP_COMPLETE);
+			this.sendNotification(ApplicationEvents.USER_PRESS_BACK);
 		}
 	}
 }

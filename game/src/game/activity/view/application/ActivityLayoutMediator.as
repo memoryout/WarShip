@@ -50,7 +50,7 @@ package game.activity.view.application
 		
 		public function onCloseFragment():void
 		{
-			
+			_rootLayout.closeActivity();
 		}
 		
 		

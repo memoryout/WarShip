@@ -58,6 +58,10 @@ package game.activity.view.application.context.pvc
 				case ApplicationEvents.USER_PRESS_BACK:
 				{
 					trace("ApplicationEvents.USER_PRESS_BACK");
+					onCloseFragment();
+					this.facade.removeMediator(NAME);
+					this.sendNotification(ApplicationEvents.START_UP_COMPLETE);
+					
 					break;
 				}
 					
