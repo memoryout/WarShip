@@ -63,10 +63,7 @@ package game.activity.view.application.game
 		private var selectedOponentCell:	Array = new Array();
 		
 		private var brokenCellCounter:int = 1;
-		
-		private var userShipsDescriptionContainer:Vector.<ShipViewDescription> = new Vector.<ShipViewDescription>();
-		private var oponentShipsDescriptionContainer:Vector.<ShipViewDescription> = new Vector.<ShipViewDescription>();
-		
+				
 		private var popUp:MovieClip;
 		
 		private var topBar:TopBar;
@@ -79,8 +76,12 @@ package game.activity.view.application.game
 		private var selectedCellsViewContainer:MovieClip;
 		private var cellAnimation:CellAnimation;
 		
-		public function GameView()
+		private var gameViewMediator:GameViewMediator;
+		
+		public function GameView(val:GameViewMediator)
 		{
+			gameViewMediator = val;
+			
 			setViewComponents();			
 		}
 		
@@ -183,7 +184,7 @@ package game.activity.view.application.game
 				shipViewDescription.link = ship;
 				shipViewDescription.dirrection = val[i].dirrection;
 				
-				userShipsDescriptionContainer.push(shipViewDescription);
+				gameViewMediator.getUserShipsDescription().push(shipViewDescription);
 			}			
 		}
 		
@@ -205,7 +206,7 @@ package game.activity.view.application.game
 				animationParameters.gotoTableFrame = brokenCellCounter;
 			}
 					
-			cellAnimation.setShipShootAnimation(userShipsDescriptionContainer);		
+			cellAnimation.setShipShootAnimation(gameViewMediator.getUserShipsDescription());		
 			
 			selectedUserCell.push([fieldPoint.x, fieldPoint.y]);			
 									
@@ -248,7 +249,7 @@ package game.activity.view.application.game
 			yPosition = cellSize*val.cell.y + _opponentField.y,
 			
 			cellAnimation.setShootedAnimation(xPosition, yPosition, val.cell.x, val.cell.y, OPPONENT_TYPE);
-			cellAnimation.setShipShootAnimation(userShipsDescriptionContainer);	
+			cellAnimation.setShipShootAnimation(gameViewMediator.getUserShipsDescription());	
 			
 			///
 			
@@ -266,7 +267,7 @@ package game.activity.view.application.game
 			//			shipViewDescription.link = ship;
 			shipViewDescription.dirrection = val.ship.dirrection;
 			
-			oponentShipsDescriptionContainer.push(shipViewDescription);
+			gameViewMediator.getOponentShipsDescription().push(shipViewDescription);
 		}
 		
 		public function sunkOponentShip(val:Object):void
@@ -336,12 +337,12 @@ package game.activity.view.application.game
 		
 		private function removeOponentShipFromView(val:Object):void
 		{
-			for (var i:int = 0; i < userShipsDescriptionContainer.length; i++) 
+			for (var i:int = 0; i < gameViewMediator.getUserShipsDescription().length; i++) 
 			{				
-				if(userShipsDescriptionContainer[i].x == val.ship.x && userShipsDescriptionContainer[i].y == val.ship.y)
+				if(gameViewMediator.getUserShipsDescription()[i].x == val.ship.x && gameViewMediator.getUserShipsDescription()[i].y == val.ship.y)
 				{
-					shipsContainer.removeChild(shipsContainer.getChildByName(userShipsDescriptionContainer[i].shipName) as MovieClip);
-					userShipsDescriptionContainer[i].sunk = true;
+					shipsContainer.removeChild(shipsContainer.getChildByName(gameViewMediator.getUserShipsDescription()[i].shipName) as MovieClip);
+					gameViewMediator.getUserShipsDescription()[i].sunk = true;
 					break;
 				}								
 			}
@@ -474,7 +475,7 @@ package game.activity.view.application.game
 						
 		public function setUsersData(val:Object):void
 		{
-			trace(val);
+			topBar.setOpponent();
 		}
 		
 		public function updateProgressLine(type:String, val:Object):void
@@ -508,17 +509,7 @@ package game.activity.view.application.game
 			while(numChildren > 0)
 				removeChildAt(0);
 		}
-		
-		public function getUserShipsDescription():Vector.<ShipViewDescription>
-		{
-			return userShipsDescriptionContainer;
-		}
-		
-		public function getOponentShipsDescription():Vector.<ShipViewDescription>
-		{
-			return oponentShipsDescriptionContainer;
-		}
-		
+				
 		public static function getInstance():GameView
 		{
 			return _this;

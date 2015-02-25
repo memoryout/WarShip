@@ -121,7 +121,7 @@ package game.application.game.battle
 			
 			if(_opponent && _opponent.points != data.opponentPoints)
 			{
-				_opponent.points = data.userPoints;
+				_opponent.points = data.opponentPoints;
 				
 				action = new GameBattleAction(GameBattleAction.OPPONENT_POINTS_UPDATED);
 				action.setData( _opponent.points);

@@ -25,9 +25,11 @@ package game.activity.view.application.game.result
 		private var tween				:TweenLite;
 		
 		private var viewLink			:MovieClip;
+		private var ships:Object;
 		
-		public function ResultView()
+		public function ResultView(val:Object)
 		{
+			ships = val;
 			init();
 		}
 		
@@ -51,22 +53,22 @@ package game.activity.view.application.game.result
 		}
 		
 		private function setUser():void
-		{
-//			(viewLink.getChildByName("user_name") as TextField).text = DataProvider.getInstance().getGameDataProvider().user.name;
-//			(viewLink.getChildByName("user_points") as TextField).text = DataProvider.getInstance().getGameDataProvider().user.points.toString();			
+		{			
+			(viewLink.getChildByName("user_name") as TextField).text   = ships.userName;
+			(viewLink.getChildByName("user_points") as TextField).text = ships.userPoints.toString();			
 			
-//			setShipsState(viewLink, GameView.getInstance().getUserShipsDescription());
+			setShipsState("user", viewLink, ships.user);
 		}
 		
 		private function setOponent():void
 		{
-//			(viewLink.getChildByName("oponent_name") as TextField).text = DataProvider.getInstance().getGameDataProvider().opponent.name;
-//			(viewLink.getChildByName("opponent_points") as TextField).text = DataProvider.getInstance().getGameDataProvider().opponent.points.toString();	
+			(viewLink.getChildByName("oponent_name") as TextField).text 	= ships.opponentName;
+			(viewLink.getChildByName("opponent_points") as TextField).text  = ships.opponentPoints.toString();	
 			
-//			setShipsState(viewLink, GameView.getInstance().getOponentShipsDescription());
+			setShipsState("oponnent", viewLink, ships.opponent);
 		}
 		
-		private function setShipsState(shipsContainer:MovieClip, shipsDescription:Vector.<ShipViewDescription>):void
+		private function setShipsState(name:String, shipsContainer:MovieClip, shipsDescription:Vector.<ShipViewDescription>):void
 		{
 			var oneCounter:int,	twoCounter:int, threeCounter:int;
 			
@@ -78,22 +80,22 @@ package game.activity.view.application.game.result
 					
 					if(decks == 4)
 					{					
-						(shipsContainer.getChildByName("s4_1") as MovieClip).gotoAndStop(2);						
+						(shipsContainer.getChildByName(name + "_4_1") as MovieClip).gotoAndStop(2);						
 					}
 					else if(decks == 3)
 					{						
 						threeCounter++;
-						(shipsContainer.getChildByName("s3_" + threeCounter.toString()) as MovieClip).gotoAndStop(2);							
+						(shipsContainer.getChildByName(name + "_3_" + threeCounter.toString()) as MovieClip).gotoAndStop(2);							
 					}					
 					else if(decks == 2)
 					{
 						twoCounter++;
-						(shipsContainer.getChildByName("s2_" + twoCounter.toString()) as MovieClip).gotoAndStop(2);							
+						(shipsContainer.getChildByName(name + "_2_" + twoCounter.toString()) as MovieClip).gotoAndStop(2);							
 					}					
 					else if(decks == 1)
 					{
 						oneCounter++;
-						(shipsContainer.getChildByName("s1_" + oneCounter.toString()) as MovieClip).gotoAndStop(2);							
+						(shipsContainer.getChildByName(name + "_1_" + oneCounter.toString()) as MovieClip).gotoAndStop(2);							
 					}
 				}
 			}

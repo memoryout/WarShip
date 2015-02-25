@@ -11,14 +11,17 @@ package game.activity.view.application.game.result
 		public static const NAME		:String = "game.activity.view.application.game.result.ResultMediator";
 		private var resultView			:ResultView;
 		
-		public function ResultMediator(viewComponent:Object)
+		private var ships:Object;
+		
+		public function ResultMediator(viewComponent:Object, val:Object)
 		{
 			super(NAME, viewComponent);
+			ships = val;
 		}
 		
 		override public function onRegister():void
 		{
-			resultView = new ResultView();
+			resultView = new ResultView(ships);
 			viewComponent.addChild( resultView );
 			
 			addListener();

@@ -7,6 +7,7 @@ package game.activity.view.application.game.player_info
 	
 	import game.activity.BaseMediator;
 	import game.activity.view.application.game.GameView;
+	import game.activity.view.application.game.GameViewMediator;
 	import game.activity.view.application.game.ShipViewDescription;
 	import game.activity.view.application.game.TopBar;
 
@@ -30,12 +31,12 @@ package game.activity.view.application.game.player_info
 		private var oponnentTween		:TweenLite;
 		private var userTween			:TweenLite;
 		
-		private var gameView			:GameView;
+		private var gameViewMediator:GameViewMediator;
 		
-		public function ShipLiveView(viewComponent:Object, _gameView:GameView)
+		public function ShipLiveView(viewComponent:Object, val:GameViewMediator)
 		{
 			mainContainer = viewComponent as DisplayObjectContainer;
-			gameView = _gameView;
+			gameViewMediator = val;
 		}
 		
 		public function showUserPopUp(eventType:String):void
@@ -52,7 +53,7 @@ package game.activity.view.application.game.player_info
 			
 			viewUserLink.alpha = 0;
 			
-			setShipsState(viewUserLink, gameView.getUserShipsDescription());
+			setShipsState(viewUserLink, gameViewMediator.getUserShipsDescription());
 			
 			userTween = TweenLite.to(viewUserLink, SHOW_TIME, {alpha:1});
 		}
@@ -71,7 +72,7 @@ package game.activity.view.application.game.player_info
 			
 			viewOponentLink.alpha = 0;
 			
-			setShipsState(viewOponentLink, gameView.getOponentShipsDescription());
+			setShipsState(viewOponentLink, gameViewMediator.getOponentShipsDescription());
 									
 			oponnentTween = TweenLite.to(viewOponentLink, SHOW_TIME, {alpha:1});			
 		}		

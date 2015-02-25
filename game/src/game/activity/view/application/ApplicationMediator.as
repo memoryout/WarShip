@@ -92,7 +92,7 @@ package game.activity.view.application
 					
 				case ApplicationEvents.SHOW_RESULT_WINDOW:
 				{
-					createGameResult();
+					createGameResult(notification.getBody());
 					break;
 				}
 			}
@@ -119,10 +119,10 @@ package game.activity.view.application
 			this.facade.registerMediator( new GameViewMediator( _appView.getGameLayer()));
 		}
 		
-		private function createGameResult():void
+		private function createGameResult(val:Object):void
 		{
 			this.facade.removeMediator( GameViewMediator.NAME);
-			this.facade.registerMediator( new ResultMediator(_appView.getWindowsLayer()));
+			this.facade.registerMediator( new ResultMediator(_appView.getWindowsLayer(), val));
 		}
 		
 		

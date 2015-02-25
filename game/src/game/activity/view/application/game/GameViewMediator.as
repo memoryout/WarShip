@@ -15,6 +15,7 @@ package game.activity.view.application.game
 	import game.application.ApplicationCommands;
 	import game.application.ApplicationEvents;
 	import game.application.ProxyList;
+	import game.application.data.DataProvider;
 	import game.application.data.game.ShipData;
 	import game.application.game.battle.GameBattleAction;
 	import game.application.game.battle.GameBattleEvent;
@@ -43,7 +44,12 @@ package game.activity.view.application.game
 		private var exitView				:ExitView;
 		private var shipLiveView			:ShipLiveView;
 		
+		private var userShipsDescriptionContainer		:Vector.<ShipViewDescription> = new Vector.<ShipViewDescription>();
+		private var oponentShipsDescriptionContainer	:Vector.<ShipViewDescription> = new Vector.<ShipViewDescription>();
+		
 		private var timer:Timer = new Timer(3000, 1);
+		private var timer_2:Timer = new Timer(3000, 1);
+		private var notyficationBody:Object;
 				
 		public function GameViewMediator(viewComponent:Object)
 		{
@@ -52,7 +58,7 @@ package game.activity.view.application.game
 				
 		override public function onRegister():void
 		{
-			_gameView = new GameView();
+			_gameView = new GameView(this);
 			(viewComponent as DisplayObjectContainer).addChild( _gameView );
 			
 			_positionView = new ShipsPositionsView(_gameView);
@@ -64,9 +70,7 @@ package game.activity.view.application.game
 			_shipsList = _proxy.getShipsList();
 			_positionView.setShipsData( _shipsList );
 			addListenersForSetPositions();
-		}
-		
-		
+		}		
 		
 		private function hideTableForSetPosition():void
 		{			
@@ -159,7 +163,7 @@ package game.activity.view.application.game
 		private function showPlayerState(e:Event):void
 		{
 			if(!shipLiveView)			
-				shipLiveView = new ShipLiveView(viewComponent, _gameView);						
+				shipLiveView = new ShipLiveView(viewComponent, this);						
 			
 			if(e.type == TopBar.OPONENT_STATE)
 			{
@@ -355,7 +359,7 @@ package game.activity.view.application.game
 		}		
 		
 		private function changeGameStatus():void
-		{						
+		{			
 			if(_gameBattleProxy.getStatus() == GameBattleStatus.WAITING_FOR_START)
 			{
 				_gameView.lockGame();
@@ -380,18 +384,48 @@ package game.activity.view.application.game
 			
 			else if(_gameBattleProxy.getStatus() == GameBattleStatus.INCOMING_USER_WON)
 			{
-				trace("INCOMING_USER_WON");
+				_gameView.lockGame();
 				
-				this.sendNotification(ApplicationEvents.SHOW_RESULT_WINDOW);
+				notyficationBody = 
+				{
+					user:			userShipsDescriptionContainer, 
+					opponent:		oponentShipsDescriptionContainer, 
+					userName:		DataProvider.getInstance().getUserDataProvider().getUserInfo().name, 
+					userPoints:		DataProvider.getInstance().getGameDataProvider().user.points, 
+					opponentName:	DataProvider.getInstance().getGameDataProvider().opponent.name, 
+					opponentPoints:	DataProvider.getInstance().getGameDataProvider().opponent.points
+				};
+				
+				timer_2.addEventListener(TimerEvent.TIMER_COMPLETE, sendShowResult);	
+				timer_2.start();
 			}
 			else if(_gameBattleProxy.getStatus() == GameBattleStatus.OPPONENT_WON)
 			{
-				trace("OPPONENT_WON");
+				_gameView.lockGame();
 				
-				this.sendNotification(ApplicationEvents.SHOW_RESULT_WINDOW);
+				notyficationBody = 
+					{
+						user:			userShipsDescriptionContainer, 
+						opponent:		oponentShipsDescriptionContainer, 
+						userName:		DataProvider.getInstance().getUserDataProvider().getUserInfo().name, 
+						userPoints:		DataProvider.getInstance().getGameDataProvider().user.points, 
+						opponentName:	DataProvider.getInstance().getGameDataProvider().opponent.name, 
+						opponentPoints:	DataProvider.getInstance().getGameDataProvider().opponent.points
+					};
+				
+				timer_2.addEventListener(TimerEvent.TIMER_COMPLETE, sendShowResult);		
+				timer_2.start();
 			}
 			
 			executeBattleProxyAction();
+		}
+		
+		private function sendShowResult(e:Event):void
+		{
+			timer_2.stop();
+			timer_2.removeEventListener(TimerEvent.TIMER_COMPLETE, sendShowResult);
+		
+			this.sendNotification(ApplicationEvents.SHOW_RESULT_WINDOW, notyficationBody);
 		}
 		
 		
@@ -454,6 +488,16 @@ package game.activity.view.application.game
 					break;
 				}
 			}
+		}
+		
+		public function getUserShipsDescription():Vector.<ShipViewDescription>
+		{
+			return userShipsDescriptionContainer;
+		}
+		
+		public function getOponentShipsDescription():Vector.<ShipViewDescription>
+		{
+			return oponentShipsDescriptionContainer;
 		}
 		
 		private function gotoMenu(e:Event):void

@@ -25,7 +25,7 @@ package game.activity.view.application.game
 		public function TopBar()
 		{
 			addElement();
-			setPlayers();
+			setUser();
 		}
 		
 		private function addElement():void
@@ -41,10 +41,22 @@ package game.activity.view.application.game
 			linkToTopBar.addEventListener(MouseEvent.CLICK, handlerMouseClick);
 		}
 		
-		private function setPlayers():void
+		private function setUser():void
 		{				
-//			(linkToTopBar.topBar.getChildByName("userName") as TextField).text 		= DataProvider.getInstance().getGameDataProvider().user.name;
-//			(linkToTopBar.topBar.getChildByName("oponentName") as TextField).text 	= DataProvider.getInstance().getGameDataProvider().opponent.name;
+			(linkToTopBar.topBar.getChildByName("userName") as TextField).text = DataProvider.getInstance().getUserDataProvider().getUserInfo().name;
+			
+			(linkToTopBar.topBar.getChildByName("logo_right_side") as MovieClip).visible 		= false;
+			(linkToTopBar.topBar.getChildByName("oponent_progress_line") as MovieClip).visible 	= false;
+			(linkToTopBar.topBar.getChildByName("opponentAvatar") as MovieClip).visible 		= false;
+		}
+		
+		public function setOpponent():void
+		{
+			(linkToTopBar.topBar.getChildByName("oponentName") as TextField).text = DataProvider.getInstance().getGameDataProvider().opponent.name;
+			
+			(linkToTopBar.topBar.getChildByName("logo_right_side") as MovieClip).visible 		= true;
+			(linkToTopBar.topBar.getChildByName("oponent_progress_line") as MovieClip).visible 	= true;
+			(linkToTopBar.topBar.getChildByName("opponentAvatar") as MovieClip).visible 		= true;
 		}
 		
 		public function setProgress(type:String, val:Object):void
