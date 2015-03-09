@@ -6,6 +6,7 @@ package game.activity.view.application.lobby
 	import flash.events.MouseEvent;
 	
 	import game.activity.BaseMediator;
+	import game.activity.view.application.AdMobContainer;
 	
 	public class GameLobby extends Sprite
 	{
@@ -43,6 +44,8 @@ package game.activity.view.application.lobby
 				
 				_skin.addEventListener(MouseEvent.CLICK, handlerMouseClick);
 			}
+			
+			AdMobContainer.getInstance().addTopBanner();
 		}
 		
 		
